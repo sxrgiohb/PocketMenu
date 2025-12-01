@@ -1,5 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
+
+    //Google Services Gradle
+    id("com.google.gms.google-services") version "4.4.4" apply false
 }
 
 android {
@@ -34,6 +37,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -41,4 +45,26 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    //Variable
+    val lifecycle_version = "2.9.0"
+
+    //Viewmodel
+    implementation("androidx.lifecycle:lifecycle-viewmodel:${lifecycle_version}")
+
+    //Livedata
+    implementation("androidx.lifecycle:lifecycle-livedata:${lifecycle_version}")
+
+    //Firebase BOM
+    implementation ("com.google.firebase:firebase-bom:34.6.0")
+
+    //Firebase Authentication
+    implementation ("com.google.firebase:firebase-auth")
+
+    //Cloud Firestore
+    implementation ("com.google.firebase:firebase-firestore")
+
+    //Cloud Storage
+    implementation ("com.google.firebase:firebase-storage")
+
 }
