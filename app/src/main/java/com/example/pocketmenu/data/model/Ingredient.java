@@ -1,0 +1,66 @@
+package com.example.pocketmenu.data.model;
+
+public class Ingredient {
+    private String name;
+    private double quantity;
+    private String unitsMeasurement;
+    private String category;
+    private String store;
+
+    //Empty constructor
+    public Ingredient (){
+
+    }
+
+    //Constructor
+    public Ingredient(String name, double quantity, String unitsMeasure, String category, String store) {
+        this.name = name;
+        this.quantity = quantity;
+        this.unitsMeasurement = unitsMeasure;
+        this.category = category;
+        this.store = store;
+
+    }
+
+    //Getters
+    public String getName() {
+        return name;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public String getUnitsMeasurement() {
+        return unitsMeasurement;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public String getStore() {
+        return store;
+    }
+
+    //Setters
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setUnitsMeasurement(String unitsMeasurement) {
+        this.unitsMeasurement = unitsMeasurement;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setStore(String store) {
+        this.store = store;
+    }
+}
