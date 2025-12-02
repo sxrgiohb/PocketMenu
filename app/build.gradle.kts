@@ -56,15 +56,18 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata:${lifecycle_version}")
 
     //Firebase BOM
-    implementation (platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
 
     //Firebase Authentication
-    implementation ("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-auth")
 
     //Cloud Firestore
-    implementation ("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-firestore")
 
     //Cloud Storage
-    implementation ("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-storage")
+
+    //Firebase Analytics
+    implementation("com.google.firebase:firebase-analytics")
 
 }
