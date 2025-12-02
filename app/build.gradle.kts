@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
 
     //Google Services Gradle
-    id("com.google.gms.google-services") version "4.4.4" apply false
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -56,7 +56,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata:${lifecycle_version}")
 
     //Firebase BOM
-    implementation ("com.google.firebase:firebase-bom:34.6.0")
+    implementation (platform("com.google.firebase:firebase-bom:34.6.0"))
 
     //Firebase Authentication
     implementation ("com.google.firebase:firebase-auth")
