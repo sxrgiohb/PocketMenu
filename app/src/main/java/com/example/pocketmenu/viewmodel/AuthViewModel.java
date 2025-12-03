@@ -25,8 +25,8 @@ public class AuthViewModel extends ViewModel {
     }
 
     // Login method
-    public void loginSession(String email, String password) {
-        repository.loginSession(email, password);
+    public void logInSession(String email, String password) {
+        repository.logInSession(email, password);
     }
 
     // Log out method
