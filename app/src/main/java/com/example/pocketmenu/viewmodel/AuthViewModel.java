@@ -11,15 +11,18 @@ public class AuthViewModel extends ViewModel {
     private final AuthRepository repository;
     private final LiveData<FirebaseUser> userLiveData;
     private final LiveData<Boolean> loggedOutLiveData;
+    private final LiveData<String> errorMessageLiveData;
+
 
     public AuthViewModel() {
 
         this.repository = new AuthRepository();
         this.userLiveData = repository.getUserLiveData();
         this. loggedOutLiveData = repository.getLoggedOutLiveData();
+        this.errorMessageLiveData = repository.getErrorMessageLiveData();
     }
 
-    // New user Auth and Firestore
+    // New user Auth and Firestore method
     public void registerNewUser(String email, String password, String name) {
         repository.registerNewUser(email, password, name);
     }
@@ -40,5 +43,9 @@ public class AuthViewModel extends ViewModel {
     }
     public LiveData<Boolean> getLoggedOutLiveData() {
         return loggedOutLiveData;
+    }
+
+    public LiveData<String> getErrorMessageLiveData() {
+        return errorMessageLiveData;
     }
 }
