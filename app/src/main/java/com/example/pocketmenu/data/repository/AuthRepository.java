@@ -15,6 +15,7 @@ public class AuthRepository {
     //LiveData instances
     private final MutableLiveData<FirebaseUser> userLiveData;
     private final MutableLiveData<Boolean> loggedOutLiveData;
+    private final MutableLiveData<String> errorMessageLiveData;
 
     //Constants for Firestore collection
     private static final String USERS_COLLECTION = "USERS";
@@ -26,16 +27,20 @@ public class AuthRepository {
         this.firebaseFirestore = FirebaseFirestore.getInstance();
         this.userLiveData = new MutableLiveData<>();
         this.loggedOutLiveData = new MutableLiveData<>();
+        this.errorMessageLiveData = new MutableLiveData<>();
 
         //Check open session
         if (firebaseAuth.getCurrentUser() != null) {
             userLiveData.postValue(firebaseAuth.getCurrentUser());
-            loggedOutLiveData.postValue(false);
         }
 
     }
 
     //LiveData getters
+    public MutableLiveData<String> getErrorMessageLiveData() {
+        return errorMessageLiveData;
+    }
+
     public MutableLiveData<FirebaseUser> getUserLiveData() {
         return userLiveData;
     }
@@ -49,20 +54,26 @@ public class AuthRepository {
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-
                 if (firebaseUser != null) {
                     //Create new user
                     User newUser = new User(firebaseUser.getUid(), name, email);
-
                     //Save user in Firestore
                     firebaseFirestore.collection(USERS_COLLECTION).document(firebaseUser.getUid()).set(newUser).addOnSuccessListener(Void -> {
                         userLiveData.postValue(firebaseUser);
                     }).addOnFailureListener(e -> {
-                        userLiveData.postValue(null);
+                        errorMessageLiveData.postValue(e.getMessage());
+
+                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Error desconocido";
+                        errorMessageLiveData.postValue("Error al iniciar sesión: " + errorMessage);
                     });
                 }
             } else {
-                userLiveData.postValue(null);
+                if (task.getException() != null) {
+                    errorMessageLiveData.postValue(task.getException().getMessage());
+                } else {
+                    errorMessageLiveData.postValue("Se ha producido un error desconocido");
+                }
+
             }
         });
     }
@@ -72,8 +83,13 @@ public class AuthRepository {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 userLiveData.postValue(firebaseAuth.getCurrentUser());
+
             } else {
-                userLiveData.postValue(null);
+                String errorMessage = "Error al iniciar sesión";
+                if (task.getException() != null) {
+                    errorMessage = task.getException().getMessage();
+                }
+                errorMessageLiveData.postValue(errorMessage);
             }
         });
     }
