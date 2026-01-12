@@ -8,7 +8,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+//import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.pocketmenu.R;
 import com.example.pocketmenu.ui.main.MainActivity;
 import com.example.pocketmenu.viewmodel.AuthViewModel;
-import com.google.firebase.auth.FirebaseAuth;
+//import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -39,8 +39,8 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        initializeViews();
         setupViewModel();
+        initializeViews();
         setupListeners();
         setupObservers();
 
@@ -66,19 +66,27 @@ public class SignUpActivity extends AppCompatActivity {
 
     // Observes the changes in the view model
     private void setupObservers () {
-        viewModel.getUserLiveData().observe(this, firebaseUser -> {
-            progressBar.setVisibility(View.GONE);
-            if (firebaseUser != null) {
-                Toast.makeText(this, "Registro completado", Toast.LENGTH_SHORT).show();
-                setResult(RESULT_OK);
-                finish();
-            }
-        });
 
         viewModel.getErrorMessageLiveData().observe(this, errorMessage -> {
             progressBar.setVisibility(View.GONE);
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        viewModel.getRegistrationSuccessLiveData().observe(this, success -> {
+            if (success == null || success == false) {
+                return;
+            }
+
+            progressBar.setVisibility(View.GONE);
+
+            if (success) {
+                Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, LogInActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
             }
         });
     }
@@ -131,7 +139,6 @@ public class SignUpActivity extends AppCompatActivity {
         }
         progressBar.setVisibility(View.VISIBLE);
         viewModel.registerNewUser(email, password, name);
-
     }
 
     // Method to validate the password

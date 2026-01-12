@@ -18,7 +18,7 @@ import com.example.pocketmenu.R;
 import com.example.pocketmenu.viewmodel.AuthViewModel;
 import com.example.pocketmenu.ui.main.MainActivity;
 
-//
+
 public class LogInActivity extends AppCompatActivity {
     private AuthViewModel viewModel;
     private EditText emailEditText, passwordEditText;

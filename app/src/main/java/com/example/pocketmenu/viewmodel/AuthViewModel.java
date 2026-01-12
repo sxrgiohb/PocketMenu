@@ -1,5 +1,6 @@
 package com.example.pocketmenu.viewmodel;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.LiveData;
 //import androidx.lifecycle.MutableLiveData;
@@ -12,14 +13,16 @@ public class AuthViewModel extends ViewModel {
     private final LiveData<FirebaseUser> userLiveData;
     private final LiveData<Boolean> loggedOutLiveData;
     private final LiveData<String> errorMessageLiveData;
+    private final LiveData<Boolean> registrationSuccessLiveData;
 
 
     public AuthViewModel() {
 
         this.repository = new AuthRepository();
         this.userLiveData = repository.getUserLiveData();
-        this. loggedOutLiveData = repository.getLoggedOutLiveData();
+        this.loggedOutLiveData = repository.getLoggedOutLiveData();
         this.errorMessageLiveData = repository.getErrorMessageLiveData();
+        this.registrationSuccessLiveData = repository.getRegistrationSuccessLiveData();
     }
 
     // New user Auth and Firestore method
@@ -44,8 +47,16 @@ public class AuthViewModel extends ViewModel {
     public LiveData<Boolean> getLoggedOutLiveData() {
         return loggedOutLiveData;
     }
-
     public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }
+
+    public LiveData<Boolean> getRegistrationSuccessLiveData() {
+        return registrationSuccessLiveData;
+    }
+
+    //Setters
+
+
+
 }
