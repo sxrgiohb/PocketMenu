@@ -1,48 +1,72 @@
 package com.example.pocketmenu.ui.main;
-
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-
-// Importaciones necesarias para el cierre de sesión:
-import androidx.lifecycle.ViewModelProvider;
-import android.content.Intent;
-import android.widget.Button;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.pocketmenu.R;
-import com.example.pocketmenu.viewmodel.AuthViewModel;
-import com.example.pocketmenu.ui.auth.LogInActivity;
+import com.example.pocketmenu.ui.main.menu.MenuFragment;
+import com.example.pocketmenu.ui.main.recipe.RecipeFragment;
+import com.example.pocketmenu.ui.main.settings.SettingsFragment;
+import com.example.pocketmenu.ui.main.shoppinglist.ShoppingListFragment;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-
-    private AuthViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Vincularemos esta Activity con el layout activity_main.xml
         setContentView(R.layout.activity_main);
 
-        // 1. Inicializar el ViewModel
-        viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+        // References to the views
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav_view);
+        MaterialToolbar topAppBar = findViewById(R.id.top_app_bar);
 
-        // 2. Inicializar la Vista (el botón)
-        Button logoutButton = findViewById(R.id.logoutButton);
+        // Load the initial fragment
+        if (savedInstanceState == null) {
+            loadFragment(new MenuFragment());
+        }
 
-        // 3. Observador para el Cierre de Sesión
-        viewModel.getLoggedOutLiveData().observe(this, loggedOut -> {
-            if (loggedOut) {
-                // Si loggedOut es true (el repositorio confirmó el cierre)
-                // Navega a la pantalla de Login y finaliza la actividad actual
-                Intent intent = new Intent(MainActivity.this, LogInActivity.class);
-                startActivity(intent);
-                finish();
+        // Bottom navigation listener
+        bottomNav.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_menu) {
+                selectedFragment = new MenuFragment();
+            } else if (itemId == R.id.navigation_shopping_list) {
+                selectedFragment = new ShoppingListFragment();
+            } else if (itemId == R.id.navigation_recipe) {
+                selectedFragment = new RecipeFragment();
             }
+            // Load fragment
+            if (selectedFragment != null) {
+                loadFragment(selectedFragment);
+                return true;
+            }
+            return false;
         });
 
-        // 4. Listener del Botón
-        logoutButton.setOnClickListener(v -> {
-            // Llama al metodo del ViewModel que delega la tarea al AuthRepository
-            viewModel.logOutSession();
+        // Top navigation listener
+        topAppBar.setOnMenuItemClickListener(menuItem -> {
+            // Checks if the item is the settings icon
+            if (menuItem.getItemId() == R.id.navigation_settings) {
+                loadFragment(new SettingsFragment());
+                return true;
+            }
+            return false;
         });
+    }
+
+    // Method to load a fragment
+    private void loadFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.nav_host_fragment, fragment);
+        // Adds the fragment to the back stack
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 }
