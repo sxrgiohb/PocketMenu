@@ -3,7 +3,7 @@ package com.example.pocketmenu.data.model;
 public class Ingredient {
     private String name;
     private double quantity;
-    private String unitsMeasurement;
+    private String unit;
     private String category;
     private String store;
 
@@ -13,10 +13,10 @@ public class Ingredient {
     }
 
     //Constructor
-    public Ingredient(String name, double quantity, String unitsMeasure, String category, String store) {
+    public Ingredient(String name, double quantity, String unit, String category, String store) {
         this.name = name;
         this.quantity = quantity;
-        this.unitsMeasurement = unitsMeasure;
+        this.unit = unit;
         this.category = category;
         this.store = store;
 
@@ -31,8 +31,8 @@ public class Ingredient {
         return quantity;
     }
 
-    public String getUnitsMeasurement() {
-        return unitsMeasurement;
+    public String getUnit() {
+        return unit;
     }
 
     public String getCategory() {
@@ -52,8 +52,8 @@ public class Ingredient {
         this.quantity = quantity;
     }
 
-    public void setUnitsMeasurement(String unitsMeasurement) {
-        this.unitsMeasurement = unitsMeasurement;
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 
     public void setCategory(String category) {
