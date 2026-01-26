@@ -6,10 +6,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.pocketmenu.R;
-import com.example.pocketmenu.ui.main.menu.MenuFragment;
-import com.example.pocketmenu.ui.main.recipe.RecipeFragment;
-import com.example.pocketmenu.ui.main.settings.SettingsFragment;
-import com.example.pocketmenu.ui.main.shoppinglist.ShoppingListFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
