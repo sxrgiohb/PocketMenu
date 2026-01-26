@@ -1,9 +1,7 @@
 package com.example.pocketmenu.viewmodel;
 
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.LiveData;
-//import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.auth.FirebaseUser;
 import com.example.pocketmenu.data.repository.AuthRepository;
 
@@ -54,9 +52,4 @@ public class AuthViewModel extends ViewModel {
     public LiveData<Boolean> getRegistrationSuccessLiveData() {
         return registrationSuccessLiveData;
     }
-
-    //Setters
-
-
-
 }
