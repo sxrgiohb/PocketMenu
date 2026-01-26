@@ -8,7 +8,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-//import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,13 +17,10 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pocketmenu.R;
-import com.example.pocketmenu.ui.main.MainActivity;
 import com.example.pocketmenu.viewmodel.AuthViewModel;
-//import com.google.firebase.auth.FirebaseAuth;
+
 
 public class SignUpActivity extends AppCompatActivity {
-
-    //private AuthViewModel viewModel;
 
     private AuthViewModel viewModel;
     private EditText nameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
@@ -57,6 +53,7 @@ public class SignUpActivity extends AppCompatActivity {
         requirementLength = findViewById(R.id.requirementLengthTextView);
         requirementNumber = findViewById(R.id.requirementNumberTextView);
         requirementCapital = findViewById(R.id.requirementCapitalTextView);
+        gologInText = findViewById(R.id.gologInText);
     }
 
     // Links the view model to the activity
@@ -112,6 +109,14 @@ public class SignUpActivity extends AppCompatActivity {
         registerButton.setOnClickListener(v -> {
             handleRegistration();
 
+        });
+
+        gologInText.setOnClickListener(v -> {
+            // Creates an intent to navigate to the login activity
+            Intent intent = new Intent(SignUpActivity.this, LogInActivity.class);
+            startActivity(intent);
+            // Closes the current activity
+            finish();
         });
     }
 
