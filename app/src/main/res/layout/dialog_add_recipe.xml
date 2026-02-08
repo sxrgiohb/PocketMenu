@@ -40,14 +40,14 @@
                 android:minLines="4" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Image -->
+        <!-- Image
         <Button
             android:id="@+id/button_select_image"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Seleccionar imagen (opcional)" />
+            android:text="Seleccionar imagen (opcional)" /> -->
 
         <!-- Portions -->
         <com.google.android.material.textfield.TextInputLayout
