@@ -21,17 +21,6 @@ public class Recipe {
 
     //Constructor
 
-    public Recipe(String id, String userId, String urlImg, String name, int portion, String description, boolean isFavorite, List<Ingredient> ingredients) {
-        this.id = id;
-        this.userId = userId;
-        this.urlImg = urlImg;
-        this.name = name;
-        this.portion = portion;
-        this.description = description;
-        this.isFavorite = isFavorite;
-        this.ingredients = ingredients;
-    }
-
     public Recipe(String userId, String name, String description, int portion, List<Ingredient> ingredients) {
         this.userId = userId;
         this.name = name;
