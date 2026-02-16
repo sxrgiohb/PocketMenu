@@ -74,7 +74,7 @@ public class LogInActivity extends AppCompatActivity {
 
         viewModel.getErrorMessageLiveData().observe(this, errorMessage -> {
             progressBar.setVisibility(View.GONE);
-            if (errorMessage != null && errorMessage.isEmpty()) {
+            if (errorMessage != null && !errorMessage.isEmpty()) {
                 Toast.makeText(LogInActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
