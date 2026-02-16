@@ -77,7 +77,7 @@ public class AuthRepository {
                                 ? e.getMessage()
                                 : "Error desconocido";
 
-                        errorMessageLiveData.postValue("Error al iniciar sesión: " + errorMessage);
+                        errorMessageLiveData.postValue("Error de registro: " + errorMessage);
                         registrationSuccessLiveData.postValue(false);
                     });
                 }
