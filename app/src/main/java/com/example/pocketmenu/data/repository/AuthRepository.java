@@ -73,9 +73,10 @@ public class AuthRepository {
                         userLiveData.postValue(firebaseUser);
                         registrationSuccessLiveData.postValue(true);
                     }).addOnFailureListener(e -> {
-                        errorMessageLiveData.postValue(e.getMessage());
+                        String errorMessage = e.getMessage() != null
+                                ? e.getMessage()
+                                : "Error desconocido";
 
-                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Error desconocido";
                         errorMessageLiveData.postValue("Error al iniciar sesión: " + errorMessage);
                         registrationSuccessLiveData.postValue(false);
                     });
