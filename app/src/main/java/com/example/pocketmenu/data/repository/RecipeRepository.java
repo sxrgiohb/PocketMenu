@@ -15,7 +15,11 @@ public class RecipeRepository {
     }
 
     private String getUserId() {
-        return auth.getCurrentUser().getUid();
+        if (auth.getCurrentUser() != null){
+            return auth.getCurrentUser().getUid();
+        } else {
+            return null;
+        }
     }
 
     public Query getRecipesQuery(String searchText) {
