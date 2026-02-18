@@ -10,7 +10,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +28,6 @@ import com.example.pocketmenu.viewmodel.RecipeViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,8 +107,8 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
     }
 
     @Override
-    public void onEditClick(String recipeId) {
-        showEditRecipeDialog(recipeId);
+    public void onEditClick(String recipeId, Recipe recipe) {
+        showEditRecipeDialog(recipeId, recipe);
     }
 
     //Dialogs
@@ -131,121 +129,194 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
         addIngredientBtn.setOnClickListener(v -> addIngredientRow(ingredientsContainer));
         addIngredientBtn.performClick();
 
-        builder.setView(dialogView)
+        AlertDialog dialog = builder
+                .setView(dialogView)
                 .setTitle("Añadir receta")
-                .setPositiveButton("Guardar", (d, i) -> {
-                    String name = nameEt.getText().toString();
-                    if (name.isEmpty()) {
-                        Toast.makeText(getContext(),
-                                "Nombre obligatorio",
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    int portions = portionsEt.getText().toString().isEmpty()
-                            ? 0
-                            : Integer.parseInt(portionsEt.getText().toString());
-
-                    Recipe recipe = new Recipe(
-                            FirebaseAuth.getInstance().getUid(),
-                            name,
-                            descEt.getText().toString(),
-                            portions,
-                            getIngredientsFromContainer(ingredientsContainer)
-                    );
-
-                    viewModel.addRecipe(recipe);
-                })
+                .setPositiveButton("Guardar", null)
                 .setNegativeButton("Cancelar", null)
-                .show();
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+
+            Button saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+
+            saveButton.setOnClickListener(v -> {
+
+                if (!validateRecipeFields(nameEt, portionsEt)) return;
+
+                List<Ingredient> ingredients =
+                        getIngredientsFromContainer(ingredientsContainer);
+
+                if (ingredients == null) return;
+
+                Recipe recipe = new Recipe(
+                        FirebaseAuth.getInstance().getUid(),
+                        nameEt.getText().toString().trim(),
+                        descEt.getText().toString(),
+                        getPortions(portionsEt),
+                        ingredients
+                );
+
+                viewModel.addRecipe(recipe);
+                dialog.dismiss();
+            });
+        });
+
+        dialog.show();
     }
 
-    private void showEditRecipeDialog(String recipeId) {
-        FirebaseFirestore.getInstance()
-                .collection("RECIPES")
-                .document(recipeId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (!doc.exists()) return;
+    private void showEditRecipeDialog(String recipeId, Recipe recipe) {
 
-                    Recipe recipe = doc.toObject(Recipe.class);
-                    if (recipe == null || getContext() == null) return;
+        if (recipe == null) return;
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                    View dialogView = getLayoutInflater()
-                            .inflate(R.layout.dialog_add_recipe, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_recipe, null);
 
-                    EditText nameEt = dialogView.findViewById(R.id.edit_text_recipe_name);
-                    EditText descEt = dialogView.findViewById(R.id.edit_text_recipe_description);
-                    EditText portionsEt = dialogView.findViewById(R.id.edit_text_recipe_portions);
-                    LinearLayout ingredientsContainer = dialogView.findViewById(R.id.container_ingredients);
-                    Button addIngredientBtn = dialogView.findViewById(R.id.button_add_ingredient);
+        EditText nameEt = dialogView.findViewById(R.id.edit_text_recipe_name);
+        EditText descEt = dialogView.findViewById(R.id.edit_text_recipe_description);
+        EditText portionsEt = dialogView.findViewById(R.id.edit_text_recipe_portions);
+        LinearLayout ingredientsContainer = dialogView.findViewById(R.id.container_ingredients);
+        Button addIngredientBtn = dialogView.findViewById(R.id.button_add_ingredient);
 
-                    nameEt.setText(recipe.getName());
-                    descEt.setText(recipe.getDescription());
-                    portionsEt.setText(String.valueOf(recipe.getPortion()));
+        nameEt.setText(recipe.getName());
+        descEt.setText(recipe.getDescription());
+        portionsEt.setText(String.valueOf(recipe.getPortion()));
 
-                    ingredientsContainer.removeAllViews();
-                    for (Ingredient ing : recipe.getIngredients()) {
-                        addIngredientRow(ingredientsContainer, ing);
-                    }
+        ingredientsContainer.removeAllViews();
+        for (Ingredient ing : recipe.getIngredients()) {
+            addIngredientRow(ingredientsContainer, ing);
+        }
 
-                    addIngredientBtn.setOnClickListener(v ->
-                            addIngredientRow(ingredientsContainer));
+        addIngredientBtn.setOnClickListener(v ->
+                addIngredientRow(ingredientsContainer));
 
-                    builder.setView(dialogView)
-                            .setTitle("Editar receta")
-                            .setPositiveButton("Guardar", (d, i) -> {
-                                recipe.setName(nameEt.getText().toString());
-                                recipe.setDescription(descEt.getText().toString());
-                                recipe.setPortion(portionsEt.getText().toString().isEmpty()
-                                        ? 0
-                                        : Integer.parseInt(portionsEt.getText().toString()));
-                                recipe.setIngredients(getIngredientsFromContainer(ingredientsContainer));
+        AlertDialog dialog = builder
+                .setView(dialogView)
+                .setTitle("Editar receta")
+                .setPositiveButton("Guardar", null)
+                .setNeutralButton("Eliminar",
+                        (d, i) -> viewModel.deleteRecipe(recipeId))
+                .setNegativeButton("Cancelar", null)
+                .create();
 
-                                viewModel.updateRecipe(recipeId, recipe);
-                            })
-                            .setNeutralButton("Eliminar", (d, i) -> viewModel.deleteRecipe(recipeId))
-                            .setNegativeButton("Cancelar", null)
-                            .show();
-                });
+        dialog.setOnShowListener(d -> {
+            Button saveButton =
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+
+            saveButton.setOnClickListener(v -> {
+                 if (!validateRecipeFields(nameEt, portionsEt)) return;
+                 List<Ingredient> ingredients =
+                         getIngredientsFromContainer(ingredientsContainer);
+
+                 if (ingredients == null) return;
+
+                 recipe.setName(nameEt.getText().toString().trim());
+                 recipe.setDescription(descEt.getText().toString());
+                 recipe.setPortion(getPortions(portionsEt));
+                 recipe.setIngredients(ingredients);
+
+                 viewModel.updateRecipe(recipeId, recipe);
+                 dialog.dismiss();
+            });
+        });
+        dialog.show();
     }
 
-    //Ingredients
+
+    private boolean validateRecipeFields(EditText nameEt, EditText portionsEt) {
+
+        String name = nameEt.getText().toString().trim();
+        if (name.isEmpty()) {
+            nameEt.setError("Nombre obligatorio");
+            return false;
+        }
+
+        String portionsText = portionsEt.getText().toString().trim();
+        if (!portionsText.isEmpty()) {
+            try {
+                Integer.parseInt(portionsText);
+            } catch (NumberFormatException e) {
+                portionsEt.setError("Número inválido");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private int getPortions(EditText portionsEt) {
+        String text = portionsEt.getText().toString().trim();
+        if (text.isEmpty()) return 1;
+        return Integer.parseInt(text);
+    }
+
+    private Ingredient validateAndBuildIngredient(View row) {
+
+        AutoCompleteTextView name =
+                row.findViewById(R.id.autocomplete_ingredient_name);
+        EditText qty =
+                row.findViewById(R.id.edit_text_ingredient_quantity);
+
+        String nameText = name.getText().toString().trim();
+        String qtyText = qty.getText().toString().trim();
+
+        if (nameText.isEmpty()) {
+            name.setError("Nombre obligatorio");
+            return null;
+        }
+
+        double quantity = 1;
+
+        if (!qtyText.isEmpty()) {
+            try {
+                quantity = Double.parseDouble(qtyText);
+            } catch (NumberFormatException e) {
+                qty.setError("Cantidad inválida");
+                return null;
+            }
+        }
+
+        return new Ingredient(nameText, quantity, "", "", "");
+    }
+
+    private List<Ingredient> getIngredientsFromContainer(LinearLayout container) {
+
+        List<Ingredient> ingredients = new ArrayList<>();
+
+        for (int i = 0; i < container.getChildCount(); i++) {
+
+            View row = container.getChildAt(i);
+            Ingredient ingredient = validateAndBuildIngredient(row);
+
+            if (ingredient == null) {
+                return null;
+            }
+
+            ingredients.add(ingredient);
+        }
+
+        return ingredients;
+    }
 
     private void addIngredientRow(LinearLayout container) {
-        View row = getLayoutInflater().inflate(R.layout.item_ingredient, container, false);
+        View row = getLayoutInflater()
+                .inflate(R.layout.item_ingredient, container, false);
         container.addView(row);
     }
 
     private void addIngredientRow(LinearLayout container, Ingredient ing) {
-        View row = getLayoutInflater().inflate(R.layout.item_ingredient, container, false);
+        View row = getLayoutInflater()
+                .inflate(R.layout.item_ingredient, container, false);
 
-        AutoCompleteTextView name = row.findViewById(R.id.autocomplete_ingredient_name);
-        EditText qty = row.findViewById(R.id.edit_text_ingredient_quantity);
+        AutoCompleteTextView name =
+                row.findViewById(R.id.autocomplete_ingredient_name);
+        EditText qty =
+                row.findViewById(R.id.edit_text_ingredient_quantity);
 
         name.setText(ing.getName());
         qty.setText(String.valueOf(ing.getQuantity()));
 
         container.addView(row);
-    }
-
-    private List<Ingredient> getIngredientsFromContainer(LinearLayout container) {
-        List<Ingredient> ingredients = new ArrayList<>();
-        for (int i = 0; i < container.getChildCount(); i++) {
-            View row = container.getChildAt(i);
-            AutoCompleteTextView name = row.findViewById(R.id.autocomplete_ingredient_name);
-            EditText qty = row.findViewById(R.id.edit_text_ingredient_quantity);
-
-            if (!name.getText().toString().isEmpty()) {
-                ingredients.add(new Ingredient(
-                        name.getText().toString(),
-                        qty.getText().toString().isEmpty() ? 0 : Double.parseDouble(qty.getText().toString()),
-                        "", "", ""
-                ));
-            }
-        }
-        return ingredients;
     }
 
     @Override

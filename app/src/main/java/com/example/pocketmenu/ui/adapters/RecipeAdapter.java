@@ -21,7 +21,7 @@ public class RecipeAdapter
 
     public interface OnRecipeInteractionListener {
         void onFavoriteClick(String recipeId, boolean isCurrentlyFavorite);
-        void onEditClick(String recipeId);
+        void onEditClick(String recipeId, Recipe recipe);
     }
 
     private OnRecipeInteractionListener listener;
@@ -64,7 +64,7 @@ public class RecipeAdapter
 
         holder.edit.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onEditClick(docId);
+                listener.onEditClick(docId, model);
             }
         });
     }
