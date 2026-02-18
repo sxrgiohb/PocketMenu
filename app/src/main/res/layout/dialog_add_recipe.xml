@@ -60,8 +60,7 @@
                 android:id="@+id/edit_text_recipe_portions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Raciones"
-                android:inputType="number" />
+                android:hint="Raciones"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Ingredients -->
