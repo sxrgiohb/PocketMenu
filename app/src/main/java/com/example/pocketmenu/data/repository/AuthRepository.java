@@ -1,6 +1,7 @@
 package com.example.pocketmenu.data.repository;
 
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -9,8 +10,8 @@ import com.example.pocketmenu.data.model.User;
 public class AuthRepository {
 
     //Firebase instances
-    private final FirebaseAuth firebaseAuth;
-    private final FirebaseFirestore firebaseFirestore;
+    private final FirebaseAuth auth;
+    private final FirebaseFirestore db;
 
     //LiveData instances
     private final MutableLiveData<FirebaseUser> userLiveData;
@@ -25,8 +26,8 @@ public class AuthRepository {
     //Constructor
     public AuthRepository() {
         //Initialize instances
-        this.firebaseAuth = FirebaseAuth.getInstance();
-        this.firebaseFirestore = FirebaseFirestore.getInstance();
+        this.auth = FirebaseAuth.getInstance();
+        this.db = FirebaseFirestore.getInstance();
         this.userLiveData = new MutableLiveData<>();
         this.loggedOutLiveData = new MutableLiveData<>();
         this.errorMessageLiveData = new MutableLiveData<>();
@@ -34,26 +35,26 @@ public class AuthRepository {
 
 
         //Check open session
-        if (firebaseAuth.getCurrentUser() != null) {
-            userLiveData.postValue(firebaseAuth.getCurrentUser());
+        if (auth.getCurrentUser() != null) {
+            userLiveData.postValue(auth.getCurrentUser());
         }
 
     }
 
     //LiveData getters
-    public MutableLiveData<String> getErrorMessageLiveData() {
+    public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }
 
-    public MutableLiveData<FirebaseUser> getUserLiveData() {
+    public LiveData<FirebaseUser> getUserLiveData() {
         return userLiveData;
     }
 
-    public MutableLiveData<Boolean> getLoggedOutLiveData() {
+    public LiveData<Boolean> getLoggedOutLiveData() {
         return loggedOutLiveData;
     }
 
-    public MutableLiveData<Boolean> getRegistrationSuccessLiveData() {
+    public LiveData<Boolean> getRegistrationSuccessLiveData() {
         return registrationSuccessLiveData;
     }
 
@@ -62,14 +63,14 @@ public class AuthRepository {
 
         registrationSuccessLiveData.postValue(null);
 
-        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                FirebaseUser firebaseUser = auth.getCurrentUser();
                 if (firebaseUser != null) {
                     //Create new user
                     User newUser = new User(firebaseUser.getUid(), name, email);
                     //Save user in Firestore
-                    firebaseFirestore.collection(USERS_COLLECTION).document(firebaseUser.getUid()).set(newUser).addOnSuccessListener(Void -> {
+                    db.collection(USERS_COLLECTION).document(firebaseUser.getUid()).set(newUser).addOnSuccessListener(Void -> {
                         userLiveData.postValue(firebaseUser);
                         registrationSuccessLiveData.postValue(true);
                     }).addOnFailureListener(e -> {
@@ -94,9 +95,9 @@ public class AuthRepository {
 
     //Login method
     public void logInSession(String email, String password) {
-        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                userLiveData.postValue(firebaseAuth.getCurrentUser());
+                userLiveData.postValue(auth.getCurrentUser());
             } else {
                 String errorMessage = "Error al iniciar sesión";
                 if (task.getException() != null) {
@@ -109,7 +110,7 @@ public class AuthRepository {
 
     //Log out method
     public void logOutSession(){
-        firebaseAuth.signOut();
+        auth.signOut();
         loggedOutLiveData.postValue(true);
     }
 }
