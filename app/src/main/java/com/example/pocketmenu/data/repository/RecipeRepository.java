@@ -6,6 +6,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 public class RecipeRepository {
+
+    public static final String RECIPES_COLLECTION = "RECIPES";
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
@@ -15,7 +17,7 @@ public class RecipeRepository {
     }
 
     private String getUserId() {
-        if (auth.getCurrentUser() != null){
+        if (auth.getCurrentUser() != null) {
             return auth.getCurrentUser().getUid();
         } else {
             return null;
@@ -23,28 +25,76 @@ public class RecipeRepository {
     }
 
     public Query getRecipesQuery(String searchText) {
-        Query query = db.collection("RECIPES").whereEqualTo("userId", getUserId());
+        String uid = getUserId();
+        if (uid == null) {
+            return db.collection(RECIPES_COLLECTION).limit(0);
+        }
+
+        Query query = db.collection(RECIPES_COLLECTION).whereEqualTo("userId", uid);
+
         if (searchText != null && !searchText.isEmpty()) {
             query = query.orderBy("name").startAt(searchText).endAt(searchText + '\uf8ff');
         } else {
             query = query.orderBy("name", Query.Direction.ASCENDING);
         }
+
         return query;
     }
 
-    public void addRecipe(Recipe recipe) {
-        db.collection("RECIPES").add(recipe);
+    // Callback interface
+    public interface RecipeCallback {
+        void onSuccess();
+        void onFailure(Exception e);
     }
 
-    public void updateFavorite(String recipeId, boolean newValue) {
-        db.collection("RECIPES").document(recipeId).update("favorite", newValue);
+    // Add recipe
+    public void addRecipe(Recipe recipe, RecipeCallback callback) {
+        db.collection(RECIPES_COLLECTION)
+                .add(recipe)
+                .addOnSuccessListener(docRef -> {
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e);
+                });
     }
 
-    public void updateRecipe(String recipeId, Recipe recipe) {
-        db.collection("RECIPES").document(recipeId).set(recipe);
+    // Update favorite
+    public void updateFavorite(String recipeId, boolean newValue, RecipeCallback callback) {
+        db.collection(RECIPES_COLLECTION)
+                .document(recipeId)
+                .update("favorite", newValue)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e);
+                });
     }
 
-    public void deleteRecipe(String recipeId) {
-        db.collection("RECIPES").document(recipeId).delete();
+    // Update recipe
+    public void updateRecipe(String recipeId, Recipe recipe, RecipeCallback callback) {
+        db.collection(RECIPES_COLLECTION)
+                .document(recipeId)
+                .set(recipe)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e);
+                });
+    }
+
+    // Delete recipe
+    public void deleteRecipe(String recipeId, RecipeCallback callback) {
+        db.collection(RECIPES_COLLECTION)
+                .document(recipeId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e);
+                });
     }
 }
