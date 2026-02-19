@@ -10,6 +10,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +28,6 @@ import com.example.pocketmenu.ui.adapters.RecipeAdapter;
 import com.example.pocketmenu.viewmodel.RecipeViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,16 +66,29 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
 
         viewModel = new ViewModelProvider(this).get(RecipeViewModel.class);
 
-        // Observe LiveData from FirestoreRecyclerOptions
+        // Observe recipes options
         viewModel.getRecipesOptions().observe(getViewLifecycleOwner(), options -> {
-            // Create new adapter for new data
-            if (adapter != null) {
-                adapter.stopListening();
-            }
+            if (adapter != null) adapter.stopListening();
             adapter = new RecipeAdapter(options);
             adapter.setOnRecipeInteractionListener(this);
             recyclerView.setAdapter(adapter);
             adapter.startListening();
+        });
+
+        // Observe errors
+        viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+                viewModel.clearError();
+            }
+        });
+
+        // Observe success operations
+        viewModel.getOperationSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(getContext(), "Operación realizada", Toast.LENGTH_SHORT).show();
+                viewModel.clearSuccess();
+            }
         });
 
         setupSearchView();
@@ -111,14 +124,12 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
         showEditRecipeDialog(recipeId, recipe);
     }
 
-    //Dialogs
-
+    // Dialogs
     private void showAddRecipeDialog() {
         if (getContext() == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View dialogView = getLayoutInflater()
-                .inflate(R.layout.dialog_add_recipe, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_recipe, null);
 
         EditText nameEt = dialogView.findViewById(R.id.edit_text_recipe_name);
         EditText descEt = dialogView.findViewById(R.id.edit_text_recipe_description);
@@ -137,16 +148,11 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
                 .create();
 
         dialog.setOnShowListener(dialogInterface -> {
-
             Button saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-
             saveButton.setOnClickListener(v -> {
-
                 if (!validateRecipeFields(nameEt, portionsEt)) return;
 
-                List<Ingredient> ingredients =
-                        getIngredientsFromContainer(ingredientsContainer);
-
+                List<Ingredient> ingredients = getIngredientsFromContainer(ingredientsContainer);
                 if (ingredients == null) return;
 
                 Recipe recipe = new Recipe(
@@ -166,7 +172,6 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
     }
 
     private void showEditRecipeDialog(String recipeId, Recipe recipe) {
-
         if (recipe == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -187,44 +192,38 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
             addIngredientRow(ingredientsContainer, ing);
         }
 
-        addIngredientBtn.setOnClickListener(v ->
-                addIngredientRow(ingredientsContainer));
+        addIngredientBtn.setOnClickListener(v -> addIngredientRow(ingredientsContainer));
 
         AlertDialog dialog = builder
                 .setView(dialogView)
                 .setTitle("Editar receta")
                 .setPositiveButton("Guardar", null)
-                .setNeutralButton("Eliminar",
-                        (d, i) -> viewModel.deleteRecipe(recipeId))
+                .setNeutralButton("Eliminar", (d, i) -> viewModel.deleteRecipe(recipeId))
                 .setNegativeButton("Cancelar", null)
                 .create();
 
         dialog.setOnShowListener(d -> {
-            Button saveButton =
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-
+            Button saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             saveButton.setOnClickListener(v -> {
-                 if (!validateRecipeFields(nameEt, portionsEt)) return;
-                 List<Ingredient> ingredients =
-                         getIngredientsFromContainer(ingredientsContainer);
+                if (!validateRecipeFields(nameEt, portionsEt)) return;
 
-                 if (ingredients == null) return;
+                List<Ingredient> ingredients = getIngredientsFromContainer(ingredientsContainer);
+                if (ingredients == null) return;
 
-                 recipe.setName(nameEt.getText().toString().trim());
-                 recipe.setDescription(descEt.getText().toString());
-                 recipe.setPortion(getPortions(portionsEt));
-                 recipe.setIngredients(ingredients);
+                recipe.setName(nameEt.getText().toString().trim());
+                recipe.setDescription(descEt.getText().toString());
+                recipe.setPortion(getPortions(portionsEt));
+                recipe.setIngredients(ingredients);
 
-                 viewModel.updateRecipe(recipeId, recipe);
-                 dialog.dismiss();
+                viewModel.updateRecipe(recipeId, recipe);
+                dialog.dismiss();
             });
         });
+
         dialog.show();
     }
 
-
     private boolean validateRecipeFields(EditText nameEt, EditText portionsEt) {
-
         String name = nameEt.getText().toString().trim();
         if (name.isEmpty()) {
             nameEt.setError("Nombre obligatorio");
@@ -251,14 +250,18 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
     }
 
     private Ingredient validateAndBuildIngredient(View row) {
-
-        AutoCompleteTextView name =
-                row.findViewById(R.id.autocomplete_ingredient_name);
-        EditText qty =
-                row.findViewById(R.id.edit_text_ingredient_quantity);
+        AutoCompleteTextView name = row.findViewById(R.id.autocomplete_ingredient_name);
+        EditText qty = row.findViewById(R.id.edit_text_ingredient_quantity);
+        EditText unit = row.findViewById(R.id.edit_text_ingredient_unit);
+        EditText category = row.findViewById(R.id.edit_text_ingredient_category);
+        EditText store = row.findViewById(R.id.edit_text_ingredient_store);
 
         String nameText = name.getText().toString().trim();
         String qtyText = qty.getText().toString().trim();
+        String unitText = unit.getText().toString().trim();
+        String categoryText = category.getText().toString().trim();
+        String storeText = store.getText().toString().trim();
+
 
         if (nameText.isEmpty()) {
             name.setError("Nombre obligatorio");
@@ -266,7 +269,6 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
         }
 
         double quantity = 1;
-
         if (!qtyText.isEmpty()) {
             try {
                 quantity = Double.parseDouble(qtyText);
@@ -276,42 +278,30 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
             }
         }
 
-        return new Ingredient(nameText, quantity, "", "", "");
+        return new Ingredient(nameText, quantity, unitText, categoryText, storeText);
     }
 
     private List<Ingredient> getIngredientsFromContainer(LinearLayout container) {
-
         List<Ingredient> ingredients = new ArrayList<>();
-
         for (int i = 0; i < container.getChildCount(); i++) {
-
             View row = container.getChildAt(i);
             Ingredient ingredient = validateAndBuildIngredient(row);
-
-            if (ingredient == null) {
-                return null;
-            }
-
+            if (ingredient == null) return null;
             ingredients.add(ingredient);
         }
-
         return ingredients;
     }
 
     private void addIngredientRow(LinearLayout container) {
-        View row = getLayoutInflater()
-                .inflate(R.layout.item_ingredient, container, false);
+        View row = getLayoutInflater().inflate(R.layout.item_ingredient, container, false);
         container.addView(row);
     }
 
     private void addIngredientRow(LinearLayout container, Ingredient ing) {
-        View row = getLayoutInflater()
-                .inflate(R.layout.item_ingredient, container, false);
+        View row = getLayoutInflater().inflate(R.layout.item_ingredient, container, false);
 
-        AutoCompleteTextView name =
-                row.findViewById(R.id.autocomplete_ingredient_name);
-        EditText qty =
-                row.findViewById(R.id.edit_text_ingredient_quantity);
+        AutoCompleteTextView name = row.findViewById(R.id.autocomplete_ingredient_name);
+        EditText qty = row.findViewById(R.id.edit_text_ingredient_quantity);
 
         name.setText(ing.getName());
         qty.setText(String.valueOf(ing.getQuantity()));
