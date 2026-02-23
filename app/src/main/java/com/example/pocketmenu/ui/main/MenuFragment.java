@@ -182,7 +182,11 @@ public class MenuFragment extends Fragment {
 
         RecipeSelectAdapter adapter = new RecipeSelectAdapter(recipe -> {
             if (recipeSelectDialog != null) recipeSelectDialog.dismiss();
-            showPerishableDialog(recipe, day.getDate());
+            if (recipe.getPortion() <= 1) {
+                viewModel.assignRecipeToDay(recipe, day.getDate(), false, 0);
+            } else {
+                showPerishableDialog(recipe, day.getDate());
+            }
         });
 
         recyclerRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -239,7 +243,7 @@ public class MenuFragment extends Fragment {
             textEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
             recyclerLeftovers.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
         });
-        viewModel.loadValidLeftovers();
+        viewModel.loadValidLeftovers(day.getDate());
 
         leftoverSelectDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Usar sobras")
