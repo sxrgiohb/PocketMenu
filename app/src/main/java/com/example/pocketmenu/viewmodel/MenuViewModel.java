@@ -46,6 +46,7 @@ public class MenuViewModel extends ViewModel {
         recipeRepository = new RecipeRepository();
         selectedWeekStart.setValue(getMonday(new Date()));
         loadWeek(getMonday(new Date()));
+        menuRepository.deleteMenusOlderThan(15, null);
     }
 
     public LiveData<List<DayMenuWrapper>> getWeekDays() { return weekDays; }
@@ -55,18 +56,12 @@ public class MenuViewModel extends ViewModel {
     public LiveData<List<Recipe>> getAllRecipes() { return allRecipes; }
     public LiveData<List<LeftoverWithRecipe>> getValidLeftovers() { return validLeftovers; }
 
-    // ===========================
-    // SELECCIÓN DE SEMANA
-    // ===========================
     public void selectWeek(Date anyDayInWeek) {
         Date monday = getMonday(anyDayInWeek);
         selectedWeekStart.setValue(monday);
         loadWeek(monday);
     }
 
-    // ===========================
-    // CARGA DE LA SEMANA
-    // ===========================
     public void loadWeek(Date monday) {
         isLoading.setValue(true);
         List<Date> weekDates = getWeekDates(monday);
@@ -113,24 +108,22 @@ public class MenuViewModel extends ViewModel {
 
             @Override
             public void onFound(Recipe recipe) {
-                leftoverRepository.getActiveLeftoverByRecipe(recipe.getId(),
-                        new LeftoverRepository.OnLeftoverFound() {
+
+                leftoverRepository.getLeftoversByRecipe(recipe.getId(),
+                        new LeftoverRepository.OnLeftoversLoaded() {
 
                             @Override
-                            public void onFound(Leftover leftover) {
-                                Leftover associated = leftover.getSourceMenuId() != null
-                                        && leftover.getSourceMenuId().equals(menu.getId())
-                                        ? leftover : null;
-                                if (associated != null
-                                        && !LeftoverRepository.isStillValid(associated, new Date())) {
-                                    associated = null;
+                            public void onLoaded(List<Leftover> leftovers) {
+                                Leftover associated = null;
+                                for (Leftover leftover : leftovers) {
+                                    if (leftover.getSourceMenuId() != null
+                                            && leftover.getSourceMenuId().equals(menu.getId())
+                                            && LeftoverRepository.isStillValid(leftover, new Date())) {
+                                        associated = leftover;
+                                        break;
+                                    }
                                 }
                                 addAndCheck(new MenuAssignment(menu, recipe, associated));
-                            }
-
-                            @Override
-                            public void onNotFound() {
-                                addAndCheck(new MenuAssignment(menu, recipe, null));
                             }
 
                             @Override
@@ -181,9 +174,6 @@ public class MenuViewModel extends ViewModel {
         }
     }
 
-    // ===========================
-    // CARGA DE RECETAS PARA EL BUSCADOR
-    // ===========================
     public void loadAllRecipes() {
         recipeRepository.getRecipesQuery(null)
                 .get()
@@ -193,10 +183,7 @@ public class MenuViewModel extends ViewModel {
                         errorMessage.postValue("Error cargando recetas: " + e.getMessage()));
     }
 
-    // ===========================
-    // CARGA DE SOBRAS VÁLIDAS
-    // ===========================
-    public void loadValidLeftovers() {
+    public void loadValidLeftovers(Date beforeDate) {
         leftoverRepository.getValidLeftovers(new LeftoverRepository.OnLeftoversLoaded() {
             @Override
             public void onLoaded(List<Leftover> leftovers) {
@@ -204,10 +191,28 @@ public class MenuViewModel extends ViewModel {
                     validLeftovers.postValue(new ArrayList<>());
                     return;
                 }
+
                 List<LeftoverWithRecipe> result = new ArrayList<>();
                 AtomicInteger pending = new AtomicInteger(leftovers.size());
 
                 for (Leftover leftover : leftovers) {
+                    Date assignedDate = leftover.getFirstAssignedDate();
+                    if (assignedDate == null || !assignedDate.before(beforeDate)) {
+                        if (pending.decrementAndGet() == 0)
+                            validLeftovers.postValue(new ArrayList<>(result));
+                        continue;
+                    }
+                    if (leftover.getPerishable() && leftover.getValidDays() > 0) {
+                        long msPerDay = 24L * 60 * 60 * 1000;
+                        long expirationMs = assignedDate.getTime()
+                                + (long) leftover.getValidDays() * msPerDay;
+                        if (beforeDate.getTime() > expirationMs) {
+                            if (pending.decrementAndGet() == 0)
+                                validLeftovers.postValue(new ArrayList<>(result));
+                            continue;
+                        }
+                    }
+
                     recipeRepository.getRecipeById(leftover.getRecipeId(),
                             new RecipeRepository.OnRecipeFound() {
                                 @Override
@@ -216,17 +221,17 @@ public class MenuViewModel extends ViewModel {
                                         result.add(new LeftoverWithRecipe(leftover, recipe));
                                     }
                                     if (pending.decrementAndGet() == 0)
-                                        validLeftovers.postValue(result);
+                                        validLeftovers.postValue(new ArrayList<>(result));
                                 }
                                 @Override
                                 public void onNotFound() {
                                     if (pending.decrementAndGet() == 0)
-                                        validLeftovers.postValue(result);
+                                        validLeftovers.postValue(new ArrayList<>(result));
                                 }
                                 @Override
                                 public void onFailure(Exception e) {
                                     if (pending.decrementAndGet() == 0)
-                                        validLeftovers.postValue(result);
+                                        validLeftovers.postValue(new ArrayList<>(result));
                                 }
                             });
                 }
@@ -239,9 +244,6 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    // ===========================
-    // ASIGNAR RECETA A UN DÍA
-    // ===========================
     public void assignRecipeToDay(Recipe recipe, Date day, boolean isPerishable, int validDays) {
         Date normalizedDay = normalizeDate(day);
         int usedPortions = 1;
@@ -283,9 +285,6 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    // ===========================
-    // USAR SOBRAS EN UN DÍA
-    // ===========================
     public void assignLeftoverToDay(Leftover leftover, Recipe recipe, Date day) {
         if (leftover.getRemainingPortions() <= 0) {
             errorMessage.setValue("No quedan raciones disponibles de esta sobra.");
@@ -324,9 +323,6 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    // ===========================
-    // ELIMINAR ASIGNACIÓN
-    // ===========================
     public void removeAssignmentFromDay(MenuAssignment assignment) {
         String menuId = assignment.getMenu().getId();
         if (menuId == null) return;
@@ -354,9 +350,6 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    // ===========================
-    // FAVORITOS
-    // ===========================
     public void saveCurrentWeekAsFavorite(String name) {
         List<DayMenuWrapper> currentDays = weekDays.getValue();
         if (currentDays == null || currentDays.isEmpty()) {
@@ -399,9 +392,6 @@ public class MenuViewModel extends ViewModel {
         }
     }
 
-    // ===========================
-    // UTILIDADES
-    // ===========================
     public void reloadCurrentWeek() {
         Date monday = selectedWeekStart.getValue();
         if (monday != null) loadWeek(monday);

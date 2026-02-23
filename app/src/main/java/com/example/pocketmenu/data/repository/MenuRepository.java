@@ -5,6 +5,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class MenuRepository {
 
     public static final String COLLECTION_PATH = "MENUS";
@@ -23,15 +26,11 @@ public class MenuRepository {
                 : null;
     }
 
-    // ===========================
-    // CALLBACKS
-    // ===========================
     public interface MenuCallback {
         void onSuccess();
         void onFailure(Exception e);
     }
 
-    // Devuelve el ID del documento creado por Firestore
     public interface OnMenuAdded {
         void onSuccess(String menuId);
         void onFailure(Exception e);
@@ -43,9 +42,6 @@ public class MenuRepository {
         void onFailure(Exception e);
     }
 
-    // ===========================
-    // QUERY MENUS POR USUARIO
-    // ===========================
     public Query getMenusQuery() {
         String uid = getUserId();
         if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
@@ -54,9 +50,6 @@ public class MenuRepository {
                 .orderBy("date");
     }
 
-    // ===========================
-    // QUERY POR FECHA
-    // ===========================
     public Query getMenusByDateQuery(java.util.Date date) {
         String uid = getUserId();
         if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
@@ -66,9 +59,6 @@ public class MenuRepository {
                 .orderBy("name");
     }
 
-    // ===========================
-    // FIND MENU BY ID
-    // ===========================
     public void getMenuById(String menuId, OnMenuFound callback) {
         db.collection(COLLECTION_PATH)
                 .document(menuId)
@@ -80,9 +70,6 @@ public class MenuRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // ===========================
-    // ADD MENU — versión original, mantenida por compatibilidad
-    // ===========================
     public void addMenu(Menu menu, MenuCallback callback) {
         addMenu(menu, new OnMenuAdded() {
             @Override public void onSuccess(String menuId) {
@@ -94,10 +81,6 @@ public class MenuRepository {
         });
     }
 
-    // ===========================
-    // ADD MENU — devuelve el ID generado por Firestore
-    // Usar esta cuando se necesite el ID para crear Leftovers
-    // ===========================
     public void addMenu(Menu menu, OnMenuAdded callback) {
         String uid = getUserId();
         if (uid == null) {
@@ -116,21 +99,46 @@ public class MenuRepository {
                 });
     }
 
-    // ===========================
-    // UPDATE MENU
-    // ===========================
     public void updateMenu(String menuId, Menu menu, MenuCallback callback) {
         db.collection(COLLECTION_PATH).document(menuId).set(menu)
                 .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
                 .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
-
-    // ===========================
-    // DELETE MENU
-    // ===========================
     public void deleteMenu(String menuId, MenuCallback callback) {
         db.collection(COLLECTION_PATH).document(menuId).delete()
                 .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
+                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+    }
+
+    public void deleteMenusOlderThan(int days, MenuCallback callback) {
+        String uid = getUserId();
+        if (uid == null) return;
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -days);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date cutoffDate = cal.getTime();
+
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereLessThan("date", cutoffDate)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) {
+                        if (callback != null) callback.onSuccess();
+                        return;
+                    }
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(a -> { if (callback != null) callback.onSuccess(); })
+                            .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+                })
                 .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
 }
