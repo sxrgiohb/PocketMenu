@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import com.example.pocketmenu.ui.main.MenuFragment;
 
 import com.example.pocketmenu.R;
 import com.google.android.material.appbar.MaterialToolbar;

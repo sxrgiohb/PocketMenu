@@ -21,7 +21,7 @@ public class AuthRepository {
 
 
     //Constants for Firestore collection
-    private static final String USERS_COLLECTION = "USERS";
+    private static final String COLLECTION_PATH = "USERS";
 
     //Constructor
     public AuthRepository() {
@@ -70,7 +70,7 @@ public class AuthRepository {
                     //Create new user
                     User newUser = new User(firebaseUser.getUid(), name, email);
                     //Save user in Firestore
-                    db.collection(USERS_COLLECTION).document(firebaseUser.getUid()).set(newUser).addOnSuccessListener(Void -> {
+                    db.collection(COLLECTION_PATH).document(firebaseUser.getUid()).set(newUser).addOnSuccessListener(Void -> {
                         userLiveData.postValue(firebaseUser);
                         registrationSuccessLiveData.postValue(true);
                     }).addOnFailureListener(e -> {
