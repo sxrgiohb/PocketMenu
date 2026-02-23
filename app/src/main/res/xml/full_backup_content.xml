@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!--
+    This file is used to specify which files and directories to include or exclude
+    from the Auto Backup feature.
+    For more information, see:
+    https://developer.android.com/guide/topics/data/autobackup
+    -->
+    <!-- <include domain="sharedpref" path="."/> -->
+    <!-- <exclude domain="database" path="my_sensitive_data.db"/> -->
+</full-backup-content>
+    

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="¿Las sobras son perecederas?"
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp" />
+
+    <Switch
+        android:id="@+id/switch_perishable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Perecederas"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/edit_valid_days"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="¿Cuántos días duran las sobras?"
+        android:inputType="number"
+        android:visibility="gone" />
+
+</LinearLayout>
