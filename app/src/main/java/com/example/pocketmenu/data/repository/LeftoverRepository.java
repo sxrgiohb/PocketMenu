@@ -27,9 +27,6 @@ public class LeftoverRepository {
                 : null;
     }
 
-    // =====================================
-    // CALLBACKS
-    // =====================================
     public interface LeftoverCallback {
         void onSuccess();
         void onFailure(Exception e);
@@ -46,9 +43,6 @@ public class LeftoverRepository {
         void onFailure(Exception e);
     }
 
-    // =====================================
-    // GET ALL LEFTOVERS
-    // =====================================
     public Query getLeftoversQuery() {
         String uid = getUserId();
         if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
@@ -57,72 +51,6 @@ public class LeftoverRepository {
                 .orderBy("firstAssignedDate");
     }
 
-    // =====================================
-    // FIND ACTIVE LEFTOVER BY RECIPE
-    // =====================================
-    public void getActiveLeftoverByRecipe(String recipeId, OnLeftoverFound callback) {
-        String uid = getUserId();
-        if (uid == null) {
-            callback.onFailure(new Exception("Usuario no autenticado"));
-            return;
-        }
-        db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("recipeId", recipeId)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(snap -> {
-                    if (!snap.isEmpty())
-                        callback.onFound(snap.getDocuments().get(0).toObject(Leftover.class));
-                    else
-                        callback.onNotFound();
-                })
-                .addOnFailureListener(callback::onFailure);
-    }
-
-    // =====================================
-    // ADD LEFTOVER
-    // =====================================
-    public void addLeftover(Leftover leftover, LeftoverCallback callback) {
-        String uid = getUserId();
-        if (uid == null) {
-            if (callback != null) callback.onFailure(new Exception("Usuario no autenticado"));
-            return;
-        }
-        leftover.setUserId(uid);
-        db.collection(COLLECTION_PATH)
-                .add(leftover)
-                .addOnSuccessListener(ref -> {
-                    leftover.setId(ref.getId());
-                    if (callback != null) callback.onSuccess();
-                })
-                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
-    }
-
-    // =====================================
-    // UPDATE LEFTOVER
-    // =====================================
-    public void updateLeftover(String leftoverId, Leftover leftover, LeftoverCallback callback) {
-        db.collection(COLLECTION_PATH).document(leftoverId).set(leftover)
-                .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
-                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
-    }
-
-    // =====================================
-    // DELETE LEFTOVER
-    // =====================================
-    public void deleteLeftover(String leftoverId, LeftoverCallback callback) {
-        db.collection(COLLECTION_PATH).document(leftoverId).delete()
-                .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
-                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
-    }
-
-    // =====================================
-    // GET LEFTOVERS VÁLIDOS — CORREGIDO
-    // =====================================
-
-    // OPCIÓN A (recomendada): filtra en Firestore por campo expirationDate
-    // Requiere añadir expirationDate al modelo Leftover y guardarlo al crear
     public Query getValidPerishableLeftoversQuery() {
         String uid = getUserId();
         if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
@@ -143,7 +71,41 @@ public class LeftoverRepository {
                 .orderBy("firstAssignedDate");
     }
 
-    // OPCIÓN B: trae todos y filtra en cliente con isStillValid()
+    public void getLeftoversByRecipe(String recipeId, OnLeftoversLoaded callback) {
+        String uid = getUserId();
+        if (uid == null) {
+            callback.onFailure(new Exception("Usuario no autenticado"));
+            return;
+        }
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereEqualTo("recipeId", recipeId)
+                .get()
+                .addOnSuccessListener(snap ->
+                        callback.onLoaded(snap.toObjects(Leftover.class)))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void getActiveLeftoverByRecipe(String recipeId, OnLeftoverFound callback) {
+        String uid = getUserId();
+        if (uid == null) {
+            callback.onFailure(new Exception("Usuario no autenticado"));
+            return;
+        }
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereEqualTo("recipeId", recipeId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    if (!snap.isEmpty())
+                        callback.onFound(snap.getDocuments().get(0).toObject(Leftover.class));
+                    else
+                        callback.onNotFound();
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
     public void getValidLeftovers(OnLeftoversLoaded callback) {
         String uid = getUserId();
         if (uid == null) {
@@ -164,7 +126,34 @@ public class LeftoverRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // Helper: calcula firstAssignedDate + validDays >= hoy
+    public void addLeftover(Leftover leftover, LeftoverCallback callback) {
+        String uid = getUserId();
+        if (uid == null) {
+            if (callback != null) callback.onFailure(new Exception("Usuario no autenticado"));
+            return;
+        }
+        leftover.setUserId(uid);
+        db.collection(COLLECTION_PATH)
+                .add(leftover)
+                .addOnSuccessListener(ref -> {
+                    leftover.setId(ref.getId());
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+    }
+
+    public void updateLeftover(String leftoverId, Leftover leftover, LeftoverCallback callback) {
+        db.collection(COLLECTION_PATH).document(leftoverId).set(leftover)
+                .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
+                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+    }
+
+    public void deleteLeftover(String leftoverId, LeftoverCallback callback) {
+        db.collection(COLLECTION_PATH).document(leftoverId).delete()
+                .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
+                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+    }
+
     public static boolean isStillValid(Leftover leftover, Date now) {
         if (!leftover.getPerishable()) return true;
         if (leftover.getFirstAssignedDate() == null) return true;
