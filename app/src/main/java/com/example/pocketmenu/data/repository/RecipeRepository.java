@@ -7,7 +7,7 @@ import com.google.firebase.firestore.Query;
 
 public class RecipeRepository {
 
-    public static final String RECIPES_COLLECTION = "RECIPES";
+    public static final String COLLECTION_PATH = "RECIPES";
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
@@ -27,10 +27,10 @@ public class RecipeRepository {
     public Query getRecipesQuery(String searchText) {
         String uid = getUserId();
         if (uid == null) {
-            return db.collection(RECIPES_COLLECTION).limit(0);
+            return db.collection(COLLECTION_PATH).limit(0);
         }
 
-        Query query = db.collection(RECIPES_COLLECTION).whereEqualTo("userId", uid);
+        Query query = db.collection(COLLECTION_PATH).whereEqualTo("userId", uid);
 
         if (searchText != null && !searchText.isEmpty()) {
             query = query.orderBy("name").startAt(searchText).endAt(searchText + '\uf8ff');
@@ -49,7 +49,7 @@ public class RecipeRepository {
 
     // Add recipe
     public void addRecipe(Recipe recipe, RecipeCallback callback) {
-        db.collection(RECIPES_COLLECTION)
+        db.collection(COLLECTION_PATH)
                 .add(recipe)
                 .addOnSuccessListener(docRef -> {
                     if (callback != null) callback.onSuccess();
@@ -61,7 +61,7 @@ public class RecipeRepository {
 
     // Update favorite
     public void updateFavorite(String recipeId, boolean newValue, RecipeCallback callback) {
-        db.collection(RECIPES_COLLECTION)
+        db.collection(COLLECTION_PATH)
                 .document(recipeId)
                 .update("favorite", newValue)
                 .addOnSuccessListener(aVoid -> {
@@ -74,7 +74,7 @@ public class RecipeRepository {
 
     // Update recipe
     public void updateRecipe(String recipeId, Recipe recipe, RecipeCallback callback) {
-        db.collection(RECIPES_COLLECTION)
+        db.collection(COLLECTION_PATH)
                 .document(recipeId)
                 .set(recipe)
                 .addOnSuccessListener(aVoid -> {
@@ -87,7 +87,7 @@ public class RecipeRepository {
 
     // Delete recipe
     public void deleteRecipe(String recipeId, RecipeCallback callback) {
-        db.collection(RECIPES_COLLECTION)
+        db.collection(COLLECTION_PATH)
                 .document(recipeId)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
@@ -96,5 +96,27 @@ public class RecipeRepository {
                 .addOnFailureListener(e -> {
                     if (callback != null) callback.onFailure(e);
                 });
+    }
+
+    // Callback para obtener una receta por ID
+    public interface OnRecipeFound {
+        void onFound(Recipe recipe);
+        void onNotFound();
+        void onFailure(Exception e);
+    }
+
+    // Get recipe by ID
+    public void getRecipeById(String recipeId, OnRecipeFound callback) {
+        db.collection(COLLECTION_PATH)
+                .document(recipeId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        callback.onFound(doc.toObject(Recipe.class));
+                    } else {
+                        callback.onNotFound();
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 }
