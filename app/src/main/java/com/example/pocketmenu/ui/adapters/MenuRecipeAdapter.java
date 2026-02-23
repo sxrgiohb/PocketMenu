@@ -85,24 +85,6 @@ public class MenuRecipeAdapter extends ListAdapter<MenuAssignment, MenuRecipeAda
 
         void bind(MenuAssignment assignment) {
             textRecipeName.setText(assignment.getRecipe().getName());
-
-            Leftover leftover = assignment.getLeftover();
-            if (leftover != null) {
-                String dateStr = leftover.getFirstAssignedDate() != null
-                        ? sdf.format(leftover.getFirstAssignedDate()) : "?";
-                textRecipeInfo.setText(leftover.getRemainingPortions() + " ración(es) del " + dateStr);
-                textRecipeInfo.setVisibility(View.VISIBLE);
-            } else {
-                int remaining = assignment.getRecipe().getPortion() - assignment.getMenu().getUsedPortions();
-                if (remaining > 0) {
-                    textRecipeInfo.setText(remaining + " sobra(s) generada(s)");
-                    textRecipeInfo.setVisibility(View.VISIBLE);
-                } else {
-                    textRecipeInfo.setVisibility(View.GONE);
-                }
-            }
-
-            // Botón eliminar solo visible en modo edición
             buttonDelete.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
             buttonDelete.setOnClickListener(v -> listener.onDeleteClicked(assignment));
         }
