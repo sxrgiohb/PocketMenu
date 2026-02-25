@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Buscador -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_search_template"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Buscar menú favorito..."
+            android:inputType="text"
+            android:imeOptions="actionSearch" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Lista de plantillas -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_templates"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Texto vacío -->
+    <TextView
+        android:id="@+id/text_no_templates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No hay menús favoritos guardados"
+        android:textAlignment="center"
+        android:padding="24dp"
+        android:visibility="gone" />
+
+</LinearLayout>
