@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Cabecera de la tarjeta: nombre + botones -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Nombre de la plantilla -->
+            <TextView
+                android:id="@+id/text_template_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+            <!-- Botón eliminar -->
+            <ImageButton
+                android:id="@+id/button_delete_template"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="6dp"
+                android:src="@drawable/ic_delete"
+                android:contentDescription=""
+                app:tint="@color/design_default_color_error" />
+
+            <!-- Botón expandir/contraer -->
+            <ImageButton
+                android:id="@+id/button_expand_template"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="6dp"
+                android:src="@drawable/ic_see_more"
+                android:contentDescription="" />
+
+        </LinearLayout>
+
+        <!-- Contenido expandible -->
+        <LinearLayout
+            android:id="@+id/layout_template_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="8dp">
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorControlHighlight"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Resumen días -->
+            <TextView
+                android:id="@+id/text_monday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/text_tuesday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/text_wednesday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/text_thursday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/text_friday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/text_saturday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/text_sunday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textSize="13sp" />
+
+            <!-- Aviso sobras sin asignar -->
+            <TextView
+                android:id="@+id/text_unassigned_warning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textSize="12sp"
+                android:textColor="@color/design_default_color_error"
+                android:visibility="gone" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorControlHighlight"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Botón aplicar -->
+            <Button
+                android:id="@+id/button_apply_template"
+                style="?attr/materialButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Aplicar esta semana" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
