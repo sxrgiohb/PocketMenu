@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         android:padding="12dp">
 
-        <!-- Ingredient's name (autocomplete) -->
         <AutoCompleteTextView
             android:id="@+id/autocomplete_ingredient_name"
             android:layout_width="0dp"
@@ -26,7 +25,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Quantity -->
         <EditText
             android:id="@+id/edit_text_ingredient_quantity"
             android:layout_width="0dp"
@@ -40,7 +38,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/autocomplete_ingredient_name" />
 
-        <!-- Measurement unit -->
         <EditText
             android:id="@+id/edit_text_ingredient_unit"
             android:layout_width="0dp"
@@ -54,7 +51,6 @@
             app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@id/autocomplete_ingredient_name" />
 
-        <!-- Category -->
         <EditText
             android:id="@+id/edit_text_ingredient_category"
             android:layout_width="0dp"
@@ -68,7 +64,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/edit_text_ingredient_quantity" />
 
-        <!-- Store -->
         <EditText
             android:id="@+id/edit_text_ingredient_store"
             android:layout_width="0dp"
@@ -82,7 +77,6 @@
             app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@id/edit_text_ingredient_unit" />
 
-        <!-- Guide line -->
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
             android:layout_width="wrap_content"

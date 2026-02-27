@@ -9,7 +9,6 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Name -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -23,7 +22,6 @@
                 android:inputType="textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Instructions -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -40,16 +38,6 @@
                 android:minLines="4" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Image
-        <Button
-            android:id="@+id/button_select_image"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Seleccionar imagen (opcional)" /> -->
-
-        <!-- Portions -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -60,10 +48,10 @@
                 android:id="@+id/edit_text_recipe_portions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Raciones"/>
+                android:hint="Raciones"
+                android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Ingredients -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,14 +59,13 @@
             android:text="Ingredientes"
             android:textAppearance="?attr/textAppearanceSubtitle1" />
 
-        <!-- Ingredients container -->
         <LinearLayout
             android:id="@+id/container_ingredients"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <!-- Add new ingredient button -->
+        <!-- Botón añadir ingrediente -->
         <Button
             android:id="@+id/button_add_ingredient"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -87,6 +74,39 @@
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
             android:text="Añadir ingrediente" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/button_delete_recipe_form"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Eliminar"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/button_cancel_recipe"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Cancelar" />
+
+            <Button
+                android:id="@+id/button_save_recipe"
+                style="?attr/materialButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Guardar" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
