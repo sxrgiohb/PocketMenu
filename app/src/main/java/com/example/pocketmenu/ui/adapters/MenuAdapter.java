@@ -26,6 +26,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
         void onAddRecipeClicked(DayMenuWrapper day);
         void onAddLeftoverClicked(DayMenuWrapper day);
         void onDeleteRecipeClicked(DayMenuWrapper day, MenuAssignment assignment);
+        void onInfoRecipeClicked(MenuAssignment assignment);
     }
 
     private List<DayMenuWrapper> days = new ArrayList<>();
@@ -45,7 +46,6 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
         notifyDataSetChanged();
     }
 
-    // Activa o desactiva el modo edición y refresca todos los items
     public void setEditMode(boolean editMode) {
         this.isEditMode = editMode;
         notifyDataSetChanged();
@@ -95,30 +95,34 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
             LinearLayout container = itemView.findViewById(R.id.container_recipes);
             container.addView(recyclerRecipes);
 
-            recipeAdapter = new MenuRecipeAdapter(assignment -> {
-                int pos = getAdapterPosition();
-                if (pos != RecyclerView.NO_ID) {
-                    listener.onDeleteRecipeClicked(days.get(pos), assignment);
+            recipeAdapter = new MenuRecipeAdapter(new MenuRecipeAdapter.OnRecipeActionListener() {
+                @Override
+                public void onDeleteClicked(MenuAssignment assignment) {
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_ID) {
+                        listener.onDeleteRecipeClicked(days.get(pos), assignment);
+                    }
+                }
+
+                @Override
+                public void onInfoClicked(MenuAssignment assignment) {
+                    listener.onInfoRecipeClicked(assignment);
                 }
             });
             recyclerRecipes.setAdapter(recipeAdapter);
         }
 
         void bind(DayMenuWrapper day) {
-            // Nombre + fecha
             String dayLabel = dayNames[day.getDayOfWeek() - 1];
             String dateStr = day.getDate() != null ? " · " + sdf.format(day.getDate()) : "";
             textDayName.setText(dayLabel + dateStr);
 
-            // Botones: solo visibles en modo edición
             int buttonVisibility = isEditMode ? View.VISIBLE : View.GONE;
             buttonAddRecipe.setVisibility(buttonVisibility);
             buttonAddLeftover.setVisibility(buttonVisibility);
 
-            // Botón eliminar en cada receta: solo en modo edición
             recipeAdapter.setEditMode(isEditMode);
 
-            // Mensaje vacío
             boolean isEmpty = day.getAssignments().isEmpty();
             textEmptyDay.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
             recyclerRecipes.setVisibility(isEmpty ? View.GONE : View.VISIBLE);

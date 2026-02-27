@@ -12,21 +12,17 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pocketmenu.R;
-import com.example.pocketmenu.data.model.Leftover;
 import com.example.pocketmenu.data.model.auxiliar.MenuAssignment;
-
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 public class MenuRecipeAdapter extends ListAdapter<MenuAssignment, MenuRecipeAdapter.ViewHolder> {
 
     public interface OnRecipeActionListener {
         void onDeleteClicked(MenuAssignment assignment);
+        void onInfoClicked(MenuAssignment assignment);
     }
 
     private final OnRecipeActionListener listener;
     private boolean isEditMode = false;
-    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
 
     public MenuRecipeAdapter(OnRecipeActionListener listener) {
         super(DIFF_CALLBACK);
@@ -74,12 +70,14 @@ public class MenuRecipeAdapter extends ListAdapter<MenuAssignment, MenuRecipeAda
     class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textRecipeName;
         private final TextView textRecipeInfo;
+        private final ImageButton buttonInfo;
         private final ImageButton buttonDelete;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             textRecipeName = itemView.findViewById(R.id.text_recipe_name);
             textRecipeInfo = itemView.findViewById(R.id.text_recipe_info);
+            buttonInfo = itemView.findViewById(R.id.button_info_recipe);
             buttonDelete = itemView.findViewById(R.id.button_delete_recipe);
         }
 
@@ -87,6 +85,7 @@ public class MenuRecipeAdapter extends ListAdapter<MenuAssignment, MenuRecipeAda
             textRecipeName.setText(assignment.getRecipe().getName());
             buttonDelete.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
             buttonDelete.setOnClickListener(v -> listener.onDeleteClicked(assignment));
+            buttonInfo.setOnClickListener(v -> listener.onInfoClicked(assignment));
         }
     }
 }
