@@ -23,6 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pocketmenu.R;
+import com.example.pocketmenu.data.model.Ingredient;
+import com.example.pocketmenu.data.model.Leftover;
 import com.example.pocketmenu.data.model.Recipe;
 import com.example.pocketmenu.data.model.auxiliar.DayMenuWrapper;
 import com.example.pocketmenu.data.model.auxiliar.LeftoverWithRecipe;
@@ -30,6 +32,7 @@ import com.example.pocketmenu.data.model.auxiliar.MenuAssignment;
 import com.example.pocketmenu.ui.adapters.LeftoverSelectAdapter;
 import com.example.pocketmenu.ui.adapters.MenuAdapter;
 import com.example.pocketmenu.ui.adapters.RecipeSelectAdapter;
+import com.example.pocketmenu.ui.dialogs.FavoriteTemplatesDialog;
 import com.example.pocketmenu.viewmodel.MenuViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -50,6 +53,7 @@ public class MenuFragment extends Fragment {
     private LinearLayout layoutEditActions;
     private android.widget.Button buttonSaveEdit;
     private android.widget.Button buttonCancelEdit;
+    private android.widget.Button buttonUseFavorite;
 
     private AlertDialog recipeSelectDialog;
     private AlertDialog leftoverSelectDialog;
@@ -80,6 +84,7 @@ public class MenuFragment extends Fragment {
         layoutEditActions = view.findViewById(R.id.layout_edit_actions);
         buttonSaveEdit = view.findViewById(R.id.button_save_edit);
         buttonCancelEdit = view.findViewById(R.id.button_cancel_edit);
+        buttonUseFavorite = view.findViewById(R.id.button_use_favorite);
     }
 
     private void setupRecyclerView() {
@@ -95,6 +100,10 @@ public class MenuFragment extends Fragment {
             @Override
             public void onDeleteRecipeClicked(DayMenuWrapper day, MenuAssignment assignment) {
                 showDeleteConfirmation(assignment);
+            }
+            @Override
+            public void onInfoRecipeClicked(MenuAssignment assignment) {
+                showRecipeInfoDialog(assignment);
             }
         });
         recyclerWeek.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -142,6 +151,7 @@ public class MenuFragment extends Fragment {
         fabEdit.setOnClickListener(v -> enterEditMode());
         buttonSaveEdit.setOnClickListener(v -> exitEditMode(true));
         buttonCancelEdit.setOnClickListener(v -> exitEditMode(false));
+        buttonUseFavorite.setOnClickListener(v -> showFavoriteTemplatesDialog());
     }
 
     // ===========================
@@ -170,6 +180,103 @@ public class MenuFragment extends Fragment {
     }
 
     // ===========================
+    // DIÁLOGO INFO RECETA
+    // ===========================
+    private void showRecipeInfoDialog(MenuAssignment assignment) {
+        Recipe recipe = assignment.getRecipe();
+
+        android.util.Log.d("RECIPE_INFO", "nombre=" + recipe.getName()
+                + " porciones=" + recipe.getPortion()
+                + " descripcion=" + recipe.getDescription()
+                + " ingredientes=" + (recipe.getIngredients() != null
+                ? recipe.getIngredients().size() : "null"));
+
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_recipe_info, null);
+
+        TextView textPortions = dialogView.findViewById(R.id.text_portions);
+        TextView labelDescription = dialogView.findViewById(R.id.label_description);
+        TextView textDescription = dialogView.findViewById(R.id.text_description);
+        View separatorDescription = dialogView.findViewById(R.id.separator_description);
+        TextView labelIngredients = dialogView.findViewById(R.id.label_ingredients);
+        LinearLayout headerIngredients = dialogView.findViewById(R.id.header_ingredients);
+        LinearLayout containerIngredients = dialogView.findViewById(R.id.container_ingredients);
+
+        // Raciones
+        textPortions.setText("🍽 " + recipe.getPortion() + " ración(es)");
+
+        // Instrucciones
+        if (recipe.getDescription() != null && !recipe.getDescription().isEmpty()) {
+            labelDescription.setVisibility(View.VISIBLE);
+            textDescription.setVisibility(View.VISIBLE);
+            separatorDescription.setVisibility(View.VISIBLE);
+            textDescription.setText(recipe.getDescription());
+        }
+
+        // Ingredientes
+        if (recipe.getIngredients() != null && !recipe.getIngredients().isEmpty()) {
+            labelIngredients.setVisibility(View.VISIBLE);
+            headerIngredients.setVisibility(View.VISIBLE);
+            containerIngredients.setVisibility(View.VISIBLE);
+
+            for (Ingredient ingredient : recipe.getIngredients()) {
+                LinearLayout row = new LinearLayout(requireContext());
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setPadding(0, 6, 0, 6);
+
+                TextView tvName = new TextView(requireContext());
+                tvName.setLayoutParams(new LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f));
+                tvName.setText(ingredient.getName());
+                tvName.setTextSize(14f);
+
+                TextView tvQuantity = new TextView(requireContext());
+                tvQuantity.setLayoutParams(new LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                tvQuantity.setGravity(android.view.Gravity.END);
+                tvQuantity.setTextSize(14f);
+                tvQuantity.setText(ingredient.getQuantity() > 0
+                        ? String.valueOf(ingredient.getQuantity()) : "—");
+
+                TextView tvUnit = new TextView(requireContext());
+                tvUnit.setLayoutParams(new LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                tvUnit.setGravity(android.view.Gravity.END);
+                tvUnit.setTextSize(14f);
+                tvUnit.setText(ingredient.getUnit() != null && !ingredient.getUnit().isEmpty()
+                        ? ingredient.getUnit() : "—");
+
+                row.addView(tvName);
+                row.addView(tvQuantity);
+                row.addView(tvUnit);
+                containerIngredients.addView(row);
+            }
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(recipe.getName())
+                .setView(dialogView)
+                .setPositiveButton("Cerrar", null)
+                .show();
+    }
+
+    // ===========================
+    // DIÁLOGO MENÚ FAVORITO
+    // ===========================
+    private void showFavoriteTemplatesDialog() {
+        FavoriteTemplatesDialog dialog = FavoriteTemplatesDialog.newInstance();
+        dialog.setOnTemplateAppliedListener(unassignedPortions -> {
+            String msg = "Plantilla aplicada. Revisa y pulsa Guardar.";
+            if (unassignedPortions > 0) {
+                msg += "\n⚠️ " + unassignedPortions
+                        + " ración(es) sin asignar quedarán disponibles la semana siguiente.";
+            }
+            Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
+        });
+        dialog.show(getChildFragmentManager(), "FavoriteTemplatesFragment");
+    }
+
+    // ===========================
     // DIÁLOGOS
     // ===========================
     private void showRecipeSearchDialog(DayMenuWrapper day) {
@@ -192,11 +299,9 @@ public class MenuFragment extends Fragment {
         recyclerRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerRecipes.setAdapter(adapter);
 
-        // Observar recetas
         viewModel.getAllRecipes().observe(getViewLifecycleOwner(), adapter::setRecipes);
         viewModel.loadAllRecipes();
 
-        // Buscador por texto
         editSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -205,7 +310,6 @@ public class MenuFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Filtro favoritos
         buttonFilterFavorite.setOnClickListener(v -> {
             adapter.toggleFavoriteFilter();
             buttonFilterFavorite.setImageResource(
@@ -243,6 +347,7 @@ public class MenuFragment extends Fragment {
             textEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
             recyclerLeftovers.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
         });
+
         viewModel.loadValidLeftovers(day.getDate());
 
         leftoverSelectDialog = new AlertDialog.Builder(requireContext())
@@ -281,10 +386,25 @@ public class MenuFragment extends Fragment {
     }
 
     private void showDeleteConfirmation(MenuAssignment assignment) {
+        String recipeName = assignment.getRecipe().getName();
+        String message;
+
+        if (assignment.getMenu().isFromLeftover()) {
+            message = "¿Eliminar esta asignación de \"" + recipeName
+                    + "\"? La ración volverá a estar disponible.";
+        } else {
+            Leftover leftover = assignment.getLeftover();
+            if (leftover != null && leftover.getRemainingPortions() > 0) {
+                message = "¿Eliminar \"" + recipeName + "\"? También se eliminarán "
+                        + leftover.getRemainingPortions() + " ración(es) de sobras.";
+            } else {
+                message = "¿Eliminar \"" + recipeName + "\"? Esta acción no se puede deshacer.";
+            }
+        }
+
         new AlertDialog.Builder(requireContext())
                 .setTitle("Eliminar receta")
-                .setMessage("¿Eliminar \"" + assignment.getRecipe().getName()
-                        + "\" del menú? También se eliminarán sus sobras generadas.")
+                .setMessage(message)
                 .setPositiveButton("Eliminar", (dialog, which) ->
                         viewModel.removeAssignmentFromDay(assignment))
                 .setNegativeButton("Cancelar", null)
