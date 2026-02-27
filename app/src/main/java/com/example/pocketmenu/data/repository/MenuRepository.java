@@ -50,13 +50,12 @@ public class MenuRepository {
                 .orderBy("date");
     }
 
-    public Query getMenusByDateQuery(java.util.Date date) {
+    public Query getMenusByDateQuery(Date date) {
         String uid = getUserId();
         if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
         return db.collection(COLLECTION_PATH)
                 .whereEqualTo("userId", uid)
-                .whereEqualTo("date", date)
-                .orderBy("name");
+                .whereEqualTo("date", date);
     }
 
     public void getMenuById(String menuId, OnMenuFound callback) {
@@ -104,9 +103,72 @@ public class MenuRepository {
                 .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
                 .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
+
     public void deleteMenu(String menuId, MenuCallback callback) {
         db.collection(COLLECTION_PATH).document(menuId).delete()
                 .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
+                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+    }
+
+    /**
+     * Elimina todos los menus que consumieron sobras de un menu concreto.
+     * Usado al eliminar una receta principal para limpiar también
+     * las asignaciones de sus sobras.
+     */
+    public void deleteMenusBySourceMenuId(String sourceMenuId, MenuCallback callback) {
+        String uid = getUserId();
+        if (uid == null) return;
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereEqualTo("sourceMenuId", sourceMenuId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) {
+                        if (callback != null) callback.onSuccess();
+                        return;
+                    }
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(a -> {
+                                if (callback != null) callback.onSuccess();
+                            })
+                            .addOnFailureListener(e -> {
+                                if (callback != null) callback.onFailure(e);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Elimina todos los menus de una semana concreta.
+     * Usado al aplicar una plantilla favorita para reemplazar la semana.
+     */
+    public void deleteMenusByDateRange(Date from, Date to, MenuCallback callback) {
+        String uid = getUserId();
+        if (uid == null) return;
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereGreaterThanOrEqualTo("date", from)
+                .whereLessThanOrEqualTo("date", to)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) {
+                        if (callback != null) callback.onSuccess();
+                        return;
+                    }
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(a -> { if (callback != null) callback.onSuccess(); })
+                            .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+                })
                 .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
 

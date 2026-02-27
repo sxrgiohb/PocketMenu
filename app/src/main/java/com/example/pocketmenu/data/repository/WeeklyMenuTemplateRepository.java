@@ -1,10 +1,11 @@
 package com.example.pocketmenu.data.repository;
 
-import com.example.pocketmenu.data.model.Leftover;
 import com.example.pocketmenu.data.model.WeeklyMenuTemplate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+
+import java.util.List;
 
 public class WeeklyMenuTemplateRepository {
 
@@ -35,33 +36,44 @@ public class WeeklyMenuTemplateRepository {
         void onFailure(Exception e);
     }
 
-    // GET ALL TEMPLATES (Query)
+    public interface OnTemplatesLoaded {
+        void onLoaded(List<WeeklyMenuTemplate> templates);
+        void onFailure(Exception e);
+    }
     public Query getTemplatesQuery() {
         String uid = getUserId();
         if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
-
         return db.collection(COLLECTION_PATH)
                 .whereEqualTo("userId", uid)
                 .orderBy("name");
     }
 
-    // FIND TEMPLATE BY ID
     public void getTemplateById(String templateId, OnWeeklyMenuFound callback) {
         db.collection(COLLECTION_PATH)
                 .document(templateId)
                 .get()
                 .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        WeeklyMenuTemplate template = doc.toObject(WeeklyMenuTemplate.class);
-                        callback.onFound(template);
-                    } else {
-                        callback.onNotFound();
-                    }
+                    if (doc.exists()) callback.onFound(doc.toObject(WeeklyMenuTemplate.class));
+                    else callback.onNotFound();
                 })
                 .addOnFailureListener(callback::onFailure);
     }
 
-    // ADD TEMPLATE
+    public void getAllTemplates(OnTemplatesLoaded callback) {
+        String uid = getUserId();
+        if (uid == null) {
+            callback.onFailure(new Exception("Usuario no autenticado"));
+            return;
+        }
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .orderBy("name")
+                .get()
+                .addOnSuccessListener(snap ->
+                        callback.onLoaded(snap.toObjects(WeeklyMenuTemplate.class)))
+                .addOnFailureListener(callback::onFailure);
+    }
+
     public void addTemplate(WeeklyMenuTemplate template, WeeklyMenuCallback callback) {
         String uid = getUserId();
         if (uid == null) {
@@ -69,10 +81,10 @@ public class WeeklyMenuTemplateRepository {
             return;
         }
         template.setUserId(uid);
-
         db.collection(COLLECTION_PATH)
                 .add(template)
                 .addOnSuccessListener(ref -> {
+                    template.setId(ref.getId());
                     if (callback != null) callback.onSuccess();
                 })
                 .addOnFailureListener(e -> {
@@ -80,8 +92,8 @@ public class WeeklyMenuTemplateRepository {
                 });
     }
 
-    // UPDATE TEMPLATE
-    public void updateTemplate(String templateId, WeeklyMenuTemplate template, WeeklyMenuCallback callback) {
+    public void updateTemplate(String templateId, WeeklyMenuTemplate template,
+                               WeeklyMenuCallback callback) {
         db.collection(COLLECTION_PATH)
                 .document(templateId)
                 .set(template)
@@ -93,7 +105,6 @@ public class WeeklyMenuTemplateRepository {
                 });
     }
 
-    // DELETE TEMPLATE
     public void deleteTemplate(String templateId, WeeklyMenuCallback callback) {
         db.collection(COLLECTION_PATH)
                 .document(templateId)

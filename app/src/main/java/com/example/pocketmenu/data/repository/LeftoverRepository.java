@@ -71,6 +71,7 @@ public class LeftoverRepository {
                 .orderBy("firstAssignedDate");
     }
 
+
     public void getLeftoversByRecipe(String recipeId, OnLeftoversLoaded callback) {
         String uid = getUserId();
         if (uid == null) {
@@ -116,6 +117,14 @@ public class LeftoverRepository {
                 .whereEqualTo("userId", uid)
                 .get()
                 .addOnSuccessListener(snap -> {
+                    android.util.Log.d("LEFTOVERS_RAW", "Documentos en Firestore: " + snap.size());
+                    for (Leftover l : snap.toObjects(Leftover.class)) {
+                        android.util.Log.d("LEFTOVERS_RAW", "Raw: recipeId=" + l.getRecipeId()
+                                + " perishable=" + l.getPerishable()
+                                + " validDays=" + l.getValidDays()
+                                + " firstAssignedDate=" + l.getFirstAssignedDate()
+                                + " isStillValid=" + isStillValid(l, new Date()));
+                    }
                     List<Leftover> valid = new ArrayList<>();
                     Date now = new Date();
                     for (Leftover l : snap.toObjects(Leftover.class)) {
@@ -124,6 +133,47 @@ public class LeftoverRepository {
                     callback.onLoaded(valid);
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+
+    public void getLeftoversByDateRange(Date from, Date to, OnLeftoversLoaded callback) {
+        String uid = getUserId();
+        if (uid == null) {
+            callback.onFailure(new Exception("Usuario no autenticado"));
+            return;
+        }
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereGreaterThanOrEqualTo("firstAssignedDate", from)
+                .whereLessThanOrEqualTo("firstAssignedDate", to)
+                .get()
+                .addOnSuccessListener(snap ->
+                        callback.onLoaded(snap.toObjects(Leftover.class)))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void deleteLeftoversByDateRange(Date from, Date to, LeftoverCallback callback) {
+        String uid = getUserId();
+        if (uid == null) return;
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereGreaterThanOrEqualTo("firstAssignedDate", from)
+                .whereLessThanOrEqualTo("firstAssignedDate", to)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) {
+                        if (callback != null) callback.onSuccess();
+                        return;
+                    }
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(a -> { if (callback != null) callback.onSuccess(); })
+                            .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+                })
+                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
 
     public void addLeftover(Leftover leftover, LeftoverCallback callback) {
@@ -161,5 +211,65 @@ public class LeftoverRepository {
         long expirationMs = leftover.getFirstAssignedDate().getTime()
                 + (long) leftover.getValidDays() * msPerDay;
         return expirationMs >= now.getTime();
+    }
+
+    public void deleteExpiredPerishableLeftovers(LeftoverCallback callback) {
+        String uid = getUserId();
+        if (uid == null) return;
+        Date now = new Date();
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereEqualTo("perishable", true)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<com.google.firebase.firestore.DocumentSnapshot> expired = new ArrayList<>();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        Leftover l = doc.toObject(Leftover.class);
+                        if (l != null && !isStillValid(l, now)) {
+                            expired.add(doc);
+                        }
+                    }
+                    if (expired.isEmpty()) {
+                        if (callback != null) callback.onSuccess();
+                        return;
+                    }
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : expired) {
+                        batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(a -> { if (callback != null) callback.onSuccess(); })
+                            .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+                })
+                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
+    }
+
+    public void deleteLeftoversBySourceMenuId(String sourceMenuId, LeftoverCallback callback) {
+        String uid = getUserId();
+        if (uid == null) return;
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .whereEqualTo("sourceMenuId", sourceMenuId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) {
+                        if (callback != null) callback.onSuccess();
+                        return;
+                    }
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(a -> {
+                                if (callback != null) callback.onSuccess();
+                            })
+                            .addOnFailureListener(e -> {
+                                if (callback != null) callback.onFailure(e);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e);
+                });
     }
 }
