@@ -84,6 +84,8 @@ public class EditRecipeDialog extends DialogFragment {
         Button cancelBtn = view.findViewById(R.id.button_cancel_recipe);
         Button deleteBtn = view.findViewById(R.id.button_delete_recipe_form);
 
+        deleteBtn.setVisibility(View.VISIBLE);
+
         if (recipe != null) {
             nameEt.setText(recipe.getName());
             descEt.setText(recipe.getDescription());
