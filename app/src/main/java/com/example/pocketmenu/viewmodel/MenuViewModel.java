@@ -194,12 +194,16 @@ public class MenuViewModel extends ViewModel {
     // CARGA DE RECETAS PARA EL BUSCADOR
     // ===========================
     public void loadAllRecipes() {
-        recipeRepository.getRecipesQuery(null)
-                .get()
-                .addOnSuccessListener(snap ->
-                        allRecipes.postValue(snap.toObjects(Recipe.class)))
-                .addOnFailureListener(e ->
-                        errorMessage.postValue("Error cargando recetas: " + e.getMessage()));
+        recipeRepository.getRecipes(null, new RecipeRepository.OnRecipesLoaded() {
+            @Override
+            public void onLoaded(List<Recipe> recipes) {
+                allRecipes.postValue(recipes);
+            }
+            @Override
+            public void onFailure(Exception e) {
+                errorMessage.postValue("Error cargando recetas: " + e.getMessage());
+            }
+        });
     }
 
     // ===========================
