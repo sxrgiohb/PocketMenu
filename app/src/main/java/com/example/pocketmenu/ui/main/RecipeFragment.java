@@ -35,7 +35,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
 
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
-    private final long DEBOUNCE_DELAY = 100;
+    private final long DEBOUNCE_DELAY = 300;
 
     @Nullable
     @Override
@@ -55,15 +55,14 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        adapter = new RecipeAdapter();
+        adapter.setOnRecipeInteractionListener(this);
+        recyclerView.setAdapter(adapter);
+
         viewModel = new ViewModelProvider(this).get(RecipeViewModel.class);
 
-        viewModel.getRecipesOptions().observe(getViewLifecycleOwner(), options -> {
-            if (adapter != null) adapter.stopListening();
-            adapter = new RecipeAdapter(options);
-            adapter.setOnRecipeInteractionListener(this);
-            recyclerView.setAdapter(adapter);
-            adapter.startListening();
-        });
+        viewModel.getRecipes().observe(getViewLifecycleOwner(), recipes ->
+                adapter.setRecipes(recipes));
 
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
@@ -72,19 +71,11 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
             }
         });
 
-        viewModel.getOperationSuccess().observe(getViewLifecycleOwner(), success -> {
-            if (success != null && success) {
-                Toast.makeText(getContext(), "Operación realizada", Toast.LENGTH_SHORT).show();
-                viewModel.clearSuccess();
-            }
-        });
-
         setupSearchView();
 
-        fabAddRecipe.setOnClickListener(v -> {
-            AddRecipeDialog dialog = AddRecipeDialog.newInstance();
-            dialog.show(getChildFragmentManager(), "AddRecipeDialog");
-        });
+        fabAddRecipe.setOnClickListener(v ->
+                AddRecipeDialog.newInstance()
+                        .show(getChildFragmentManager(), "AddRecipeDialog"));
     }
 
     private void setupSearchView() {
@@ -112,13 +103,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
 
     @Override
     public void onEditClick(String recipeId, Recipe recipe) {
-        EditRecipeDialog dialog = EditRecipeDialog.newInstance(recipeId, recipe);
-        dialog.show(getChildFragmentManager(), "EditRecipeDialog");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (adapter != null) adapter.stopListening();
+        EditRecipeDialog.newInstance(recipeId, recipe)
+                .show(getChildFragmentManager(), "EditRecipeDialog");
     }
 }
