@@ -7,7 +7,6 @@ public class Recipe {
     @DocumentId
     private String id;
     private String userId;
-    private String urlImg;
     private String name;
     private int portion;
    private String description;
@@ -27,7 +26,6 @@ public class Recipe {
         this.description = description;
         this.portion = portion;
         this.ingredients = ingredients;
-        this.urlImg = "";
         this.isFavorite = false;
     }
 
@@ -41,9 +39,6 @@ public class Recipe {
         return userId;
     }
 
-    public String getUrlImg() {
-        return urlImg;
-    }
 
     public String getName() {
         return name;
@@ -78,9 +73,6 @@ public class Recipe {
         this.userId = userId;
     }
 
-    public void setUrlImg(String urlImg) {
-        this.urlImg = urlImg;
-    }
 
     public void setName(String name) {
         this.name = name;
