@@ -9,21 +9,21 @@ import com.example.pocketmenu.data.model.User;
 
 public class AuthRepository {
 
-    //Firebase instances
+    // Firebase instances
     private final FirebaseAuth auth;
     private final FirebaseFirestore db;
 
-    //LiveData instances
+    // LiveData instances
     private final MutableLiveData<FirebaseUser> userLiveData;
     private final MutableLiveData<Boolean> loggedOutLiveData;
     private final MutableLiveData<String> errorMessageLiveData;
     private final MutableLiveData<Boolean> registrationSuccessLiveData;
 
 
-    //Constants for Firestore collection
+    // Constants for Firestore collection
     private static final String COLLECTION_PATH = "USERS";
 
-    //Constructor
+    // Constructor
     public AuthRepository() {
         //Initialize instances
         this.auth = FirebaseAuth.getInstance();
@@ -33,7 +33,6 @@ public class AuthRepository {
         this.errorMessageLiveData = new MutableLiveData<>();
         this.registrationSuccessLiveData = new MutableLiveData<>();
 
-
         //Check open session
         if (auth.getCurrentUser() != null) {
             userLiveData.postValue(auth.getCurrentUser());
@@ -41,7 +40,7 @@ public class AuthRepository {
 
     }
 
-    //LiveData getters
+    // LiveData getters
     public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }
@@ -58,9 +57,9 @@ public class AuthRepository {
         return registrationSuccessLiveData;
     }
 
-    //New user Auth and Firestore
+    // New user Auth and Firestore
     public void registerNewUser(String email, String password, String name) {
-
+        // Resets any previous value
         registrationSuccessLiveData.postValue(null);
 
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {

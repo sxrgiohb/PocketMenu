@@ -13,7 +13,7 @@ public class AuthViewModel extends ViewModel {
     private final LiveData<String> errorMessageLiveData;
     private final LiveData<Boolean> registrationSuccessLiveData;
 
-
+    // Constructor
     public AuthViewModel() {
 
         this.repository = new AuthRepository();
@@ -23,7 +23,7 @@ public class AuthViewModel extends ViewModel {
         this.registrationSuccessLiveData = repository.getRegistrationSuccessLiveData();
     }
 
-    // New user Auth and Firestore method
+    // New user method
     public void registerNewUser(String email, String password, String name) {
         repository.registerNewUser(email, password, name);
     }
@@ -42,9 +42,11 @@ public class AuthViewModel extends ViewModel {
     public LiveData<FirebaseUser> getUserLiveData() {
         return userLiveData;
     }
+
     public LiveData<Boolean> getLoggedOutLiveData() {
         return loggedOutLiveData;
     }
+
     public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }

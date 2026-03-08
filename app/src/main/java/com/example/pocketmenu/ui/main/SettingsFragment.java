@@ -6,37 +6,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pocketmenu.R;
 import com.example.pocketmenu.ui.auth.LogInActivity;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.pocketmenu.viewmodel.AuthViewModel;
 
 public class SettingsFragment extends Fragment {
 
     private Button logoutButton;
+       private AuthViewModel authViewModel;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        // Links elements to variables
         logoutButton = view.findViewById(R.id.button_logout);
 
-        // Logout button
-        logoutButton.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
+        authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
 
-            // Redirects to LogInActivity
-            Intent intent = new Intent(getActivity(), LogInActivity.class);
-            // Clears the back stack and starts the new activity
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+        authViewModel.getLoggedOutLiveData().observe(getViewLifecycleOwner(), loggedOut -> {
+            if (loggedOut != null && loggedOut) {
+                Intent intent = new Intent(getActivity(), LogInActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
         });
+
+        logoutButton.setOnClickListener(v -> authViewModel.logOutSession());
         return view;
     }
 }

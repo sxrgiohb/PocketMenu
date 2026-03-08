@@ -25,16 +25,13 @@ public class LogInActivity extends AppCompatActivity {
     private Button goSignUpButton, logInButton;
     private ProgressBar progressBar;
 
-    // Comunicate with SignUpActivity
     private final ActivityResultLauncher<Intent> registerLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result ->{
-                if (result.getResultCode()==RESULT_OK){
-                    Toast.makeText(this, "Iniciando sesión", Toast.LENGTH_SHORT).show();
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
                     navigateToMain();
                 }
             }
     );
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +48,8 @@ public class LogInActivity extends AppCompatActivity {
     private void initializeViews() {
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
-
         progressBar = findViewById(R.id.progressBar);
         logInButton = findViewById(R.id.logInButton);
-
         goSignUpButton = findViewById(R.id.goSignUpButton);
     }
 
@@ -65,9 +60,9 @@ public class LogInActivity extends AppCompatActivity {
 
     // Observes the changes in the view model
     private void setupObservers() {
-        viewModel.getUserLiveData().observe(this, firebaseUser -> {
+        viewModel.getUserLiveData().observe(this, userLiveData -> {
             progressBar.setVisibility(View.GONE);
-            if (firebaseUser != null) {
+            if (userLiveData != null) {
                 navigateToMain();
             }
         });
@@ -75,29 +70,25 @@ public class LogInActivity extends AppCompatActivity {
         viewModel.getErrorMessageLiveData().observe(this, errorMessage -> {
             progressBar.setVisibility(View.GONE);
             if (errorMessage != null && !errorMessage.isEmpty()) {
-                Toast.makeText(LogInActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Listens to the buttons and text fields
-    private void setupListeners(){
-         logInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = emailEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(LogInActivity.this, "Introduce el correo", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(LogInActivity.this, "Introduce la contraseña", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                progressBar.setVisibility(View.VISIBLE);
-                viewModel.logInSession(email, password);
+    private void setupListeners() {
+        logInButton.setOnClickListener(v -> {
+            String email = emailEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
+            if (TextUtils.isEmpty(email)) {
+                Toast.makeText(LogInActivity.this, "Introduce el correo", Toast.LENGTH_SHORT).show();
+                return;
             }
+            if (TextUtils.isEmpty(password)) {
+                Toast.makeText(LogInActivity.this, "Introduce la contraseña", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            progressBar.setVisibility(View.VISIBLE);
+            viewModel.logInSession(email, password);
         });
 
         goSignUpButton.setOnClickListener(v -> {
