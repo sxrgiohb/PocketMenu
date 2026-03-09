@@ -106,10 +106,4 @@ public class AuthRepository {
             }
         });
     }
-
-    //Log out method
-    public void logOutSession(){
-        auth.signOut();
-        loggedOutLiveData.postValue(true);
-    }
 }

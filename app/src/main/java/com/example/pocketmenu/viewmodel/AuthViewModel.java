@@ -33,11 +33,6 @@ public class AuthViewModel extends ViewModel {
         repository.logInSession(email, password);
     }
 
-    // Log out method
-    public void logOutSession() {
-        repository.logOutSession();
-    }
-
     //Getters
     public LiveData<FirebaseUser> getUserLiveData() {
         return userLiveData;
