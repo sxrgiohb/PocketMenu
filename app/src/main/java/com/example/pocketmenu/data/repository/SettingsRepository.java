@@ -72,21 +72,23 @@ public class SettingsRepository {
         };
 
         AtomicInteger pendingCollections = new AtomicInteger(userCollections.length);
+        AtomicInteger failedCollections = new AtomicInteger(0);
 
         for (String collection : userCollections) {
-            deleteUserDocumentsFromCollection(collection, uid, pendingCollections, currentUser);
+            deleteUserDocumentsFromCollection(collection, uid, pendingCollections, failedCollections, currentUser);
         }
     }
 
     private void deleteUserDocumentsFromCollection(String collection, String uid,
                                                    AtomicInteger pendingCollections,
+                                                   AtomicInteger failedCollections,
                                                    FirebaseUser currentUser) {
         db.collection(collection)
                 .whereEqualTo(FIELD_USER_ID, uid)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) {
-                        checkAllCollectionsDeleted(pendingCollections, currentUser);
+                        checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
                         return;
                     }
 
@@ -96,19 +98,35 @@ public class SettingsRepository {
                         document.getReference().delete()
                                 .addOnSuccessListener(aVoid -> {
                                     if (pendingDocs.decrementAndGet() == 0) {
-                                        checkAllCollectionsDeleted(pendingCollections, currentUser);
+                                        checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
                                     }
                                 })
-                                .addOnFailureListener(e -> errorMessageLiveData.postValue(
-                                        "Error al eliminar datos de " + collection + ": " + e.getMessage()));
+                                .addOnFailureListener(e -> {
+                                    errorMessageLiveData.postValue(
+                                            "Error al eliminar datos de " + collection + ": " + e.getMessage());
+                                    failedCollections.incrementAndGet();
+                                    checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
+                                });
                     }
                 })
-                .addOnFailureListener(e -> errorMessageLiveData.postValue(
-                        "Error al acceder a " + collection + ": " + e.getMessage()));
+                .addOnFailureListener(e -> {
+                    errorMessageLiveData.postValue(
+                            "Error al acceder a " + collection + ": " + e.getMessage());
+                    failedCollections.incrementAndGet();
+                    checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
+                });
     }
 
-    private void checkAllCollectionsDeleted(AtomicInteger pendingCollections, FirebaseUser currentUser) {
+    private void checkAllCollectionsDeleted(AtomicInteger pendingCollections,
+                                            AtomicInteger failedCollections,
+                                            FirebaseUser currentUser) {
         if (pendingCollections.decrementAndGet() == 0) {
+            if (failedCollections.get() > 0) {
+                errorMessageLiveData.postValue(
+                        "No se pudo eliminar la cuenta por completo. Inténtalo de nuevo.");
+                return;
+            }
+
             db.collection(COLLECTION_USERS)
                     .document(currentUser.getUid())
                     .delete()
