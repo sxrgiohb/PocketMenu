@@ -15,7 +15,6 @@ public class AuthRepository {
 
     // LiveData instances
     private final MutableLiveData<FirebaseUser> userLiveData;
-    private final MutableLiveData<Boolean> loggedOutLiveData;
     private final MutableLiveData<String> errorMessageLiveData;
     private final MutableLiveData<Boolean> registrationSuccessLiveData;
 
@@ -29,7 +28,6 @@ public class AuthRepository {
         this.auth = FirebaseAuth.getInstance();
         this.db = FirebaseFirestore.getInstance();
         this.userLiveData = new MutableLiveData<>();
-        this.loggedOutLiveData = new MutableLiveData<>();
         this.errorMessageLiveData = new MutableLiveData<>();
         this.registrationSuccessLiveData = new MutableLiveData<>();
 
@@ -47,10 +45,6 @@ public class AuthRepository {
 
     public LiveData<FirebaseUser> getUserLiveData() {
         return userLiveData;
-    }
-
-    public LiveData<Boolean> getLoggedOutLiveData() {
-        return loggedOutLiveData;
     }
 
     public LiveData<Boolean> getRegistrationSuccessLiveData() {

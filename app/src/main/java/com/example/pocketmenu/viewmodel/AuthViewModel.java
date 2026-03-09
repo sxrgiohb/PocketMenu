@@ -9,7 +9,6 @@ public class AuthViewModel extends ViewModel {
 
     private final AuthRepository repository;
     private final LiveData<FirebaseUser> userLiveData;
-    private final LiveData<Boolean> loggedOutLiveData;
     private final LiveData<String> errorMessageLiveData;
     private final LiveData<Boolean> registrationSuccessLiveData;
 
@@ -18,7 +17,6 @@ public class AuthViewModel extends ViewModel {
 
         this.repository = new AuthRepository();
         this.userLiveData = repository.getUserLiveData();
-        this.loggedOutLiveData = repository.getLoggedOutLiveData();
         this.errorMessageLiveData = repository.getErrorMessageLiveData();
         this.registrationSuccessLiveData = repository.getRegistrationSuccessLiveData();
     }
@@ -36,10 +34,6 @@ public class AuthViewModel extends ViewModel {
     //Getters
     public LiveData<FirebaseUser> getUserLiveData() {
         return userLiveData;
-    }
-
-    public LiveData<Boolean> getLoggedOutLiveData() {
-        return loggedOutLiveData;
     }
 
     public LiveData<String> getErrorMessageLiveData() {
