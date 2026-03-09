@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
         topAppBar.setOnMenuItemClickListener(menuItem -> {
             // Checks if the item is the settings icon
             if (menuItem.getItemId() == R.id.navigation_settings) {
-                loadFragment(new SettingsFragment());
+                SettingsFragment settingsFragment = new SettingsFragment();
+                settingsFragment.show(getSupportFragmentManager(), "settings");
                 return true;
             }
             return false;
