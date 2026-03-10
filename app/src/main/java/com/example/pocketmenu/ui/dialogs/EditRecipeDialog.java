@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,11 +28,6 @@ import java.util.List;
 
 public class EditRecipeDialog extends DialogFragment {
 
-    private static final String ARG_RECIPE_ID = "recipe_id";
-    private static final String ARG_RECIPE_NAME = "recipe_name";
-    private static final String ARG_RECIPE_DESC = "recipe_desc";
-    private static final String ARG_RECIPE_PORTIONS = "recipe_portions";
-
     private RecipeViewModel viewModel;
     private Recipe recipe;
     private String recipeId;
@@ -42,17 +39,15 @@ public class EditRecipeDialog extends DialogFragment {
         return dialog;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dialog_add_recipe, container, false);
     }
 
+
     @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.setTitle("Editar receta");
         return dialog;
@@ -69,7 +64,7 @@ public class EditRecipeDialog extends DialogFragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireParentFragment())
@@ -86,6 +81,7 @@ public class EditRecipeDialog extends DialogFragment {
 
         deleteBtn.setVisibility(View.VISIBLE);
 
+        // Data binding
         if (recipe != null) {
             nameEt.setText(recipe.getName());
             descEt.setText(recipe.getDescription());
@@ -131,15 +127,38 @@ public class EditRecipeDialog extends DialogFragment {
         cancelBtn.setOnClickListener(v -> dismiss());
     }
 
+    // Auxiliar methods
     private void addIngredientRow(LinearLayout container) {
         View row = LayoutInflater.from(requireContext())
                 .inflate(R.layout.item_ingredient, container, false);
+
+        ImageButton removeButton = row.findViewById(R.id.button_remove_ingredient);
+        removeButton.setOnClickListener(v -> {
+            if (container.getChildCount() > 1) {
+                container.removeView(row);
+            } else {
+                Toast.makeText(requireContext(),
+                        "La receta debe tener al menos un ingrediente",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
         container.addView(row);
     }
 
     private void addIngredientRow(LinearLayout container, Ingredient ing) {
         View row = LayoutInflater.from(requireContext())
                 .inflate(R.layout.item_ingredient, container, false);
+
+        ImageButton removeButton = row.findViewById(R.id.button_remove_ingredient);
+        removeButton.setOnClickListener(v -> {
+            if (container.getChildCount() > 1) {
+                container.removeView(row);
+            } else {
+                Toast.makeText(requireContext(),
+                        "La receta debe tener al menos un ingrediente",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
 
         AutoCompleteTextView name = row.findViewById(R.id.autocomplete_ingredient_name);
         EditText qty = row.findViewById(R.id.edit_text_ingredient_quantity);

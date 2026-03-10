@@ -8,11 +8,12 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -33,11 +34,8 @@ public class AddRecipeDialog extends DialogFragment {
         return new AddRecipeDialog();
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dialog_add_recipe, container, false);
     }
 
@@ -60,11 +58,10 @@ public class AddRecipeDialog extends DialogFragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(requireParentFragment())
-                .get(RecipeViewModel.class);
+        viewModel = new ViewModelProvider(requireParentFragment()).get(RecipeViewModel.class);
 
         EditText nameEt = view.findViewById(R.id.edit_text_recipe_name);
         EditText descEt = view.findViewById(R.id.edit_text_recipe_description);
@@ -97,9 +94,17 @@ public class AddRecipeDialog extends DialogFragment {
         cancelBtn.setOnClickListener(v -> dismiss());
     }
 
+    // Auxiliar methods
     private void addIngredientRow(LinearLayout container) {
-        View row = LayoutInflater.from(requireContext())
-                .inflate(R.layout.item_ingredient, container, false);
+        View row = getLayoutInflater().inflate(R.layout.item_ingredient, container, false);
+        ImageButton removeButton = row.findViewById(R.id.button_remove_ingredient);
+        removeButton.setOnClickListener(v -> {
+            if (container.getChildCount() > 1) {
+                container.removeView(row);
+            } else {
+                Toast.makeText(requireContext(), "La receta debe tener al menos un ingrediente", Toast.LENGTH_SHORT).show();
+            }
+        });
         container.addView(row);
     }
 

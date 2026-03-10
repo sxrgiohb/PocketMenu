@@ -1,7 +1,6 @@
 package com.example.pocketmenu.viewmodel;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.pocketmenu.data.model.Recipe;
@@ -12,84 +11,47 @@ import java.util.List;
 public class RecipeViewModel extends ViewModel {
 
     private final RecipeRepository repository;
-
-    private final MutableLiveData<List<Recipe>> recipes = new MutableLiveData<>();
-    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> operationSuccess = new MutableLiveData<>();
+    private final LiveData<List<Recipe>> recipes;
+    private final LiveData<Boolean> operationSuccess;
+    private final LiveData<String> errorMessage;
 
     public RecipeViewModel() {
         repository = new RecipeRepository();
-        loadRecipes(null);
+        recipes = repository.getRecipesLiveData();
+        operationSuccess = repository.getOperationSuccessLiveData();
+        errorMessage = repository.getErrorMessageLiveData();
+        repository.getRecipes(null);
     }
 
-    public LiveData<List<Recipe>> getRecipes() { return recipes; }
-    public LiveData<String> getErrorMessage() { return errorMessage; }
-    public LiveData<Boolean> getOperationSuccess() { return operationSuccess; }
+    // Getters
+    public LiveData<List<Recipe>> getRecipes() {
+        return recipes;
+    }
+    public LiveData<Boolean> getOperationSuccess() {
+        return operationSuccess;
+    }
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
+    }
 
+    // Methods
     public void loadRecipes(String searchText) {
-        repository.getRecipes(searchText, new RecipeRepository.OnRecipesLoaded() {
-            @Override
-            public void onLoaded(List<Recipe> loaded) {
-                recipes.postValue(loaded);
-            }
-            @Override
-            public void onFailure(Exception e) {
-                errorMessage.postValue(e.getMessage());
-            }
-        });
+        repository.getRecipes(searchText);
     }
 
     public void addRecipe(Recipe recipe) {
-        repository.addRecipe(recipe, new RecipeRepository.RecipeCallback() {
-            @Override
-            public void onSuccess() {
-                loadRecipes(null);
-            }
-            @Override
-            public void onFailure(Exception e) {
-                errorMessage.postValue(e.getMessage());
-            }
-        });
+        repository.addRecipe(recipe);
     }
 
     public void toggleFavorite(String recipeId, boolean isFavorite) {
-        repository.updateFavorite(recipeId, !isFavorite, new RecipeRepository.RecipeCallback() {
-            @Override
-            public void onSuccess() {
-                loadRecipes(null);
-            }
-            @Override
-            public void onFailure(Exception e) {
-                errorMessage.postValue(e.getMessage());
-            }
-        });
+        repository.updateFavorite(recipeId, !isFavorite); // Inverter
     }
 
     public void updateRecipe(String recipeId, Recipe recipe) {
-        repository.updateRecipe(recipeId, recipe, new RecipeRepository.RecipeCallback() {
-            @Override
-            public void onSuccess() {
-                loadRecipes(null);
-            }
-            @Override
-            public void onFailure(Exception e) {
-                errorMessage.postValue(e.getMessage());
-            }
-        });
+        repository.updateRecipe(recipeId, recipe);
     }
 
     public void deleteRecipe(String recipeId) {
-        repository.deleteRecipe(recipeId, new RecipeRepository.RecipeCallback() {
-            @Override
-            public void onSuccess() {
-                loadRecipes(null);
-            }
-            @Override
-            public void onFailure(Exception e) {
-                errorMessage.postValue(e.getMessage());
-            }
-        });
+        repository.deleteRecipe(recipeId);
     }
-
-    public void clearError() { errorMessage.setValue(null); }
 }

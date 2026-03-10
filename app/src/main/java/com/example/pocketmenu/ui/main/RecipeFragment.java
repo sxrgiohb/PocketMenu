@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -37,45 +36,50 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
     private Runnable searchRunnable;
     private final long DEBOUNCE_DELAY = 300;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_recipe, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.recycler_view_recipes);
         fabAddRecipe = view.findViewById(R.id.fab_add_recipe);
         searchView = view.findViewById(R.id.search_view_recipes);
 
+        // RecyclerView setup
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         adapter = new RecipeAdapter();
         adapter.setOnRecipeInteractionListener(this);
         recyclerView.setAdapter(adapter);
 
         viewModel = new ViewModelProvider(this).get(RecipeViewModel.class);
 
+        setupObservers();
+        setupSearchView();
+
+        // Floating action button
+        fabAddRecipe.setOnClickListener(v ->
+                AddRecipeDialog.newInstance().show(getChildFragmentManager(), "AddRecipeDialog"));
+    }
+
+    private void setupObservers() {
         viewModel.getRecipes().observe(getViewLifecycleOwner(), recipes ->
                 adapter.setRecipes(recipes));
+
+        viewModel.getOperationSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                viewModel.loadRecipes(null);
+            }
+        });
 
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
                 Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
-                viewModel.clearError();
             }
         });
-
-        setupSearchView();
-
-        fabAddRecipe.setOnClickListener(v ->
-                AddRecipeDialog.newInstance()
-                        .show(getChildFragmentManager(), "AddRecipeDialog"));
     }
 
     private void setupSearchView() {
@@ -87,6 +91,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
             }
 
             @Override
+            // Avoids multiple queries when typing
             public boolean onQueryTextChange(String newText) {
                 searchHandler.removeCallbacks(searchRunnable);
                 searchRunnable = () -> viewModel.loadRecipes(newText);
@@ -103,7 +108,6 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
 
     @Override
     public void onEditClick(String recipeId, Recipe recipe) {
-        EditRecipeDialog.newInstance(recipeId, recipe)
-                .show(getChildFragmentManager(), "EditRecipeDialog");
+        EditRecipeDialog.newInstance(recipeId, recipe).show(getChildFragmentManager(), "EditRecipeDialog");
     }
 }

@@ -31,6 +31,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
     public void setRecipes(List<Recipe> recipes) {
         this.recipes = recipes != null ? recipes : new ArrayList<>();
+        // Notifies the RecyclerView that the data has changed
         notifyDataSetChanged();
     }
 
@@ -42,8 +43,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_recipe, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recipe, parent, false);
         return new ViewHolder(v);
     }
 
@@ -70,7 +70,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
         });
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name;
         ImageButton favorite, edit;
 
