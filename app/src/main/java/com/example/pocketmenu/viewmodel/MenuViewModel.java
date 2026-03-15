@@ -42,7 +42,6 @@ public class MenuViewModel extends ViewModel {
     private final MutableLiveData<Date> selectedWeekStart = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-    private final MutableLiveData<List<Recipe>> allRecipes = new MutableLiveData<>();
     private final MutableLiveData<List<LeftoverWithRecipe>> validLeftovers = new MutableLiveData<>();
 
     public MenuViewModel() {
@@ -60,7 +59,8 @@ public class MenuViewModel extends ViewModel {
     public LiveData<Date> getSelectedWeekStart() { return selectedWeekStart; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
-    public LiveData<List<Recipe>> getAllRecipes() { return allRecipes; }
+    public LiveData<List<Recipe>> getAllRecipes() {return recipeRepository.getRecipesLiveData();
+    }
     public LiveData<List<LeftoverWithRecipe>> getValidLeftovers() { return validLeftovers; }
 
     // ===========================
