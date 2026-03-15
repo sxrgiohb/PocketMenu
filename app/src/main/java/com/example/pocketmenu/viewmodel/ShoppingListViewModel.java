@@ -389,22 +389,20 @@ public class ShoppingListViewModel extends ViewModel {
     }
 
     private List<String> getWeekIdsForCurrentMonth() {
+        List<String> weekIds = new ArrayList<>();
         Calendar cal = Calendar.getInstance(Locale.forLanguageTag("es-ES"));
         cal.setMinimalDaysInFirstWeek(4);
         cal.setFirstDayOfWeek(Calendar.MONDAY);
 
-        int currentMonth = cal.get(Calendar.MONTH);
-        int currentYear = cal.get(Calendar.YEAR);
-
-        cal.set(Calendar.DAY_OF_MONTH, 1);
+        int dow = cal.get(Calendar.DAY_OF_WEEK);
+        int diff = (dow == Calendar.SUNDAY) ? -6 : Calendar.MONDAY - dow;
+        cal.add(Calendar.DAY_OF_MONTH, diff);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        List<String> weekIds = new ArrayList<>();
-        while (cal.get(Calendar.MONTH) == currentMonth
-                && cal.get(Calendar.YEAR) == currentYear) {
+        for (int i = 0; i < 4; i++) {
             String weekId = ShoppingListRepository.getWeekId(cal.getTime());
             if (!weekIds.contains(weekId)) weekIds.add(weekId);
             cal.add(Calendar.DAY_OF_MONTH, 7);
