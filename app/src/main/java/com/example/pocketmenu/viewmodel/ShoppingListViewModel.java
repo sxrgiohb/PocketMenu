@@ -297,7 +297,12 @@ public class ShoppingListViewModel extends ViewModel {
         shoppingListRepository.updateItem(item,
                 new ShoppingListRepository.ShoppingListCallback() {
                     @Override
-                    public void onSuccess() { loadCurrentMonth(); }
+                    public void onSuccess() {
+                        List<WeeklyShoppingList> current = monthlyShoppingLists.getValue();
+                        if (current != null) {
+                            monthlyShoppingLists.setValue(current);
+                        }
+                    }
                     @Override
                     public void onFailure(Exception e) {
                         errorMessage.postValue("Error actualizando item: " + e.getMessage());

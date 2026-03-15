@@ -35,6 +35,7 @@ public class AddProductDialog extends DialogFragment {
     private TextInputEditText editCategory;
     private TextInputEditText editStore;
     private Product matchedProduct = null;
+    private boolean isFillingFromSuggestion = false;
 
     public static AddProductDialog newInstance(String weekId) {
         AddProductDialog dialog = new AddProductDialog();
@@ -80,6 +81,7 @@ public class AddProductDialog extends DialogFragment {
                 .get(ShoppingListViewModel.class);
 
         autocompleteName = view.findViewById(R.id.autocomplete_product_name);
+        autocompleteName.setDropDownAnchor(R.id.autocomplete_product_name);
         editQuantity = view.findViewById(R.id.edit_product_quantity);
         editUnit = view.findViewById(R.id.edit_product_unit);
         editCategory = view.findViewById(R.id.edit_product_category);
@@ -103,16 +105,46 @@ public class AddProductDialog extends DialogFragment {
     }
 
     private void setupAutocomplete() {
+        autocompleteName.setThreshold(1);
+
         autocompleteName.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int i, int c, int a) {}
             @Override public void afterTextChanged(Editable s) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (isFillingFromSuggestion) return;
                 matchedProduct = null;
                 clearFieldsExceptName();
-                viewModel.searchProductSuggestions(s.toString());
+                String text = s.toString().trim();
+                if (!text.isEmpty()) {
+                    String normalized = text.substring(0, 1).toUpperCase()
+                            + text.substring(1);
+                    viewModel.searchProductSuggestions(normalized);
+                } else {
+                    viewModel.searchProductSuggestions("");
+                }
             }
+        });
+
+        viewModel.getProductSuggestions().observe(getViewLifecycleOwner(), products -> {
+            if (products == null || products.isEmpty()) {
+                autocompleteName.dismissDropDown();
+                return;
+            }
+            if (matchedProduct != null) return;
+            List<String> names = new ArrayList<>();
+            for (Product p : products) names.add(p.getName());
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    names);
+            autocompleteName.setAdapter(adapter);
+            autocompleteName.post(() -> {
+                if (autocompleteName.getText().length() > 0) {
+                    autocompleteName.showDropDown();
+                }
+            });
         });
 
         autocompleteName.setOnItemClickListener((parent, v, position, id) -> {
@@ -120,13 +152,18 @@ public class AddProductDialog extends DialogFragment {
             List<Product> suggestions = viewModel.getProductSuggestions().getValue();
             if (suggestions != null) {
                 for (Product p : suggestions) {
-                    if (p.getName().equals(selectedName)) {
+                    if (p.getName().equalsIgnoreCase(selectedName)) {
+                        isFillingFromSuggestion = true;
                         matchedProduct = p;
                         fillFieldsFromProduct(p);
+                        isFillingFromSuggestion = false;
                         break;
                     }
                 }
             }
+            autocompleteName.dismissDropDown();
+            autocompleteName.setAdapter(null);
+            editQuantity.requestFocus();
         });
     }
 
@@ -144,11 +181,13 @@ public class AddProductDialog extends DialogFragment {
     }
 
     private void saveProduct() {
-        String name = autocompleteName.getText().toString().trim();
-        if (name.isEmpty()) {
+        String raw = autocompleteName.getText() != null
+                ? autocompleteName.getText().toString().trim() : "";
+        if (raw.isEmpty()) {
             autocompleteName.setError("Nombre obligatorio");
             return;
         }
+        String name = raw.substring(0, 1).toUpperCase() + raw.substring(1);
 
         String qtyStr = editQuantity.getText() != null
                 ? editQuantity.getText().toString().trim() : "";
