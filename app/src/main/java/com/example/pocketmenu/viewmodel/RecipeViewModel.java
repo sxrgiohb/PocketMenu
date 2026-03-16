@@ -3,9 +3,11 @@ package com.example.pocketmenu.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.pocketmenu.data.model.Ingredient;
 import com.example.pocketmenu.data.model.Recipe;
 import com.example.pocketmenu.data.repository.RecipeRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeViewModel extends ViewModel {
@@ -23,18 +25,10 @@ public class RecipeViewModel extends ViewModel {
         repository.getRecipes(null);
     }
 
-    // Getters
-    public LiveData<List<Recipe>> getRecipes() {
-        return recipes;
-    }
-    public LiveData<Boolean> getOperationSuccess() {
-        return operationSuccess;
-    }
-    public LiveData<String> getErrorMessage() {
-        return errorMessage;
-    }
+    public LiveData<List<Recipe>> getRecipes() { return recipes; }
+    public LiveData<Boolean> getOperationSuccess() { return operationSuccess; }
+    public LiveData<String> getErrorMessage() { return errorMessage; }
 
-    // Methods
     public void loadRecipes(String searchText) {
         repository.getRecipes(searchText);
     }
@@ -44,7 +38,7 @@ public class RecipeViewModel extends ViewModel {
     }
 
     public void toggleFavorite(String recipeId, boolean isFavorite) {
-        repository.updateFavorite(recipeId, !isFavorite); // Inverter
+        repository.updateFavorite(recipeId, !isFavorite);
     }
 
     public void updateRecipe(String recipeId, Recipe recipe) {
@@ -53,5 +47,14 @@ public class RecipeViewModel extends ViewModel {
 
     public void deleteRecipe(String recipeId) {
         repository.deleteRecipe(recipeId);
+    }
+
+    public void searchIngredientSuggestions(String prefix,
+                                            RecipeRepository.OnIngredientsLoaded callback) {
+        if (prefix == null || prefix.trim().isEmpty()) {
+            callback.onLoaded(new ArrayList<>());
+            return;
+        }
+        repository.getIngredientSuggestions(prefix.trim(), callback);
     }
 }

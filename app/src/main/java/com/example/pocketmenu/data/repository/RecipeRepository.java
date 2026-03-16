@@ -3,6 +3,7 @@ package com.example.pocketmenu.data.repository;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.pocketmenu.data.model.Ingredient;
 import com.example.pocketmenu.data.model.Recipe;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -10,7 +11,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RecipeRepository {
 
@@ -30,17 +33,9 @@ public class RecipeRepository {
         errorMessageLiveData = new MutableLiveData<>();
     }
 
-    public LiveData<List<Recipe>> getRecipesLiveData() {
-        return recipesLiveData;
-    }
-
-    public LiveData<Boolean> getOperationSuccessLiveData() {
-        return operationSuccessLiveData;
-    }
-
-    public LiveData<String> getErrorMessageLiveData() {
-        return errorMessageLiveData;
-    }
+    public LiveData<List<Recipe>> getRecipesLiveData() { return recipesLiveData; }
+    public LiveData<Boolean> getOperationSuccessLiveData() { return operationSuccessLiveData; }
+    public LiveData<String> getErrorMessageLiveData() { return errorMessageLiveData; }
 
     public void getRecipes(String searchText) {
         String uid = getUserId();
@@ -54,7 +49,7 @@ public class RecipeRepository {
         if (searchText != null && !searchText.isEmpty()) {
             query = query.orderBy("name")
                     .startAt(searchText)
-                    .endAt(searchText + '\uf8ff'); // '\uf8ff' is a wildcard character
+                    .endAt(searchText + '\uf8ff');
         } else {
             query = query.orderBy("name");
         }
@@ -102,14 +97,18 @@ public class RecipeRepository {
                 .addOnFailureListener(e -> errorMessageLiveData.postValue(e.getMessage()));
     }
 
-    // Callback interface for getRecipeById
     public interface OnRecipeFound {
         void onFound(Recipe recipe);
         void onNotFound();
         void onFailure(Exception e);
     }
 
-    // Kept as callback because it's used internally between modules (MenuViewModel, ShoppingListViewModel)
+    public interface OnIngredientsLoaded {
+        void onLoaded(List<Ingredient> ingredients);
+        void onFailure(Exception e);
+    }
+
+    // Kept as callback because it's used internally between modules
     public void getRecipeById(String recipeId, OnRecipeFound callback) {
         db.collection(COLLECTION_PATH)
                 .document(recipeId)
@@ -125,7 +124,32 @@ public class RecipeRepository {
                 })
                 .addOnFailureListener(callback::onFailure);
     }
-    // Auxiliar method
+
+    public void getIngredientSuggestions(String prefix, OnIngredientsLoaded callback) {
+        String uid = getUserId();
+        if (uid == null) return;
+        db.collection(COLLECTION_PATH)
+                .whereEqualTo("userId", uid)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    Map<String, Ingredient> seen = new LinkedHashMap<>();
+                    for (QueryDocumentSnapshot doc : snap) {
+                        Recipe recipe = doc.toObject(Recipe.class);
+                        if (recipe.getIngredients() != null) {
+                            for (Ingredient ing : recipe.getIngredients()) {
+                                if (ing.getName() != null && !ing.getName().isEmpty()
+                                        && ing.getName().toLowerCase()
+                                        .startsWith(prefix.toLowerCase())) {
+                                    seen.putIfAbsent(ing.getName().toLowerCase(), ing);
+                                }
+                            }
+                        }
+                    }
+                    callback.onLoaded(new ArrayList<>(seen.values()));
+                })
+                .addOnFailureListener(e -> callback.onFailure(e));
+    }
+
     private String getUserId() {
         if (auth.getCurrentUser() != null) return auth.getCurrentUser().getUid();
         return null;
