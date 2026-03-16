@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pocketmenu.R;
+import com.example.pocketmenu.utils.PasswordValidator;
 import com.example.pocketmenu.viewmodel.AuthViewModel;
 
 
@@ -126,11 +127,13 @@ public class SignUpActivity extends AppCompatActivity {
         int notValidColor = ContextCompat.getColor(this, android.R.color.darker_gray);
         int isValidColor = ContextCompat.getColor(this, R.color.green);
 
-        requirementLength.setTextColor(password.length() >= 8 ? isValidColor : notValidColor);
-        requirementNumber.setTextColor(password.matches(".*\\d.*") ? isValidColor : notValidColor);
-        requirementCapital.setTextColor(password.matches(".*[A-Z].*") ? isValidColor : notValidColor);
-        return password.length() >= 8 &&
-                password.matches(".*\\d.*") &&
-                password.matches(".*[A-Z].*");
+        requirementLength.setTextColor(
+                PasswordValidator.hasMinLength(password) ? isValidColor : notValidColor);
+        requirementNumber.setTextColor(
+                PasswordValidator.hasNumber(password) ? isValidColor : notValidColor);
+        requirementCapital.setTextColor(
+                PasswordValidator.hasUpperCase(password) ? isValidColor : notValidColor);
+
+        return PasswordValidator.isValid(password);
     }
 }
