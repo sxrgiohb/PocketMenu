@@ -25,6 +25,7 @@ import com.example.pocketmenu.R;
 import com.example.pocketmenu.data.model.Ingredient;
 import com.example.pocketmenu.data.model.Recipe;
 import com.example.pocketmenu.data.repository.RecipeRepository;
+import com.example.pocketmenu.utils.RecipeValidator;
 import com.example.pocketmenu.viewmodel.RecipeViewModel;
 
 import java.util.ArrayList;
@@ -233,26 +234,20 @@ public class EditRecipeDialog extends DialogFragment {
 
     private boolean validateRecipeFields(EditText nameEt, EditText portionsEt) {
         String name = nameEt.getText().toString().trim();
-        if (name.isEmpty()) {
+        if (!RecipeValidator.isNameValid(name)) {
             nameEt.setError("Nombre obligatorio");
             return false;
         }
         String portionsText = portionsEt.getText().toString().trim();
-        if (!portionsText.isEmpty()) {
-            try {
-                Integer.parseInt(portionsText);
-            } catch (NumberFormatException e) {
-                portionsEt.setError("Número inválido");
-                return false;
-            }
+        if (!RecipeValidator.isPortionsValid(portionsText)) {
+            portionsEt.setError("Número inválido");
+            return false;
         }
         return true;
     }
 
     private int getPortions(EditText portionsEt) {
-        String text = portionsEt.getText().toString().trim();
-        if (text.isEmpty()) return 1;
-        return Integer.parseInt(text);
+        return RecipeValidator.parsePortions(portionsEt.getText().toString().trim());
     }
 
     private List<Ingredient> getIngredientsFromContainer(LinearLayout container) {
