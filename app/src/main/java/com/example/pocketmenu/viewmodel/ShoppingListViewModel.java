@@ -13,14 +13,13 @@ import com.example.pocketmenu.data.model.auxiliar.WeeklyShoppingList;
 import com.example.pocketmenu.data.repository.ProductRepository;
 import com.example.pocketmenu.data.repository.RecipeRepository;
 import com.example.pocketmenu.data.repository.ShoppingListRepository;
+import com.example.pocketmenu.utils.DateUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,14 +55,8 @@ public class ShoppingListViewModel extends ViewModel {
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public List<WeeklyShoppingList> getUnfilteredLists() { return unfilteredLists; }
 
-    // ===========================
-    // CARGA Y GENERACIÓN AL ENTRAR AL FRAGMENT
-    // ===========================
-
     public void loadCurrentMonth() {
         isLoading.setValue(true);
-
-        // 1. Limpiar semanas pasadas
         shoppingListRepository.deletePastWeeks(
                 new ShoppingListRepository.ShoppingListCallback() {
                     @Override
@@ -75,7 +68,6 @@ public class ShoppingListViewModel extends ViewModel {
                             isLoading.postValue(false);
                             return;
                         }
-                        // 2. Regenerar ingredientes de recetas para cada semana del mes
                         regenerateAllWeeks(weekIds);
                     }
                     @Override
@@ -87,15 +79,13 @@ public class ShoppingListViewModel extends ViewModel {
                 });
     }
 
-    // Regenera los items de receta para todas las semanas y luego carga
     private void regenerateAllWeeks(List<String> weekIds) {
         AtomicInteger pending = new AtomicInteger(weekIds.size());
 
         for (String weekId : weekIds) {
             Date monday = ShoppingListRepository.getMondayFromWeekId(weekId);
-            Date sunday = getSunday(monday);
+            Date sunday = DateUtils.getSunday(monday);
 
-            // Borrar items de receta de esa semana y regenerar desde los menús
             shoppingListRepository.deleteRecipeItemsByWeekId(weekId,
                     new ShoppingListRepository.ShoppingListCallback() {
                         @Override
@@ -131,7 +121,6 @@ public class ShoppingListViewModel extends ViewModel {
 
     private void checkAllWeeksDone(AtomicInteger pending, List<String> weekIds) {
         if (pending.decrementAndGet() == 0) {
-            // Todas las semanas regeneradas, ahora cargar y mostrar
             shoppingListRepository.getItemsByWeekIds(weekIds,
                     new ShoppingListRepository.OnItemsLoaded() {
                         @Override
@@ -219,10 +208,6 @@ public class ShoppingListViewModel extends ViewModel {
         }
     }
 
-    // ===========================
-    // VISTA SEMANAL / MENSUAL
-    // ===========================
-
     public void setWeekViewMode(boolean weekOnly) {
         this.weekViewMode = weekOnly;
         applyCurrentView();
@@ -265,10 +250,6 @@ public class ShoppingListViewModel extends ViewModel {
         monthlyShoppingLists.setValue(filtered);
     }
 
-    // ===========================
-    // FILTROS
-    // ===========================
-
     public void setStoreFilter(String store) {
         this.activeStoreFilter = store;
         applyCurrentView();
@@ -288,10 +269,6 @@ public class ShoppingListViewModel extends ViewModel {
     public String getActiveStoreFilter() { return activeStoreFilter; }
     public String getActiveCategoryFilter() { return activeCategoryFilter; }
 
-    // ===========================
-    // CHECKBOX
-    // ===========================
-
     public void toggleItemChecked(ShoppingListItem item) {
         item.setChecked(!item.isChecked());
         shoppingListRepository.updateItem(item,
@@ -309,10 +286,6 @@ public class ShoppingListViewModel extends ViewModel {
                     }
                 });
     }
-
-    // ===========================
-    // PRODUCTOS EXTRA
-    // ===========================
 
     public void addExtraItem(ShoppingListItem item, boolean isNewProduct, Product product) {
         if (isNewProduct) {
@@ -373,10 +346,6 @@ public class ShoppingListViewModel extends ViewModel {
                 });
     }
 
-    // ===========================
-    // UTILIDADES
-    // ===========================
-
     private List<WeeklyShoppingList> groupItemsByWeek(List<ShoppingListItem> items,
                                                       List<String> weekIds) {
         Map<String, List<ShoppingListItem>> byWeek = new LinkedHashMap<>();
@@ -394,34 +363,6 @@ public class ShoppingListViewModel extends ViewModel {
     }
 
     private List<String> getWeekIdsForCurrentMonth() {
-        List<String> weekIds = new ArrayList<>();
-        Calendar cal = Calendar.getInstance(Locale.forLanguageTag("es-ES"));
-        cal.setMinimalDaysInFirstWeek(4);
-        cal.setFirstDayOfWeek(Calendar.MONDAY);
-
-        int dow = cal.get(Calendar.DAY_OF_WEEK);
-        int diff = (dow == Calendar.SUNDAY) ? -6 : Calendar.MONDAY - dow;
-        cal.add(Calendar.DAY_OF_MONTH, diff);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-        for (int i = 0; i < 4; i++) {
-            String weekId = ShoppingListRepository.getWeekId(cal.getTime());
-            if (!weekIds.contains(weekId)) weekIds.add(weekId);
-            cal.add(Calendar.DAY_OF_MONTH, 7);
-        }
-        return weekIds;
-    }
-
-    private Date getSunday(Date monday) {
-        Calendar cal = Calendar.getInstance(Locale.forLanguageTag("es-ES"));
-        cal.setTime(monday);
-        cal.add(Calendar.DAY_OF_MONTH, 6);
-        cal.set(Calendar.HOUR_OF_DAY, 23);
-        cal.set(Calendar.MINUTE, 59);
-        cal.set(Calendar.SECOND, 59);
-        return cal.getTime();
+        return DateUtils.getCurrentAndNextWeekIds(4);
     }
 }
