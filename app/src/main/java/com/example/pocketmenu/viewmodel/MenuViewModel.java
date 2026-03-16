@@ -17,13 +17,12 @@ import com.example.pocketmenu.data.repository.LeftoverRepository;
 import com.example.pocketmenu.data.repository.MenuRepository;
 import com.example.pocketmenu.data.repository.RecipeRepository;
 import com.example.pocketmenu.data.repository.WeeklyMenuTemplateRepository;
+import com.example.pocketmenu.utils.DateUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,8 +48,8 @@ public class MenuViewModel extends ViewModel {
         leftoverRepository = new LeftoverRepository();
         templateRepository = new WeeklyMenuTemplateRepository();
         recipeRepository = new RecipeRepository();
-        selectedWeekStart.setValue(getMonday(new Date()));
-        loadWeek(getMonday(new Date()));
+        selectedWeekStart.setValue(DateUtils.getMonday(new Date()));
+        loadWeek(DateUtils.getMonday(new Date()));
         menuRepository.deleteMenusOlderThan(15, null);
         leftoverRepository.deleteExpiredPerishableLeftovers(null);
     }
@@ -59,25 +58,18 @@ public class MenuViewModel extends ViewModel {
     public LiveData<Date> getSelectedWeekStart() { return selectedWeekStart; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
-    public LiveData<List<Recipe>> getAllRecipes() {return recipeRepository.getRecipesLiveData();
-    }
+    public LiveData<List<Recipe>> getAllRecipes() { return recipeRepository.getRecipesLiveData(); }
     public LiveData<List<LeftoverWithRecipe>> getValidLeftovers() { return validLeftovers; }
 
-    // ===========================
-    // SELECCIÓN DE SEMANA
-    // ===========================
     public void selectWeek(Date anyDayInWeek) {
-        Date monday = getMonday(anyDayInWeek);
+        Date monday = DateUtils.getMonday(anyDayInWeek);
         selectedWeekStart.setValue(monday);
         loadWeek(monday);
     }
 
-    // ===========================
-    // CARGA DE LA SEMANA
-    // ===========================
     public void loadWeek(Date monday) {
         isLoading.setValue(true);
-        List<Date> weekDates = getWeekDates(monday);
+        List<Date> weekDates = DateUtils.getWeekDates(monday);
         int totalDays = weekDates.size();
         AtomicInteger completedDays = new AtomicInteger(0);
         Map<Integer, List<MenuAssignment>> assignmentsByDay = new HashMap<>();
@@ -190,16 +182,10 @@ public class MenuViewModel extends ViewModel {
         }
     }
 
-    // ===========================
-    // CARGA DE RECETAS PARA EL BUSCADOR
-    // ===========================
     public void loadAllRecipes() {
         recipeRepository.getRecipes(null);
     }
 
-    // ===========================
-    // CARGA DE SOBRAS VÁLIDAS
-    // ===========================
     public void loadValidLeftovers(Date beforeDate) {
         leftoverRepository.getValidLeftovers(new LeftoverRepository.OnLeftoversLoaded() {
             @Override
@@ -267,12 +253,9 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    // ===========================
-    // ASIGNAR RECETA A UN DÍA
-    // ===========================
     public void assignRecipeToDay(Recipe recipe, Date day,
                                   boolean isPerishable, int validDays) {
-        Date normalizedDay = normalizeDate(day);
+        Date normalizedDay = DateUtils.normalizeDate(day);
         int usedPortions = 1;
         int leftoverPortions = recipe.getPortion() - usedPortions;
 
@@ -310,15 +293,12 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    // ===========================
-    // USAR SOBRAS EN UN DÍA
-    // ===========================
     public void assignLeftoverToDay(Leftover leftover, Recipe recipe, Date day) {
         if (leftover.getRemainingPortions() <= 0) {
             errorMessage.setValue("No quedan raciones disponibles de esta sobra.");
             return;
         }
-        Date normalizedDay = normalizeDate(day);
+        Date normalizedDay = DateUtils.normalizeDate(day);
 
         Menu menu = new Menu(null, recipe.getId(), normalizedDay, 1,
                 recipe.getName(), false, true,
@@ -357,9 +337,6 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    // ===========================
-    // ELIMINAR ASIGNACIÓN
-    // ===========================
     public void removeAssignmentFromDay(MenuAssignment assignment) {
         String menuId = assignment.getMenu().getId();
         if (menuId == null) return;
@@ -482,9 +459,6 @@ public class MenuViewModel extends ViewModel {
                 });
     }
 
-    // ===========================
-    // GUARDAR SEMANA COMO FAVORITA
-    // ===========================
     public void saveCurrentWeekAsFavorite(String name) {
         List<DayMenuWrapper> currentDays = weekDays.getValue();
         if (currentDays == null || currentDays.isEmpty()) {
@@ -527,7 +501,6 @@ public class MenuViewModel extends ViewModel {
             }
         }
 
-        // Recopilar Menus principales para calcular sobras sin asignar
         List<MenuAssignment> mainAssignments = new ArrayList<>();
         for (DayMenuWrapper day : currentDays) {
             for (MenuAssignment assignment : day.getAssignments()) {
@@ -556,8 +529,6 @@ public class MenuViewModel extends ViewModel {
                 @Override
                 public void onFound(Recipe recipe) {
                     int totalPortions = recipe.getPortion();
-
-                    // Contar sobras de este menu consumidas dentro de la semana
                     int consumedAsLeftoverThisWeek = 0;
                     for (DayMenuWrapper day : currentDays) {
                         for (MenuAssignment a : day.getAssignments()) {
@@ -568,10 +539,7 @@ public class MenuViewModel extends ViewModel {
                             }
                         }
                     }
-
-                    // Raciones sin asignar = total - usadas el día principal - consumidas como sobra esta semana
                     int unassignedPortions = totalPortions - usedPortions - consumedAsLeftoverThisWeek;
-
                     if (unassignedPortions > 0) {
                         synchronized (unassignedSync) {
                             unassignedSync.add(new UnassignedLeftover(
@@ -582,25 +550,18 @@ public class MenuViewModel extends ViewModel {
                             ));
                         }
                     }
-
                     if (pending.decrementAndGet() == 0) {
                         saveTemplate(name, items, unassignedSync);
                     }
                 }
-
                 @Override
                 public void onNotFound() {
-                    if (pending.decrementAndGet() == 0) {
-                        saveTemplate(name, items, unassignedSync);
-                    }
+                    if (pending.decrementAndGet() == 0) saveTemplate(name, items, unassignedSync);
                 }
-
                 @Override
                 public void onFailure(Exception e) {
                     errorMessage.postValue("Error leyendo receta: " + e.getMessage());
-                    if (pending.decrementAndGet() == 0) {
-                        saveTemplate(name, items, unassignedSync);
-                    }
+                    if (pending.decrementAndGet() == 0) saveTemplate(name, items, unassignedSync);
                 }
             });
         }
@@ -619,14 +580,11 @@ public class MenuViewModel extends ViewModel {
                 });
     }
 
-    // ===========================
-    // APLICAR PLANTILLA FAVORITA
-    // ===========================
     public void applyTemplate(WeeklyMenuTemplate template, OnTemplateApplied callback) {
         Date monday = selectedWeekStart.getValue();
         if (monday == null || template.getItems() == null) return;
 
-        List<Date> weekDates = getWeekDates(monday);
+        List<Date> weekDates = DateUtils.getWeekDates(monday);
         Date sunday = weekDates.get(6);
         isLoading.setValue(true);
 
@@ -686,7 +644,6 @@ public class MenuViewModel extends ViewModel {
             }
 
             Date dayDate = weekDates.get(dayIndex);
-
             Menu menu = new Menu(null, item.getRecipeId(), dayDate,
                     item.getPortions(), "", false,
                     false, null, null, item.isPerishable(), item.getValidDays());
@@ -698,15 +655,11 @@ public class MenuViewModel extends ViewModel {
                             new RecipeRepository.OnRecipeFound() {
                                 @Override
                                 public void onFound(Recipe recipe) {
-                                    int leftoverPortions =
-                                            recipe.getPortion() - item.getPortions();
+                                    int leftoverPortions = recipe.getPortion() - item.getPortions();
                                     if (leftoverPortions > 0) {
                                         Leftover leftover = new Leftover(
-                                                null,
-                                                recipe.getId(),
-                                                menuId,
-                                                leftoverPortions,
-                                                item.isPerishable(),
+                                                null, recipe.getId(), menuId,
+                                                leftoverPortions, item.isPerishable(),
                                                 dayDate,
                                                 item.isPerishable() ? item.getValidDays() : 0);
                                         leftoverRepository.addLeftover(leftover,
@@ -714,8 +667,7 @@ public class MenuViewModel extends ViewModel {
                                                     @Override
                                                     public void onSuccess() {
                                                         synchronized (generatedLeftovers) {
-                                                            generatedLeftovers.put(
-                                                                    recipe.getId(), leftover);
+                                                            generatedLeftovers.put(recipe.getId(), leftover);
                                                         }
                                                         if (pending.decrementAndGet() == 0)
                                                             applyLeftoverItems(leftoverItems,
@@ -724,9 +676,8 @@ public class MenuViewModel extends ViewModel {
                                                     }
                                                     @Override
                                                     public void onFailure(Exception e) {
-                                                        errorMessage.postValue(
-                                                                "Error creando sobra: "
-                                                                        + e.getMessage());
+                                                        errorMessage.postValue("Error creando sobra: "
+                                                                + e.getMessage());
                                                         if (pending.decrementAndGet() == 0)
                                                             applyLeftoverItems(leftoverItems,
                                                                     generatedLeftovers,
@@ -736,8 +687,7 @@ public class MenuViewModel extends ViewModel {
                                     } else {
                                         if (pending.decrementAndGet() == 0)
                                             applyLeftoverItems(leftoverItems,
-                                                    generatedLeftovers,
-                                                    weekDates, template, callback);
+                                                    generatedLeftovers, weekDates, template, callback);
                                     }
                                 }
                                 @Override public void onNotFound() {
@@ -806,13 +756,11 @@ public class MenuViewModel extends ViewModel {
                                 new LeftoverRepository.LeftoverCallback() {
                                     @Override public void onSuccess() {
                                         if (pending.decrementAndGet() == 0)
-                                            applyUnassignedLeftovers(
-                                                    template, weekDates, callback);
+                                            applyUnassignedLeftovers(template, weekDates, callback);
                                     }
                                     @Override public void onFailure(Exception e) {
                                         if (pending.decrementAndGet() == 0)
-                                            applyUnassignedLeftovers(
-                                                    template, weekDates, callback);
+                                            applyUnassignedLeftovers(template, weekDates, callback);
                                     }
                                 });
                     } else {
@@ -820,13 +768,11 @@ public class MenuViewModel extends ViewModel {
                                 new LeftoverRepository.LeftoverCallback() {
                                     @Override public void onSuccess() {
                                         if (pending.decrementAndGet() == 0)
-                                            applyUnassignedLeftovers(
-                                                    template, weekDates, callback);
+                                            applyUnassignedLeftovers(template, weekDates, callback);
                                     }
                                     @Override public void onFailure(Exception e) {
                                         if (pending.decrementAndGet() == 0)
-                                            applyUnassignedLeftovers(
-                                                    template, weekDates, callback);
+                                            applyUnassignedLeftovers(template, weekDates, callback);
                                     }
                                 });
                     }
@@ -886,49 +832,8 @@ public class MenuViewModel extends ViewModel {
         }
     }
 
-    // ===========================
-    // UTILIDADES
-    // ===========================
     public void reloadCurrentWeek() {
         Date monday = selectedWeekStart.getValue();
         if (monday != null) loadWeek(monday);
-    }
-
-    private Date normalizeDate(Date date) {
-        Calendar cal = Calendar.getInstance(Locale.forLanguageTag("es-ES"));
-        cal.setTime(date);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime();
-    }
-
-    private Date getMonday(Date anyDay) {
-        Calendar cal = Calendar.getInstance(Locale.forLanguageTag("es-ES"));
-        cal.setTime(anyDay);
-        cal.setFirstDayOfWeek(Calendar.MONDAY);
-        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-            cal.add(Calendar.DAY_OF_MONTH, -6);
-        } else {
-            cal.add(Calendar.DAY_OF_MONTH,
-                    -(cal.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY));
-        }
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime();
-    }
-
-    private List<Date> getWeekDates(Date monday) {
-        List<Date> dates = new ArrayList<>();
-        Calendar cal = Calendar.getInstance(Locale.forLanguageTag("es-ES"));
-        cal.setTime(monday);
-        for (int i = 0; i < 7; i++) {
-            dates.add(cal.getTime());
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-        }
-        return dates;
     }
 }
