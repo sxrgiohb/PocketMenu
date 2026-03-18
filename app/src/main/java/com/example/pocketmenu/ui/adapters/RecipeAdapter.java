@@ -55,8 +55,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
         holder.favorite.setImageResource(
                 recipe.isFavorite()
-                        ? R.drawable.ic_favorite_filled
-                        : R.drawable.ic_favorite_border
+                        ? R.drawable.ic_favorite_true
+                        : R.drawable.ic_favorite_false
         );
 
         holder.favorite.setOnClickListener(v -> {

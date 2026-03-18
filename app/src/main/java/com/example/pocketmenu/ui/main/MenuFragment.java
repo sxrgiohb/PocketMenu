@@ -27,7 +27,6 @@ import com.example.pocketmenu.data.model.Ingredient;
 import com.example.pocketmenu.data.model.Leftover;
 import com.example.pocketmenu.data.model.Recipe;
 import com.example.pocketmenu.data.model.auxiliar.DayMenuWrapper;
-import com.example.pocketmenu.data.model.auxiliar.LeftoverWithRecipe;
 import com.example.pocketmenu.data.model.auxiliar.MenuAssignment;
 import com.example.pocketmenu.ui.adapters.LeftoverSelectAdapter;
 import com.example.pocketmenu.ui.adapters.MenuAdapter;
@@ -314,8 +313,8 @@ public class MenuFragment extends Fragment {
             adapter.toggleFavoriteFilter();
             buttonFilterFavorite.setImageResource(
                     adapter.isShowingOnlyFavorites()
-                            ? R.drawable.ic_favorite_filled
-                            : R.drawable.ic_favorite_border);
+                            ? R.drawable.ic_favorite_true
+                            : R.drawable.ic_favorite_false);
         });
 
         recipeSelectDialog = new AlertDialog.Builder(requireContext())
