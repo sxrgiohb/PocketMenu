@@ -153,9 +153,6 @@ public class MenuFragment extends Fragment {
         buttonUseFavorite.setOnClickListener(v -> showFavoriteTemplatesDialog());
     }
 
-    // ===========================
-    // MODO EDICIÓN
-    // ===========================
     private void enterEditMode() {
         menuAdapter.setEditMode(true);
         fabEdit.setVisibility(View.GONE);
@@ -178,9 +175,6 @@ public class MenuFragment extends Fragment {
         }
     }
 
-    // ===========================
-    // DIÁLOGO INFO RECETA
-    // ===========================
     private void showRecipeInfoDialog(MenuAssignment assignment) {
         Recipe recipe = assignment.getRecipe();
 
@@ -201,10 +195,8 @@ public class MenuFragment extends Fragment {
         LinearLayout headerIngredients = dialogView.findViewById(R.id.header_ingredients);
         LinearLayout containerIngredients = dialogView.findViewById(R.id.container_ingredients);
 
-        // Raciones
-        textPortions.setText("🍽 " + recipe.getPortion() + " ración(es)");
+        textPortions.setText("Raciones: " + recipe.getPortion());
 
-        // Instrucciones
         if (recipe.getDescription() != null && !recipe.getDescription().isEmpty()) {
             labelDescription.setVisibility(View.VISIBLE);
             textDescription.setVisibility(View.VISIBLE);
@@ -212,7 +204,6 @@ public class MenuFragment extends Fragment {
             textDescription.setText(recipe.getDescription());
         }
 
-        // Ingredientes
         if (recipe.getIngredients() != null && !recipe.getIngredients().isEmpty()) {
             labelIngredients.setVisibility(View.VISIBLE);
             headerIngredients.setVisibility(View.VISIBLE);
@@ -259,9 +250,6 @@ public class MenuFragment extends Fragment {
                 .show();
     }
 
-    // ===========================
-    // DIÁLOGO MENÚ FAVORITO
-    // ===========================
     private void showFavoriteTemplatesDialog() {
         FavoriteTemplatesDialog dialog = FavoriteTemplatesDialog.newInstance();
         dialog.setOnTemplateAppliedListener(unassignedPortions -> {
@@ -275,9 +263,6 @@ public class MenuFragment extends Fragment {
         dialog.show(getChildFragmentManager(), "FavoriteTemplatesFragment");
     }
 
-    // ===========================
-    // DIÁLOGOS
-    // ===========================
     private void showRecipeSearchDialog(DayMenuWrapper day) {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_select_recipe, null);
