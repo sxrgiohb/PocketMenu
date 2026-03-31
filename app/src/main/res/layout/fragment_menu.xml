@@ -37,7 +37,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
                 android:contentDescription=""
-                android:src="@drawable/ic_favorite_border" />
+                android:src="@drawable/ic_add_favorite" />
 
         </LinearLayout>
 
@@ -49,7 +49,7 @@
             android:layout_weight="1"
             tools:listitem="@layout/item_day" />
 
-        <!-- Botones modo edición: visibles solo en modo edición -->
+        <!-- Edition mode buttons -->
         <LinearLayout
             android:id="@+id/layout_edit_actions"
             android:layout_width="match_parent"
@@ -60,27 +60,19 @@
             android:visibility="gone">
 
             <Button
-                android:id="@+id/button_cancel_edit"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Cancelar" />
-
-            <Button
                 android:id="@+id/button_use_favorite"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Menú Favorito" />
+                android:text="Usar menú favorito" />
 
             <Button
-                android:id="@+id/button_save_edit"
+                android:id="@+id/exit_edit"
                 style="?attr/materialButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Guardar" />
+                android:text="Salir" />
 
         </LinearLayout>
 

@@ -50,8 +50,7 @@ public class MenuFragment extends Fragment {
     private android.widget.Button buttonDateSelector;
     private android.widget.ImageButton buttonFavoriteWeek;
     private LinearLayout layoutEditActions;
-    private android.widget.Button buttonSaveEdit;
-    private android.widget.Button buttonCancelEdit;
+    private android.widget.Button buttonExitEdit;
     private android.widget.Button buttonUseFavorite;
 
     private AlertDialog recipeSelectDialog;
@@ -81,8 +80,7 @@ public class MenuFragment extends Fragment {
         buttonDateSelector = view.findViewById(R.id.button_date_selector);
         buttonFavoriteWeek = view.findViewById(R.id.button_favorite_week);
         layoutEditActions = view.findViewById(R.id.layout_edit_actions);
-        buttonSaveEdit = view.findViewById(R.id.button_save_edit);
-        buttonCancelEdit = view.findViewById(R.id.button_cancel_edit);
+        buttonExitEdit = view.findViewById(R.id.exit_edit);
         buttonUseFavorite = view.findViewById(R.id.button_use_favorite);
     }
 
@@ -148,8 +146,7 @@ public class MenuFragment extends Fragment {
         });
 
         fabEdit.setOnClickListener(v -> enterEditMode());
-        buttonSaveEdit.setOnClickListener(v -> exitEditMode(true));
-        buttonCancelEdit.setOnClickListener(v -> exitEditMode(false));
+        buttonExitEdit.setOnClickListener(v -> exitEditMode());
         buttonUseFavorite.setOnClickListener(v -> showFavoriteTemplatesDialog());
     }
 
@@ -161,18 +158,12 @@ public class MenuFragment extends Fragment {
         buttonFavoriteWeek.setEnabled(false);
     }
 
-    private void exitEditMode(boolean save) {
+    private void exitEditMode() {
         menuAdapter.setEditMode(false);
         fabEdit.setVisibility(View.VISIBLE);
         layoutEditActions.setVisibility(View.GONE);
         buttonDateSelector.setEnabled(true);
         buttonFavoriteWeek.setEnabled(true);
-
-        if (save) {
-            Toast.makeText(requireContext(), "Menú guardado", Toast.LENGTH_SHORT).show();
-        } else {
-            viewModel.reloadCurrentWeek();
-        }
     }
 
     private void showRecipeInfoDialog(MenuAssignment assignment) {
@@ -279,6 +270,8 @@ public class MenuFragment extends Fragment {
                 showPerishableDialog(recipe, day.getDate());
             }
         });
+
+        buttonFilterFavorite.setImageResource(R.drawable.ic_favorite_false);
 
         recyclerRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerRecipes.setAdapter(adapter);
@@ -398,22 +391,29 @@ public class MenuFragment extends Fragment {
     private void showSaveAsFavoriteDialog() {
         EditText input = new EditText(requireContext());
         input.setHint("Nombre del menú favorito");
-        new AlertDialog.Builder(requireContext())
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Guardar semana como favorita")
                 .setView(input)
-                .setPositiveButton("Guardar", (dialog, which) -> {
-                    String name = input.getText().toString().trim();
-                    if (!name.isEmpty()) {
-                        viewModel.saveCurrentWeekAsFavorite(name);
-                        Toast.makeText(requireContext(), "Guardado como favorito",
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(requireContext(), "Introduce un nombre",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                })
+                .setPositiveButton("Guardar", null)
                 .setNegativeButton("Cancelar", null)
-                .show();
+                .create();
+
+        dialog.setOnShowListener(d -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String name = input.getText().toString().trim();
+                if (name.isEmpty()) {
+                    input.setError("Introduce un nombre");
+                } else {
+                    viewModel.saveCurrentWeekAsFavorite(name);
+                    Toast.makeText(requireContext(), "Guardado como favorito",
+                            Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                }
+            });
+        });
+
+        dialog.show();
     }
 
     public void onRecipeSelected(Recipe recipe, Date dayDate) {
