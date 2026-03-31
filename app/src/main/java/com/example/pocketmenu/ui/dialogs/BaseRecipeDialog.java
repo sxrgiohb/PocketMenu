@@ -150,6 +150,9 @@ public abstract class BaseRecipeDialog extends DialogFragment {
             }
         });
 
+        unit.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) showUnitWarningIfFirstTime();
+        });
         container.addView(row);
     }
 
@@ -179,9 +182,6 @@ public abstract class BaseRecipeDialog extends DialogFragment {
         category.setText(ing.getCategory() != null ? ing.getCategory() : "");
         store.setText(ing.getStore() != null ? ing.getStore() : "");
 
-        unit.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) showUnitWarningIfFirstTime();
-        });
         container.addView(row);
     }
 
@@ -232,6 +232,10 @@ public abstract class BaseRecipeDialog extends DialogFragment {
         if (!qtyText.isEmpty()) {
             try {
                 quantity = Double.parseDouble(qtyText);
+                if (quantity <= 0) {
+                    qty.setError("La cantidad debe ser mayor que 0");
+                    return null;
+                }
             } catch (NumberFormatException e) {
                 qty.setError("Cantidad inválida");
                 return null;
