@@ -195,6 +195,10 @@ public class AddProductDialog extends DialogFragment {
         if (!qtyStr.isEmpty()) {
             try {
                 quantity = Double.parseDouble(qtyStr);
+                if (quantity <= 0) {
+                    editQuantity.setError("La cantidad debe ser mayor que 0");
+                    return;
+                }
             } catch (NumberFormatException e) {
                 editQuantity.setError("Cantidad inválida");
                 return;
