@@ -1,9 +1,114 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.PocketMenu" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <style name="Base.Theme.PocketMenu" parent="Theme.Material3.Light.NoActionBar">
+
+        <item name="android:fontFamily">@font/quicksand_bold</item>
+
+        <!-- Primary -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorOnTertiary">@color/on_tertiary</item>
+
+        <!-- Background -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+
+        <!-- Text -->
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+
+        <!-- Estilos de componentes -->
+        <item name="floatingActionButtonStyle">@style/MyFAB</item>
+        <item name="checkboxStyle">@style/MyCheckBox</item>
+        <item name="materialCardViewStyle">@style/MyCard</item>
+
+    </style>
+
+    <!-- FAB -->
+    <style name="MyFAB" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">@color/secondary</item>
+        <item name="tint">@color/on_secondary</item>
+        <item name="rippleColor">@color/primary</item>
+    </style>
+
+    <!-- Barra de búsqueda -->
+    <style name="MySearchBar" parent="Widget.Material3.SearchBar">
+        <item name="backgroundTint">@color/surface</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="iconTint">@color/primary</item>
+    </style>
+
+
+    <!-- Cards -->
+    <style name="MyCard" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="cardElevation">4dp</item>
+        <item name="strokeColor">@color/background</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Botones -->
+    <style name="MyButton" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/secondary</item>
+        <item name="android:textColor">@color/on_secondary</item>
+        <item name="rippleColor">@color/on_primary</item>
+    </style>
+
+    <!-- CheckBox -->
+    <style name="MyCheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">@color/primary</item>
+    </style>
+
+
+    <!-- Iconos favorito y editar -->
+    <style name="FavoriteButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/red</item>
+        <item name="rippleColor">@android:color/transparent</item>
+    </style>
+
+    <style name="EditButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/black</item>
+        <item name="rippleColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AddRecipeButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/black</item>
+        <item name="rippleColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AddLeftoverButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/black</item>
+        <item name="rippleColor">@android:color/transparent</item>
+    </style>
+
+    <style name="InfoButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/black</item>
+        <item name="rippleColor">@android:color/transparent</item>
+    </style>
+
+    <style name="SeeMoreButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/black</item>
+        <item name="rippleColor">@android:color/transparent</item>
+    </style>
+
+    <style name="SeeLessButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/black</item>
+        <item name="rippleColor">@android:color/transparent</item>
+    </style>
+
+    <style name="DeleteButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">@color/black</item>
+        <item name="rippleColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.PocketMenu" parent="Base.Theme.PocketMenu" />
+
 </resources>

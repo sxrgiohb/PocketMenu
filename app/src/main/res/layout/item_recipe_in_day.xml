@@ -31,24 +31,20 @@
 
     </LinearLayout>
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/button_info_recipe"
+        style="@style/InfoButton"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Ver información de la receta"
-        android:padding="6dp"
-        android:src="@drawable/ic_see_info"
-        app:tint="?attr/colorPrimary" />
+        app:icon="@drawable/ic_see_info" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/button_delete_recipe"
+        style="@style/DeleteButton"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Eliminar receta"
-        android:padding="6dp"
-        android:src="@drawable/ic_delete"
-        app:tint="?attr/colorError" />
+        app:icon="@drawable/ic_delete" />
 
 </LinearLayout>

@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pocketmenu.R;
 import com.example.pocketmenu.data.model.ShoppingListItem;
 import com.example.pocketmenu.data.model.auxiliar.WeeklyShoppingList;
+import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -142,7 +142,7 @@ public class ShoppingListAdapter
         private final TextView textStore;
         private final TextView textQuantity;
         private final TextView textCategory;
-        private final ImageButton buttonDelete;
+        private final MaterialButton buttonDelete;
 
         ItemViewHolder(@NonNull View itemView) {
             super(itemView);

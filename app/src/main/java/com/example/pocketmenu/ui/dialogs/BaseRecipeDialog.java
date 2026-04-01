@@ -9,7 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -23,6 +22,7 @@ import com.example.pocketmenu.data.model.Recipe;
 import com.example.pocketmenu.data.repository.RecipeRepository;
 import com.example.pocketmenu.utils.RecipeValidator;
 import com.example.pocketmenu.viewmodel.RecipeViewModel;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +139,7 @@ public abstract class BaseRecipeDialog extends DialogFragment {
             qty.requestFocus();
         });
 
-        ImageButton removeButton = row.findViewById(R.id.button_remove_ingredient);
+        MaterialButton removeButton = row.findViewById(R.id.button_remove_ingredient);
         removeButton.setOnClickListener(v -> {
             if (container.getChildCount() > 1) {
                 container.removeView(row);
@@ -159,7 +159,7 @@ public abstract class BaseRecipeDialog extends DialogFragment {
     protected void addIngredientRow(LinearLayout container, Ingredient ing) {
         View row = getLayoutInflater().inflate(R.layout.item_ingredient, container, false);
 
-        ImageButton removeButton = row.findViewById(R.id.button_remove_ingredient);
+        MaterialButton removeButton = row.findViewById(R.id.button_remove_ingredient);
         removeButton.setOnClickListener(v -> {
             if (container.getChildCount() > 1) {
                 container.removeView(row);

@@ -10,7 +10,7 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Nombre con autocompletado -->
+        <!-- Autocomplete product name -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -26,7 +26,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Cantidad -->
+        <!-- Quantity -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -42,13 +42,13 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Unidad -->
+        <!-- Measurement unit -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Unidad (ej: kg, ud)">
+            android:hint="Unidad de medida">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_product_unit"
@@ -58,13 +58,13 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Categoría -->
+        <!-- Category -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Categoría (ej: Limpieza)">
+            android:hint="Categoría">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_product_category"
@@ -74,7 +74,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Supermercado -->
+        <!-- Store -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -90,7 +90,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Botones -->
+        <!-- Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

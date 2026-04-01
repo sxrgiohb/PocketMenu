@@ -3,7 +3,6 @@ package com.example.pocketmenu.ui.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pocketmenu.R;
 import com.example.pocketmenu.data.model.auxiliar.MenuAssignment;
+import com.google.android.material.button.MaterialButton;
 
 public class MenuRecipeAdapter extends ListAdapter<MenuAssignment, MenuRecipeAdapter.ViewHolder> {
 
@@ -70,8 +70,8 @@ public class MenuRecipeAdapter extends ListAdapter<MenuAssignment, MenuRecipeAda
     class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textRecipeName;
         private final TextView textRecipeInfo;
-        private final ImageButton buttonInfo;
-        private final ImageButton buttonDelete;
+        private final MaterialButton buttonInfo;
+        private final MaterialButton buttonDelete;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);

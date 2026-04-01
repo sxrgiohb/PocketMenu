@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -33,6 +32,7 @@ import com.example.pocketmenu.ui.adapters.MenuAdapter;
 import com.example.pocketmenu.ui.adapters.RecipeSelectAdapter;
 import com.example.pocketmenu.ui.dialogs.FavoriteTemplatesDialog;
 import com.example.pocketmenu.viewmodel.MenuViewModel;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
@@ -48,7 +48,7 @@ public class MenuFragment extends Fragment {
     private RecyclerView recyclerWeek;
     private FloatingActionButton fabEdit;
     private android.widget.Button buttonDateSelector;
-    private android.widget.ImageButton buttonFavoriteWeek;
+    private MaterialButton buttonFavoriteWeek;
     private LinearLayout layoutEditActions;
     private android.widget.Button buttonExitEdit;
     private android.widget.Button buttonUseFavorite;
@@ -259,7 +259,7 @@ public class MenuFragment extends Fragment {
                 .inflate(R.layout.dialog_select_recipe, null);
 
         EditText editSearch = dialogView.findViewById(R.id.edit_search_recipe);
-        ImageButton buttonFilterFavorite = dialogView.findViewById(R.id.button_filter_favorite);
+        MaterialButton buttonFilterFavorite = dialogView.findViewById(R.id.button_filter_favorite);
         RecyclerView recyclerRecipes = dialogView.findViewById(R.id.recycler_select_recipe);
 
         RecipeSelectAdapter adapter = new RecipeSelectAdapter(recipe -> {
@@ -271,7 +271,7 @@ public class MenuFragment extends Fragment {
             }
         });
 
-        buttonFilterFavorite.setImageResource(R.drawable.ic_favorite_false);
+        buttonFilterFavorite.setIconResource(R.drawable.ic_favorite_false);
 
         recyclerRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerRecipes.setAdapter(adapter);
@@ -289,7 +289,7 @@ public class MenuFragment extends Fragment {
 
         buttonFilterFavorite.setOnClickListener(v -> {
             adapter.toggleFavoriteFilter();
-            buttonFilterFavorite.setImageResource(
+            buttonFilterFavorite.setIconResource(
                     adapter.isShowingOnlyFavorites()
                             ? R.drawable.ic_favorite_true
                             : R.drawable.ic_favorite_false);

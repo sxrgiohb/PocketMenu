@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,6 +14,7 @@ import com.example.pocketmenu.R;
 import com.example.pocketmenu.data.model.UnassignedLeftover;
 import com.example.pocketmenu.data.model.WeeklyMenuTemplate;
 import com.example.pocketmenu.data.model.WeeklyMenuItem;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,8 +83,8 @@ public class FavoriteTemplatesAdapter extends
     class TemplateViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView textName;
-        private final ImageButton buttonExpand;
-        private final ImageButton buttonDelete;
+        private final MaterialButton buttonExpand;
+        private final MaterialButton buttonDelete;
         private final LinearLayout layoutDetail;
         private final TextView textMonday;
         private final TextView textTuesday;
@@ -120,12 +120,12 @@ public class FavoriteTemplatesAdapter extends
 
             isExpanded = false;
             layoutDetail.setVisibility(View.GONE);
-            buttonExpand.setImageResource(R.drawable.ic_see_more);
+            buttonExpand.setIconResource(R.drawable.ic_see_more);
 
             View.OnClickListener toggleExpand = v -> {
                 isExpanded = !isExpanded;
                 layoutDetail.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-                buttonExpand.setImageResource(
+                buttonExpand.setIconResource(
                         isExpanded ? R.drawable.ic_see_less : R.drawable.ic_see_more);
             };
             buttonExpand.setOnClickListener(toggleExpand);
@@ -172,8 +172,7 @@ public class FavoriteTemplatesAdapter extends
                 for (UnassignedLeftover u : unassigned) {
                     totalPortions += u.getRemainingPortions();
                 }
-                textUnassignedWarning.setText("⚠️ " + totalPortions
-                        + " ración(es) sin asignar quedarán disponibles para la semana siguiente");
+                textUnassignedWarning.setText("Raciones sin asignar: " + totalPortions);
                 textUnassignedWarning.setVisibility(View.VISIBLE);
             } else {
                 textUnassignedWarning.setVisibility(View.GONE);

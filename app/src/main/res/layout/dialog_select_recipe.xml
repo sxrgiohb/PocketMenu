@@ -23,14 +23,18 @@
             android:inputType="text"
             android:layout_marginEnd="8dp" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_filter_favorite"
+            style="@style/FavoriteButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_favorite_border"
-            android:contentDescription="Filtrar favoritos"
-            app:tint="?attr/colorPrimary" />
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:iconGravity="textStart"
+            app:icon="@drawable/ic_favorite_true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="Añadir a favoritos" />
 
     </LinearLayout>
 

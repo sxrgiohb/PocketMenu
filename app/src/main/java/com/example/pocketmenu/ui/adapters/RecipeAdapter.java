@@ -3,8 +3,9 @@ package com.example.pocketmenu.ui.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+
 import android.widget.TextView;
+import com.google.android.material.button.MaterialButton;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,7 +54,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
         holder.name.setText(recipe.getName());
 
-        holder.favorite.setImageResource(
+        holder.favorite.setIconResource(
                 recipe.isFavorite()
                         ? R.drawable.ic_favorite_true
                         : R.drawable.ic_favorite_false
@@ -72,7 +73,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
      public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name;
-        ImageButton favorite, edit;
+        MaterialButton favorite, edit;
 
         ViewHolder(View v) {
             super(v);

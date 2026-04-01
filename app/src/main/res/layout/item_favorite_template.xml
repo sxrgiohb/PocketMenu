@@ -14,14 +14,14 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- Cabecera de la tarjeta: nombre + botones -->
+        <!-- Templates name and action buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- Nombre de la plantilla -->
+            <!-- Templates name -->
             <TextView
                 android:id="@+id/text_template_name"
                 android:layout_width="0dp"
@@ -30,30 +30,27 @@
                 android:textStyle="bold"
                 android:textSize="16sp" />
 
-            <!-- Botón eliminar -->
-            <ImageButton
+            <!-- Delete button -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_delete_template"
+                style="@style/DeleteButton"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="6dp"
-                android:src="@drawable/ic_delete"
                 android:contentDescription=""
-                app:tint="@color/design_default_color_error" />
+                app:icon="@drawable/ic_delete" />
 
-            <!-- Botón expandir/contraer -->
-            <ImageButton
+            <!-- See more button -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_expand_template"
+                style="@style/SeeMoreButton"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="6dp"
-                android:src="@drawable/ic_see_more"
-                android:contentDescription="" />
+                android:contentDescription=""
+                app:icon="@drawable/ic_see_more" />
 
         </LinearLayout>
 
-        <!-- Contenido expandible -->
+        <!-- Additional information -->
         <LinearLayout
             android:id="@+id/layout_template_detail"
             android:layout_width="match_parent"
@@ -69,7 +66,7 @@
                 android:background="?attr/colorControlHighlight"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Resumen días -->
+            <!-- Days resume -->
             <TextView
                 android:id="@+id/text_monday"
                 android:layout_width="match_parent"
@@ -119,7 +116,7 @@
                 android:layout_marginBottom="8dp"
                 android:textSize="13sp" />
 
-            <!-- Aviso sobras sin asignar -->
+            <!-- Unassigned leftovers warning -->
             <TextView
                 android:id="@+id/text_unassigned_warning"
                 android:layout_width="match_parent"
@@ -136,7 +133,7 @@
                 android:background="?attr/colorControlHighlight"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Botón aplicar -->
+            <!-- Apply button -->
             <Button
                 android:id="@+id/button_apply_template"
                 style="?attr/materialButtonStyle"

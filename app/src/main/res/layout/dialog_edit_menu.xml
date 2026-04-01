@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- Título del Diálogo -->
+    <!-- Title -->
     <TextView
         android:id="@+id/dialog_title"
         android:layout_width="wrap_content"
@@ -15,7 +15,7 @@
         android:text="Editar Menú Semanal"
         android:textAppearance="?attr/textAppearanceHeadline6" />
 
-    <!-- Subtítulo para mostrar la semana que se está editando -->
+    <!-- Week title -->
     <TextView
         android:id="@+id/dialog_subtitle_week"
         android:layout_width="wrap_content"
@@ -24,15 +24,14 @@
         android:textAppearance="?attr/textAppearanceSubtitle1"
         tools:text="Semana del 17 al 23 de Febrero" />
 
-    <!-- Contenedor para la lista de días de la semana -->
-    <!-- Este LinearLayout se llenará dinámicamente -->
+    <!-- Week container -->
     <LinearLayout
         android:id="@+id/dialog_days_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" />
 
-    <!-- Botones de Acción -->
+    <!-- Action buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

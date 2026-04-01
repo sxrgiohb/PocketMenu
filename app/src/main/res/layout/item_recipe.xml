@@ -16,45 +16,35 @@
         android:layout_height="wrap_content"
         android:minHeight="100dp">
 
-        <!-- Recipe IMG
-        <ImageView
-            android:id="@+id/image_view_recipe"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_placeholder_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:contentDescription="Imagen de la receta" /> -->
-
         <!-- Favourite button -->
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_favorite"
-            style="?attr/materialIconButtonStyle"
+            style="@style/FavoriteButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_favorite_border"
+            app:iconGravity="textStart"
+            app:icon="@drawable/ic_favorite_true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:contentDescription="Añadir a favoritos" />
 
         <!-- Edit button -->
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_edit"
-            style="?attr/materialIconButtonStyle"
+            style="@style/EditButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:src="@drawable/ic_edit"
+            app:iconGravity="textStart"
+            app:icon="@drawable/ic_edit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:contentDescription="Editar receta" />
 
-        <!-- Recipe's name-->
+        <!-- Recipes name-->
         <TextView
             android:id="@+id/text_view_recipe_name"
             android:layout_width="0dp"
@@ -69,7 +59,7 @@
             app:layout_constraintEnd_toStartOf="@id/button_favorite"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="Nombre de la Receta así un poco largo para que se vea" />
+            tools:text="Nombre de la receta" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

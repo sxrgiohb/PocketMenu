@@ -5,7 +5,7 @@
     <item
         android:id="@+id/navigation_settings"
         android:title="Perfil"
-        android:icon="@drawable/common_full_open_on_phone"
+        android:icon="@drawable/ic_settings"
         app:showAsAction="ifRoom"/>
 
 </menu>

@@ -3,7 +3,6 @@ package com.example.pocketmenu.ui.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pocketmenu.R;
 import com.example.pocketmenu.data.model.Recipe;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +94,7 @@ public class RecipeSelectAdapter extends RecyclerView.Adapter<RecipeSelectAdapte
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textName;
         TextView textPortions;
-        ImageButton iconFavorite;
+        MaterialButton iconFavorite;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);

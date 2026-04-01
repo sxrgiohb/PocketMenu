@@ -5,18 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- FAB add product -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Selector vista semanal / mensual -->
+        <!-- Week or month view -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/toggle_view_mode"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:layout_marginBottom="12dp"
             app:checkedButton="@id/button_month_view"
             app:selectionRequired="true"
@@ -25,26 +25,28 @@
             <Button
                 android:id="@+id/button_week_view"
                 style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Esta semana" />
 
             <Button
                 android:id="@+id/button_month_view"
                 style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Este mes" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-        <!-- Filtros -->
+        <!-- Filters -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginBottom="12dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:orientation="horizontal">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip_group_filters"
@@ -68,16 +70,14 @@
                     android:text="Categoría" />
 
             </com.google.android.material.chip.ChipGroup>
-
-            <ImageButton
+            <!-- Delete filters -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_clear_filters"
+                style="@style/DeleteButton"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Limpiar filtros"
-                android:padding="6dp"
-                android:src="@drawable/ic_delete"
-                app:tint="?attr/colorOnSurfaceVariant" />
+                app:icon="@drawable/ic_delete" />
 
         </LinearLayout>
 
@@ -86,12 +86,11 @@
             android:id="@+id/recycler_shopping_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="80dp"
-            android:clipToPadding="false" />
+            android:clipToPadding="false"
+            android:paddingBottom="80dp" />
 
     </LinearLayout>
 
-    <!-- FAB añadir producto extra -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_extra_product"
         android:layout_width="wrap_content"

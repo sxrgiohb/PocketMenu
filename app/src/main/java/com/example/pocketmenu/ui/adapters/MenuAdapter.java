@@ -3,7 +3,6 @@ package com.example.pocketmenu.ui.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -14,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pocketmenu.R;
 import com.example.pocketmenu.data.model.auxiliar.DayMenuWrapper;
 import com.example.pocketmenu.data.model.auxiliar.MenuAssignment;
+import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,8 +76,8 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
     class DayViewHolder extends RecyclerView.ViewHolder {
         private final TextView textDayName;
         private final TextView textEmptyDay;
-        private final ImageButton buttonAddRecipe;
-        private final ImageButton buttonAddLeftover;
+        private final MaterialButton buttonAddRecipe;
+        private final MaterialButton buttonAddLeftover;
         private final RecyclerView recyclerRecipes;
         private final MenuRecipeAdapter recipeAdapter;
 

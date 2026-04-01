@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="12dp">
-
+        <!-- Autocomplete ingredient name -->
         <AutoCompleteTextView
             android:id="@+id/autocomplete_ingredient_name"
             android:layout_width="0dp"
@@ -24,17 +24,17 @@
             app:layout_constraintEnd_toStartOf="@+id/button_remove_ingredient"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageButton
+        <!-- Delete ingredient button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_remove_ingredient"
+            style="@style/DeleteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Eliminar ingrediente"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:icon="@android:drawable/ic_menu_close_clear_cancel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
+        <!-- Quantity -->
         <EditText
             android:id="@+id/edit_text_ingredient_quantity"
             android:layout_width="0dp"
@@ -47,7 +47,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/autocomplete_ingredient_name" />
-
+        <!-- Measure unit -->
         <EditText
             android:id="@+id/edit_text_ingredient_unit"
             android:layout_width="0dp"
@@ -60,7 +60,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@id/autocomplete_ingredient_name" />
-
+        <!-- Category -->
         <EditText
             android:id="@+id/edit_text_ingredient_category"
             android:layout_width="0dp"
@@ -73,7 +73,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/edit_text_ingredient_quantity" />
-
+        <!-- Store -->
         <EditText
             android:id="@+id/edit_text_ingredient_store"
             android:layout_width="0dp"
@@ -86,7 +86,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@id/edit_text_ingredient_unit" />
-
+        <!-- Invisible guideline -->
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
             android:layout_width="wrap_content"

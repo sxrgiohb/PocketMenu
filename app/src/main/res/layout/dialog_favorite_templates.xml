@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Buscador -->
+    <!-- Search template -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,14 +23,14 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Lista de plantillas -->
+    <!-- Templates list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_templates"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Texto vacío -->
+    <!-- Empty text -->
     <TextView
         android:id="@+id/text_no_templates"
         android:layout_width="match_parent"

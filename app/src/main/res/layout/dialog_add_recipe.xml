@@ -32,7 +32,7 @@
                 android:id="@+id/edit_text_recipe_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Elaboración (pasos, etc.)"
+                android:hint="Elaboración"
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:minLines="4" />
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <!-- Botón añadir ingrediente -->
+        <!-- Add ingredients button -->
         <Button
             android:id="@+id/button_add_ingredient"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -81,29 +81,40 @@
             android:orientation="horizontal"
             android:gravity="end"
             android:layout_marginTop="16dp">
-
+            <!-- Delete button -->
             <Button
                 android:id="@+id/button_delete_recipe_form"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
                 android:text="Eliminar"
                 android:visibility="gone" />
 
+            <!-- Cancel button -->
             <Button
                 android:id="@+id/button_cancel_recipe"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
                 android:text="Cancelar" />
 
+            <!-- Save button -->
             <Button
                 android:id="@+id/button_save_recipe"
                 style="?attr/materialButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
                 android:text="Guardar" />
 
         </LinearLayout>
