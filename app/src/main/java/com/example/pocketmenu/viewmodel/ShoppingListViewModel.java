@@ -309,7 +309,16 @@ public class ShoppingListViewModel extends ViewModel {
         shoppingListRepository.addItem(item,
                 new ShoppingListRepository.OnItemAdded() {
                     @Override
-                    public void onSuccess(String itemId) { loadCurrentMonth(); }
+                    public void onSuccess(String itemId) {
+                        item.setId(itemId);
+                        for (WeeklyShoppingList week : unfilteredLists) {
+                            if (week.getWeekId().equals(item.getWeekId())) {
+                                week.getItems().add(item);
+                                break;
+                            }
+                        }
+                        applyCurrentView();
+                    }
                     @Override
                     public void onFailure(Exception e) {
                         errorMessage.postValue("Error añadiendo producto: " + e.getMessage());
@@ -321,7 +330,12 @@ public class ShoppingListViewModel extends ViewModel {
         shoppingListRepository.deleteItem(itemId,
                 new ShoppingListRepository.ShoppingListCallback() {
                     @Override
-                    public void onSuccess() { loadCurrentMonth(); }
+                    public void onSuccess() {
+                        for (WeeklyShoppingList week : unfilteredLists) {
+                            week.getItems().removeIf(i -> itemId.equals(i.getId()));
+                        }
+                        applyCurrentView();
+                    }
                     @Override
                     public void onFailure(Exception e) {
                         errorMessage.postValue("Error eliminando producto: " + e.getMessage());

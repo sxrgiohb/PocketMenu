@@ -141,13 +141,13 @@ public class ShoppingListFragment extends Fragment {
 
         if (stores.isEmpty()) {
             Toast.makeText(requireContext(),
-                    "No hay supermercados en la lista", Toast.LENGTH_SHORT).show();
+                    "No hay tiendas en la lista", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String[] options = stores.toArray(new String[0]);
         new AlertDialog.Builder(requireContext())
-                .setTitle("Filtrar por supermercado")
+                .setTitle("Filtrar por tienda")
                 .setItems(options, (dialog, which) -> {
                     String selected = options[which];
                     chipFilterStore.setText(selected);
@@ -190,7 +190,7 @@ public class ShoppingListFragment extends Fragment {
     }
 
     private void clearFilters() {
-        chipFilterStore.setText("Supermercado");
+        chipFilterStore.setText("Tienda");
         chipFilterStore.setChecked(false);
         chipFilterCategory.setText("Categoría");
         chipFilterCategory.setChecked(false);

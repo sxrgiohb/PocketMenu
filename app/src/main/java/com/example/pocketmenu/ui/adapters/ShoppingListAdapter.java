@@ -31,11 +31,10 @@ public class ShoppingListAdapter
         void onExtraItemDeleted(ShoppingListItem item);
     }
 
-    // Elemento de la lista aplanada
     private static class Row {
         final int type;
-        final String weekHeader;       // solo si type == TYPE_WEEK_HEADER
-        final ShoppingListItem item;   // solo si type == TYPE_ITEM
+        final String weekHeader;
+        final ShoppingListItem item;
 
         Row(String weekHeader) {
             this.type = TYPE_WEEK_HEADER;
@@ -66,14 +65,12 @@ public class ShoppingListAdapter
             return;
         }
         for (WeeklyShoppingList week : weeks) {
-            // Cabecera de semana solo si hay más de una semana
             if (weeks.size() > 1) {
                 String dateStr = week.getMonday() != null
                         ? sdf.format(week.getMonday()) : week.getWeekId();
                 rows.add(new Row("Semana del " + dateStr));
             }
             if (week.getItems().isEmpty()) {
-                // Fila vacía representada como item nulo — la manejamos en onBind
                 rows.add(new Row((ShoppingListItem) null));
             } else {
                 for (ShoppingListItem item : week.getItems()) {
@@ -117,9 +114,6 @@ public class ShoppingListAdapter
         }
     }
 
-    // ===========================
-    // WEEK HEADER
-    // ===========================
     class WeekHeaderViewHolder extends RecyclerView.ViewHolder {
         private final TextView textWeekTitle;
 
@@ -133,9 +127,6 @@ public class ShoppingListAdapter
         }
     }
 
-    // ===========================
-    // ITEM
-    // ===========================
     class ItemViewHolder extends RecyclerView.ViewHolder {
         private final CheckBox checkbox;
         private final TextView textName;
@@ -165,12 +156,12 @@ public class ShoppingListAdapter
                 return;
             }
 
+            textName.setVisibility(View.VISIBLE);
             checkbox.setVisibility(View.VISIBLE);
             textQuantity.setVisibility(View.VISIBLE);
 
             // Nombre
             textName.setText(item.getName());
-            textName.setAlpha(1f);
             applyCheckedStyle(textName, item.isChecked());
 
             // Checkbox
@@ -191,15 +182,13 @@ public class ShoppingListAdapter
             }
             textQuantity.setText(qty.toString());
 
-            // Supermercado
             if (item.getStore() != null && !item.getStore().isEmpty()) {
-                textStore.setText("Supermercado: " +item.getStore());
+                textStore.setText("Tienda: " + item.getStore());
                 textStore.setVisibility(View.VISIBLE);
             } else {
                 textStore.setVisibility(View.GONE);
             }
 
-            //Category
             if (item.getCategory() != null && !item.getCategory().isEmpty()) {
                 textCategory.setText("Categoría: " + item.getCategory());
                 textCategory.setVisibility(View.VISIBLE);
@@ -207,7 +196,6 @@ public class ShoppingListAdapter
                 textCategory.setVisibility(View.GONE);
             }
 
-            // Botón eliminar
             if (item.isExtra()) {
                 buttonDelete.setVisibility(View.VISIBLE);
                 buttonDelete.setOnClickListener(v -> listener.onExtraItemDeleted(item));
@@ -224,6 +212,7 @@ public class ShoppingListAdapter
             } else {
                 textView.setPaintFlags(
                         textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+                textView.setAlpha(1f);
             }
         }
     }
