@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Checked state: text should be white on primary background -->
+    <item android:state_checked="true" android:color="@color/on_primary" />
+
+    <!-- Default state: text primary color -->
+    <item android:color="@color/on_tertiary" />
+
+</selector>

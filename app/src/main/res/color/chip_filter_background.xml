@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Disabled state: chip not interactive -->
+    <item android:state_enabled="false"
+        android:color="@color/tertiary"
+        android:alpha="0.38" />
+
+    <!-- Checked state: chip is selected -->
+    <item android:state_checked="true"
+        android:color="@color/primary" />
+
+    <!-- Pressed state: user touches the chip -->
+    <item android:state_pressed="true"
+        android:color="@color/primary"
+        android:alpha="0.70" />
+
+    <!-- Default state: chip enabled but not checked -->
+    <item android:color="@color/tertiary" />
+
+</selector>
