@@ -20,19 +20,21 @@
     <!-- Delete account button-->
     <Button
         android:id="@+id/button_delete_account"
+        style="@style/MyButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="32dp"
-        android:backgroundTint="@android:color/holo_red_light"
+        android:layout_marginBottom="32dp"
         android:text="Eliminar cuenta"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_settings_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_view_settings_title" />
+        app:layout_constraintEnd_toEndOf="parent" />
     <!-- Log out button -->
     <Button
         android:id="@+id/button_logout"
+        style="@style/MyButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
