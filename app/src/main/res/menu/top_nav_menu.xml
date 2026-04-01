@@ -6,6 +6,7 @@
         android:id="@+id/navigation_settings"
         android:title="Perfil"
         android:icon="@drawable/ic_settings"
+        app:iconTint="@color/on_primary"
         app:showAsAction="ifRoom"/>
 
 </menu>
