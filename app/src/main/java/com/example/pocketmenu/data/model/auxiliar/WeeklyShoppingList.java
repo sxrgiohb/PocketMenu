@@ -2,6 +2,7 @@ package com.example.pocketmenu.data.model.auxiliar;
 
 import com.example.pocketmenu.data.model.ShoppingListItem;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,5 +20,7 @@ public class WeeklyShoppingList {
 
     public String getWeekId() { return weekId; }
     public Date getMonday() { return monday; }
-    public List<ShoppingListItem> getItems() { return items; }
+    public List<ShoppingListItem> getItems() {
+        return items != null ? items : new ArrayList<>();
+    }
 }

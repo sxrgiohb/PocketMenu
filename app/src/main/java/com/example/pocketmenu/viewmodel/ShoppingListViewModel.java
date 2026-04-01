@@ -245,7 +245,8 @@ public class ShoppingListViewModel extends ViewModel {
                 if (matchesStore && matchesCategory) filteredItems.add(item);
             }
             filtered.add(new WeeklyShoppingList(
-                    week.getWeekId(), week.getMonday(), filteredItems));
+                    week.getWeekId(), week.getMonday(),
+                    filteredItems.isEmpty() ? null : filteredItems));
         }
         monthlyShoppingLists.setValue(filtered);
     }

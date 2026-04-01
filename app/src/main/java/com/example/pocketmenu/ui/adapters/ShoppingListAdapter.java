@@ -141,6 +141,7 @@ public class ShoppingListAdapter
         private final TextView textName;
         private final TextView textStore;
         private final TextView textQuantity;
+        private final TextView textCategory;
         private final ImageButton buttonDelete;
 
         ItemViewHolder(@NonNull View itemView) {
@@ -148,17 +149,17 @@ public class ShoppingListAdapter
             checkbox = itemView.findViewById(R.id.checkbox_item);
             textName = itemView.findViewById(R.id.text_item_name);
             textStore = itemView.findViewById(R.id.text_item_store);
+            textCategory = itemView.findViewById(R.id.text_item_category);
             textQuantity = itemView.findViewById(R.id.text_item_quantity);
             buttonDelete = itemView.findViewById(R.id.button_delete_item);
         }
 
         void bind(ShoppingListItem item) {
             if (item == null) {
-                // Semana vacía
-                textName.setText("No hay ingredientes para esta semana");
-                textName.setAlpha(0.5f);
                 checkbox.setVisibility(View.GONE);
+                textName.setVisibility(View.GONE);
                 textStore.setVisibility(View.GONE);
+                textCategory.setVisibility(View.GONE);
                 textQuantity.setVisibility(View.GONE);
                 buttonDelete.setVisibility(View.GONE);
                 return;
@@ -191,11 +192,19 @@ public class ShoppingListAdapter
             textQuantity.setText(qty.toString());
 
             // Supermercado
-            if (item.isExtra() && item.getStore() != null && !item.getStore().isEmpty()) {
-                textStore.setText(item.getStore());
+            if (item.getStore() != null && !item.getStore().isEmpty()) {
+                textStore.setText("Supermercado: " +item.getStore());
                 textStore.setVisibility(View.VISIBLE);
             } else {
                 textStore.setVisibility(View.GONE);
+            }
+
+            //Category
+            if (item.getCategory() != null && !item.getCategory().isEmpty()) {
+                textCategory.setText("Categoría: " + item.getCategory());
+                textCategory.setVisibility(View.VISIBLE);
+            } else {
+                textCategory.setVisibility(View.GONE);
             }
 
             // Botón eliminar
