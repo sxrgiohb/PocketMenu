@@ -244,10 +244,9 @@ public class MenuFragment extends Fragment {
     private void showFavoriteTemplatesDialog() {
         FavoriteTemplatesDialog dialog = FavoriteTemplatesDialog.newInstance();
         dialog.setOnTemplateAppliedListener(unassignedPortions -> {
-            String msg = "Plantilla aplicada. Revisa y pulsa Guardar.";
+            String msg = "Plantilla aplicada";
             if (unassignedPortions > 0) {
-                msg += "\n⚠️ " + unassignedPortions
-                        + " ración(es) sin asignar quedarán disponibles la semana siguiente.";
+                msg += "\nRaciones sin asignar: " + unassignedPortions;
             }
             Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
         });

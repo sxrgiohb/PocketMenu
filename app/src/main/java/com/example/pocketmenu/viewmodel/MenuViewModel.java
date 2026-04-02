@@ -201,7 +201,7 @@ public class MenuViewModel extends ViewModel {
                 for (Leftover leftover : leftovers) {
                     if (leftover.getSourceMenuId() != null) {
                         Date assignedDate = leftover.getFirstAssignedDate();
-                        if (assignedDate == null || !assignedDate.before(beforeDate)) {
+                        if (assignedDate == null || assignedDate.after(beforeDate)) {
                             if (pending.decrementAndGet() == 0)
                                 validLeftovers.postValue(new ArrayList<>(result));
                             continue;
