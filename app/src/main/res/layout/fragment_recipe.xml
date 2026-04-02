@@ -15,7 +15,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         app:iconifiedByDefault="false"
-        app:queryHint="Buscar receta"
+        app:queryHint="@string/search_recipe"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -41,7 +41,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
         app:iconSize="28dp"
-        android:contentDescription="Añadir nueva receta"
+        android:contentDescription="@string/create_recipe"
         app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

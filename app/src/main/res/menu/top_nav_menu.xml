@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/navigation_settings"
-        android:title="Perfil"
+        android:title="@string/settings"
         android:icon="@drawable/ic_settings"
         app:iconTint="@color/on_primary"
         app:showAsAction="ifRoom"/>

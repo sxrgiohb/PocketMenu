@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:maxLines="1"
-                android:text="Esta semana" />
+                android:text="@string/this_week" />
 
             <Button
                 android:id="@+id/button_month_view"
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:maxLines="1"
-                android:text="Este mes" />
+                android:text="@string/this_month" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -49,7 +49,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- Chip group: scrollable horizontally if needed -->
+            <!-- Chip group -->
             <HorizontalScrollView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
                         android:ellipsize="end"
                         android:maxWidth="160dp"
                         android:singleLine="true"
-                        android:text="Tienda" />
+                        android:text="@string/store" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_filter_category"
@@ -79,7 +79,7 @@
                         android:ellipsize="end"
                         android:maxWidth="160dp"
                         android:singleLine="true"
-                        android:text="Categoría" />
+                        android:text="@string/category" />
 
                 </com.google.android.material.chip.ChipGroup>
 
@@ -89,9 +89,9 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_clear_filters"
                 style="@style/DeleteButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:contentDescription="Borrar filtros"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/clear_filter"
                 app:icon="@drawable/ic_clear_filters"
                 app:iconSize="24dp"
                 app:iconGravity="textStart" />
@@ -115,7 +115,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:contentDescription="Añadir producto"
+        android:contentDescription="@string/add_product"
         android:src="@drawable/ic_add"
         app:iconSize="28dp"
         app:tint="@android:color/white" />

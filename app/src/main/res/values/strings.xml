@@ -1,3 +1,80 @@
 <resources>
+
+    <!-- XML FILES -->
     <string name="app_name">PocketMenu</string>
+    <string name="add_fav">Añadir a favoritos</string>
+    <!-- General -->
+    <string name="delete">Eliminar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="leave">Salir</string>
+    <string name="add">Añadir</string>
+
+    <!-- Login and sign up-->
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="signup">Registrarse</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="name">Nombre</string>
+    <string name="val_password">Confirmar contraseña</string>
+    <string name="val_password_char">● Debe contener 8 caracteres como mínimo</string>
+    <string name="val_password_num">● Debe contener al menos 1 número</string>
+    <string name="val_password_cap">● Debe contener al menos una mayúscula</string>
+    <string name="back_login">Volver al inicio de sesión</string>
+
+    <!-- Bottom and top nav menu-->
+    <string name="menu">Menú</string>
+    <string name="shopping_list">Lista de la compra</string>
+    <string name="recipe">Recetario</string>
+    <string name="settings">Ajustes</string>
+
+    <!-- Recipe, Ingredient and Product-->
+
+    <string name="edite_recipe">Editar receta</string>
+    <string name="recipes_name">Nombre de la receta</string>
+    <string name="search_recipe">Buscar receta</string>
+    <string name="create_recipe">Añadir nueva receta</string>
+    <string name="recipes_instructions">Elaboración</string>
+    <string name="recipes_portions">Raciones</string>
+    <string name="ingredients">Ingredientes</string>
+    <string name="add_ingredient">Añadir ingrediente</string>
+    <string name="ingredients_name">Nombre del Ingrediente</string>
+    <string name="delete_ingredient">Eliminar ingrediente</string>
+    <string name="quantity">Cantidad</string>
+    <string name="measure_unit">Medida</string>
+    <string name="category">Categoría</string>
+    <string name="store">Tienda</string>
+    <string name="products_name">Nombre del producto</string>
+
+    <!-- Menu -->
+    <string name="select_date">Seleccionar fecha</string>
+    <string name="use_fav_menu">Usar menú favorito</string>
+    <string name="edit_menu">Editar menú</string>
+    <string name="add_leftover">Añadir sobras</string>
+    <string name="add_recipe">Añadir receta</string>
+    <string name="unassigned_leftovers">Sin recetas asignadas</string>
+    <string name="apply_fav_week">Aplicar esta semana</string>
+    <string name="see_recipe_info">Ver información de la receta</string>
+    <string name="edit_weekly_menu">Editar menú semanal</string>
+    <string name="week">Semana del xx al xx de x</string>
+    <string name="search_fav_menu">Buscar menú favorito</string>
+    <string name="fav_menu_not_found">No hay menús favoritos guardados</string>
+    <string name="is_parishable">¿Las sobras son perecederas?</string>
+    <string name="perishable">Perecederas</string>
+    <string name="leftovers_last">¿Cuántos días duran las sobras?</string>
+    <string name="fav_filter">Filtrar favoritos</string>
+    <string name="unavailable_leftovers">No hay sobras disponibles</string>
+
+    <!-- Shopping List -->
+    <string name="this_week">Esta semana</string>
+    <string name="this_month">Este mes</string>
+    <string name="clear_filter">Borrar filtros</string>
+    <string name="add_product">Añadir producto</string>
+
+    <!-- Settings -->
+    <string name="profile_settings">Ajustes de Perfil</string>
+    <string name="delete_account">Eliminar cuenta</string>
+    <string name="logout_session">Cerrar sesión</string>
+    <!-- END XML FILES -->
+
 </resources>

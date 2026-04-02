@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="¿Las sobras son perecederas?"
+        android:text="@string/is_parishable"
         android:textSize="16sp"
         android:layout_marginBottom="12dp" />
 
@@ -18,7 +18,7 @@
         android:id="@+id/switch_perishable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Perecederas"
+        android:text="@string/perishable"
         android:layout_marginBottom="16dp" />
 
     <!-- Perishable days input -->
@@ -27,7 +27,7 @@
         android:id="@+id/layout_valid_days"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="¿Cuántos días duran las sobras?"
+        android:hint="@string/leftovers_last"
         android:visibility="gone">
 
         <com.google.android.material.textfield.TextInputEditText

@@ -44,7 +44,7 @@
             android:layout_width="match_parent" />
     </LinearLayout>
 
-    <!-- Quantity: wrap_content with min width so it doesn't disappear on small screens -->
+    <!-- Quantity -->
     <TextView
         android:id="@+id/text_item_quantity"
         android:layout_width="wrap_content"
@@ -59,9 +59,9 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_delete_item"
         style="@style/DeleteButton"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:contentDescription="Eliminar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/delete"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         app:icon="@drawable/ic_delete"

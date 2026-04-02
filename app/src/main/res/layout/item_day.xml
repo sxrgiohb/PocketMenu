@@ -38,7 +38,7 @@
                 style="@style/AddLeftoverButton"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:contentDescription="Añadir sobras"
+                android:contentDescription="@string/add_leftover"
                 android:visibility="gone"
                 app:icon="@drawable/ic_add_leftover"
                 app:iconSize="28dp"/>
@@ -48,7 +48,7 @@
                 style="@style/AddRecipeButton"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:contentDescription="Añadir receta"
+                android:contentDescription="@string/add_recipe"
                 android:visibility="gone"
                 app:icon="@drawable/ic_add_recipe"
                 app:iconSize="28dp"/>
@@ -67,7 +67,7 @@
             android:id="@+id/text_empty_day"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sin recetas asignadas"
+            android:text="@string/unassigned_leftovers"
             android:textSize="13sp"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:gravity="center"

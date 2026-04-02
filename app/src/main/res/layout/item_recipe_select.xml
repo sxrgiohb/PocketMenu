@@ -42,7 +42,7 @@
         android:paddingEnd="0dp"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:contentDescription="Añadir a favoritos"
+        android:contentDescription="@string/add_fav"
         app:icon="@drawable/ic_favorite_true"
         app:iconSize="28dp"
         app:iconGravity="textStart"

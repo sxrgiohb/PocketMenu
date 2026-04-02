@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.MainActivity">
 
-    <!-- Top navigation: wrap_content height para adaptarse a pantallas pequeñas -->
+    <!-- Top navigation -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/top_app_bar"
         android:layout_width="0dp"

@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:hint="Buscar receta...">
+            android:hint="@string/search_recipe">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_search_recipe"
@@ -39,7 +39,7 @@
             app:iconGravity="textStart"
             app:icon="@drawable/ic_favorite_true"
             app:iconSize="28dp"
-            android:contentDescription="Filtrar favoritos" />
+            android:contentDescription="@string/fav_filter" />
 
     </LinearLayout>
 

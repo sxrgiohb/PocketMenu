@@ -10,14 +10,13 @@
         android:id="@+id/text_no_leftovers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No hay sobras disponibles"
+        android:text="@string/unavailable_leftovers"
         android:textSize="14sp"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:gravity="center"
         android:paddingVertical="16dp"
         android:visibility="gone" />
 
-    <!-- Altura máxima relativa en lugar de fija: se adapta a pantallas pequeñas -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_select_leftover"
         android:layout_width="match_parent"

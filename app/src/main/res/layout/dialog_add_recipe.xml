@@ -18,7 +18,7 @@
                 android:id="@+id/edit_text_recipe_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nombre de la receta"
+                android:hint="@string/recipes_name"
                 android:inputType="textNoSuggestions" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -32,7 +32,7 @@
                 android:id="@+id/edit_text_recipe_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Elaboración"
+                android:hint="@string/recipes_instructions"
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:minLines="4" />
@@ -48,7 +48,7 @@
                 android:id="@+id/edit_text_recipe_portions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Raciones"
+                android:hint="@string/recipes_portions"
                 android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Ingredientes"
+            android:text="@string/ingredients"
             android:textAppearance="?attr/textAppearanceSubtitle1" />
 
         <LinearLayout
@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
-            android:text="Añadir ingrediente" />
+            android:text="@string/add_ingredient" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -91,7 +91,7 @@
                 android:layout_weight="1"
                 android:maxLines="1"
                 android:paddingHorizontal="8dp"
-                android:text="Eliminar"
+                android:text="@string/delete"
                 android:visibility="gone" />
 
             <!-- Cancel button -->
@@ -103,7 +103,7 @@
                 android:layout_weight="1"
                 android:maxLines="1"
                 android:paddingHorizontal="8dp"
-                android:text="Cancelar" />
+                android:text="@string/cancel" />
 
             <!-- Save button -->
             <Button
@@ -114,7 +114,7 @@
                 android:layout_weight="1"
                 android:maxLines="1"
                 android:paddingHorizontal="8dp"
-                android:text="Guardar" />
+                android:text="@string/save" />
 
         </LinearLayout>
 

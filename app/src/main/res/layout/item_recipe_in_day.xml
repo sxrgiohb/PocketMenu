@@ -37,7 +37,8 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:paddingEnd="4dp"
-        android:contentDescription="Ver información de la receta"
+        android:paddingStart="4dp"
+        android:contentDescription="@string/see_recipe_info"
         app:icon="@drawable/ic_see_info"
         app:iconSize="24dp"/>
 
@@ -46,7 +47,7 @@
         style="@style/DeleteButton"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:contentDescription="Eliminar receta"
+        android:contentDescription="@string/delete"
         app:icon="@drawable/ic_delete"
         app:iconSize="28dp"/>
 

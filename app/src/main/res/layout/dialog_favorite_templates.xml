@@ -17,7 +17,7 @@
             android:id="@+id/edit_search_template"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Buscar menú favorito..."
+            android:hint="@string/search_fav_menu"
             android:inputType="text"
             android:imeOptions="actionSearch" />
 
@@ -35,7 +35,7 @@
         android:id="@+id/text_no_templates"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No hay menús favoritos guardados"
+        android:text="@string/fav_menu_not_found"
         android:textAlignment="center"
         android:padding="24dp"
         android:visibility="gone" />

@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
-                android:text="Seleccionar fecha"
+                android:text="@string/select_date"
                 android:maxLines="1"
                 android:ellipsize="end"
                 app:iconGravity="textStart" />
@@ -37,7 +37,7 @@
                 style="@style/FavoriteButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:contentDescription="Guardar como favorito"
+                android:contentDescription="@string/add_fav"
                 app:icon="@drawable/ic_add_favorite"
                 app:iconSize="28dp" />
 
@@ -70,14 +70,14 @@
                 android:layout_marginEnd="8dp"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:text="Usar menú favorito" />
+                android:text="@string/use_fav_menu" />
 
             <Button
                 android:id="@+id/exit_edit"
                 style="?attr/materialButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Salir" />
+                android:text="@string/leave" />
 
         </LinearLayout>
 
@@ -90,7 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:contentDescription="Editar menú"
+        android:contentDescription="@string/edit_menu"
         android:src="@drawable/ic_add"
         app:tint="@android:color/white" />
 
