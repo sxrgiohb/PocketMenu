@@ -44,6 +44,7 @@
         android:insetBottom="0dp"
         android:contentDescription="Añadir a favoritos"
         app:icon="@drawable/ic_favorite_true"
+        app:iconSize="28dp"
         app:iconGravity="textStart"
         app:iconPadding="0dp" />
 

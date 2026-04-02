@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#F6BD60</color>
+    <color name="primary">#F29E18</color>
     <color name="on_primary">#0D1821</color>
+    <color name="light_primary">#F2D495</color>
 
-    <color name="secondary">#D66853</color>
+    <color name="secondary">#D05239</color>
     <color name="on_secondary">#0D1821</color>
 
-    <color name="tertiary">#344966</color>
+    <color name="tertiary">#3E5779</color>
     <color name="on_tertiary">#B7C3F3</color>
 
     <color name="background">#FDFCF8</color>

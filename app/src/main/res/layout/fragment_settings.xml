@@ -34,7 +34,7 @@
     <!-- Log out button -->
     <Button
         android:id="@+id/button_logout"
-        style="@style/MyButton"
+        style="@style/MyOutlinedButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"

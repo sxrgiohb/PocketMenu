@@ -32,6 +32,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="Eliminar ingrediente"
             app:icon="@android:drawable/ic_menu_close_clear_cancel"
+            app:iconSize="28dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
         <!-- Quantity -->

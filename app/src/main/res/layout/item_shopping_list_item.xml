@@ -65,7 +65,8 @@
             android:layout_height="32dp"
             android:contentDescription="Eliminar"
             android:visibility="visible"
-            app:icon="@drawable/ic_delete" />
+            app:icon="@drawable/ic_delete"
+            app:iconSize="28dp"/>
     </FrameLayout>
 
 </LinearLayout>

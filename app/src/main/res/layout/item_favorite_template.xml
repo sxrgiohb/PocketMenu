@@ -37,7 +37,8 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:contentDescription=""
-                app:icon="@drawable/ic_delete" />
+                app:icon="@drawable/ic_delete"
+                app:iconSize="28dp"/>
 
             <!-- See more button -->
             <com.google.android.material.button.MaterialButton
@@ -46,7 +47,8 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:contentDescription=""
-                app:icon="@drawable/ic_see_more" />
+                app:icon="@drawable/ic_see_more"
+                app:iconSize="24dp"/>
 
         </LinearLayout>
 

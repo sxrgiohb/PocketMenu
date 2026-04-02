@@ -40,7 +40,8 @@
                 android:layout_height="40dp"
                 android:contentDescription="Añadir sobras"
                 android:visibility="gone"
-                app:icon="@drawable/ic_add_leftover" />
+                app:icon="@drawable/ic_add_leftover"
+                app:iconSize="28dp"/>
             <!-- Add recipe -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_add_recipe"
@@ -49,7 +50,8 @@
                 android:layout_height="40dp"
                 android:contentDescription="Añadir receta"
                 android:visibility="gone"
-                app:icon="@drawable/ic_add_recipe" />
+                app:icon="@drawable/ic_add_recipe"
+                app:iconSize="28dp"/>
 
         </LinearLayout>
 

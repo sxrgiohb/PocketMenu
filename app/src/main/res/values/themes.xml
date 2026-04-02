@@ -28,12 +28,17 @@
 
         <!-- Component styles -->
         <item name="floatingActionButtonStyle">@style/MyFAB</item>
+
         <item name="checkboxStyle">@style/MyCheckBox</item>
+
         <item name="materialCardViewStyle">@style/MyCard</item>
+
         <item name="actionBarTheme">@style/MyActionBarTheme</item>
 
         <!-- Apply custom Filter Chip style -->
         <item name="chipStyle">@style/Widget.MyApp.Chip.Filter</item>
+
+        <item name="bottomNavigationStyle">@style/MyBottomNav</item>
 
     </style>
 
@@ -125,6 +130,29 @@
         <item name="checkedIcon">@null</item>
         <!-- Border -->
         <item name="chipStrokeWidth">0dp</item>
+    </style>
+
+    <style name="MyOutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="strokeColor">@color/text_primary</item>
+        <item name="rippleColor">@color/text_primary</item>
+    </style>
+
+    <style name="ToggleButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/toggle_button_text</item>
+        <item name="strokeColor">@color/toggle_button_text</item>
+        <item name="backgroundTint">@color/toggle_button_background</item>
+    </style>
+
+    <style name="MyBottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconTint">@color/nav_icon_color</item>
+        <item name="itemTextColor">@color/nav_icon_color</item>
+        <item name="materialThemeOverlay">@style/NavIndicatorOverlay</item>
+    </style>
+
+    <style name="NavIndicatorOverlay">
+        <item name="colorSecondaryContainer">@color/light_primary</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary</item>
     </style>
 
 </resources>

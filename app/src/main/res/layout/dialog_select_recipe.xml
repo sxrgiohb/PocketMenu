@@ -32,6 +32,7 @@
             android:layout_marginEnd="8dp"
             app:iconGravity="textStart"
             app:icon="@drawable/ic_favorite_true"
+            app:iconSize="28dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:contentDescription="Añadir a favoritos" />

@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textSize="15sp"
-        android:textColor="?attr/colorPrimary" />
+        android:textColor="@color/text_primary" />
 
     <View
         android:layout_width="match_parent"

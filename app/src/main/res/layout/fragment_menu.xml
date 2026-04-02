@@ -22,7 +22,7 @@
 
             <Button
                 android:id="@+id/button_date_selector"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/MyOutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -36,7 +36,8 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription=""
-                app:icon="@drawable/ic_add_favorite" />
+                app:icon="@drawable/ic_add_favorite"
+                app:iconSize="28dp"/>
 
         </LinearLayout>
 

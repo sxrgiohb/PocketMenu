@@ -40,6 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
+        app:iconSize="28dp"
         android:contentDescription="Añadir nueva receta"
         app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
