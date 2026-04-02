@@ -17,9 +17,12 @@
         android:paddingVertical="16dp"
         android:visibility="gone" />
 
+    <!-- Altura máxima relativa en lugar de fija: se adapta a pantallas pequeñas -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_select_leftover"
         android:layout_width="match_parent"
-        android:layout_height="300dp" />
+        android:layout_height="wrap_content"
+        android:maxHeight="320dp"
+        android:nestedScrollingEnabled="true" />
 
 </LinearLayout>

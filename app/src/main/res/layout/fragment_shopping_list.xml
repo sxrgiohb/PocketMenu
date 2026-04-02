@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main vertical layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -28,6 +27,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:maxLines="1"
                 android:text="Esta semana" />
 
             <Button
@@ -36,6 +36,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:maxLines="1"
                 android:text="Este mes" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
@@ -48,33 +49,41 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- Chip group -->
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_filters"
+            <!-- Chip group: scrollable horizontally if needed -->
+            <HorizontalScrollView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:singleLine="true">
+                android:scrollbars="none">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_filter_store"
-                    style="@style/Widget.MyApp.Chip.Filter"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:text="Tienda" />
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group_filters"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_filter_category"
-                    style="@style/Widget.MyApp.Chip.Filter"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:text="Categoría" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_filter_store"
+                        style="@style/Widget.MyApp.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxWidth="160dp"
+                        android:singleLine="true"
+                        android:text="Tienda" />
 
-            </com.google.android.material.chip.ChipGroup>
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_filter_category"
+                        style="@style/Widget.MyApp.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxWidth="160dp"
+                        android:singleLine="true"
+                        android:text="Categoría" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </HorizontalScrollView>
 
             <!-- Clear filters icon button -->
             <com.google.android.material.button.MaterialButton
@@ -84,7 +93,7 @@
                 android:layout_height="40dp"
                 android:contentDescription="Borrar filtros"
                 app:icon="@drawable/ic_clear_filters"
-                app:iconSize="28dp"
+                app:iconSize="24dp"
                 app:iconGravity="textStart" />
 
         </LinearLayout>
@@ -99,7 +108,7 @@
 
     </LinearLayout>
 
-    <!-- Floating Action Button -->
+    <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_extra_product"
         android:layout_width="wrap_content"

@@ -14,7 +14,7 @@
         android:layout_marginBottom="12dp" />
 
     <!-- Perishable switch -->
-    <Switch
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switch_perishable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,12 +22,20 @@
         android:layout_marginBottom="16dp" />
 
     <!-- Perishable days input -->
-    <EditText
-        android:id="@+id/edit_valid_days"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:id="@+id/layout_valid_days"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:hint="¿Cuántos días duran las sobras?"
-        android:inputType="number"
-        android:visibility="gone" />
+        android:visibility="gone">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_valid_days"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

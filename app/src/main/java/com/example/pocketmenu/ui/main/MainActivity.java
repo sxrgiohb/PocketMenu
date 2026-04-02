@@ -1,6 +1,9 @@
 package com.example.pocketmenu.ui.main;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -17,16 +20,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // References to the views
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.top_app_bar), (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+            return windowInsets;
+        });
+
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav_view);
         MaterialToolbar topAppBar = findViewById(R.id.top_app_bar);
 
-        // Load the initial fragment
         if (savedInstanceState == null) {
             loadFragment(new MenuFragment());
         }
 
-        // Bottom navigation listener
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
@@ -38,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.navigation_recipe) {
                 selectedFragment = new RecipeFragment();
             }
-            // Load fragment
             if (selectedFragment != null) {
                 loadFragment(selectedFragment);
                 return true;
@@ -46,9 +51,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // Top navigation listener
         topAppBar.setOnMenuItemClickListener(menuItem -> {
-            // Checks if the item is the settings icon
             if (menuItem.getItemId() == R.id.navigation_settings) {
                 SettingsFragment settingsFragment = new SettingsFragment();
                 settingsFragment.show(getSupportFragmentManager(), "settings");

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp" />
 
-    <!-- Nombre + info -->
+    <!-- Name + info -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -25,48 +26,47 @@
             android:id="@+id/text_item_name"
             android:textSize="15sp"
             android:textColor="?attr/colorOnSurface"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent" />
 
         <TextView
             android:id="@+id/text_item_store"
             android:textSize="12sp"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent" />
 
         <TextView
             android:id="@+id/text_item_category"
             android:textSize="12sp"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent" />
     </LinearLayout>
 
-    <!-- Cantidad (SIEMPRE alineada) -->
+    <!-- Quantity: wrap_content with min width so it doesn't disappear on small screens -->
     <TextView
         android:id="@+id/text_item_quantity"
-        android:layout_width="60dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left"
+        android:minWidth="48dp"
+        android:gravity="end"
         android:textSize="14sp"
         android:textColor="?attr/colorOnSurfaceVariant"
-        android:layout_marginEnd="8dp"/>
+        android:layout_marginEnd="4dp" />
 
-    <!-- Espacio reservado botón -->
-    <FrameLayout
+    <!-- Delete button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_delete_item"
+        style="@style/DeleteButton"
         android:layout_width="32dp"
-        android:layout_height="32dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_delete_item"
-            style="@style/DeleteButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:contentDescription="Eliminar"
-            android:visibility="visible"
-            app:icon="@drawable/ic_delete"
-            app:iconSize="28dp"/>
-    </FrameLayout>
+        android:layout_height="32dp"
+        android:contentDescription="Eliminar"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        app:icon="@drawable/ic_delete"
+        app:iconSize="20dp"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp" />
 
 </LinearLayout>
