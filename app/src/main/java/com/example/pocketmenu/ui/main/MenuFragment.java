@@ -34,6 +34,7 @@ import com.example.pocketmenu.ui.dialogs.FavoriteTemplatesDialog;
 import com.example.pocketmenu.viewmodel.MenuViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -338,7 +339,7 @@ public class MenuFragment extends Fragment {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_perishable, null);
 
-        Switch switchPerishable = dialogView.findViewById(R.id.switch_perishable);
+        SwitchMaterial switchPerishable = dialogView.findViewById(R.id.switch_perishable);
         EditText editValidDays = dialogView.findViewById(R.id.edit_valid_days);
 
         editValidDays.setVisibility(View.GONE);
