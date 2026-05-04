@@ -14,7 +14,6 @@ public class AuthViewModel extends ViewModel {
 
     // Constructor
     public AuthViewModel() {
-
         this.repository = new AuthRepository();
         this.userLiveData = repository.getUserLiveData();
         this.errorMessageLiveData = repository.getErrorMessageLiveData();
@@ -35,11 +34,9 @@ public class AuthViewModel extends ViewModel {
     public LiveData<FirebaseUser> getUserLiveData() {
         return userLiveData;
     }
-
     public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }
-
     public LiveData<Boolean> getRegistrationSuccessLiveData() {
         return registrationSuccessLiveData;
     }

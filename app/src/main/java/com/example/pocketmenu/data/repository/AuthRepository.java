@@ -24,29 +24,26 @@ public class AuthRepository {
 
     // Constructor
     public AuthRepository() {
-        //Initialize instances
+        // Initialize instances
         this.auth = FirebaseAuth.getInstance();
         this.db = FirebaseFirestore.getInstance();
         this.userLiveData = new MutableLiveData<>();
         this.errorMessageLiveData = new MutableLiveData<>();
         this.registrationSuccessLiveData = new MutableLiveData<>();
 
-        //Check open session
+        // Check open session
         if (auth.getCurrentUser() != null) {
             userLiveData.postValue(auth.getCurrentUser());
         }
-
     }
 
     // LiveData getters
     public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }
-
     public LiveData<FirebaseUser> getUserLiveData() {
         return userLiveData;
     }
-
     public LiveData<Boolean> getRegistrationSuccessLiveData() {
         return registrationSuccessLiveData;
     }
@@ -55,12 +52,11 @@ public class AuthRepository {
     public void registerNewUser(String email, String password, String name) {
         // Resets any previous value
         registrationSuccessLiveData.postValue(null);
-
+        // Creates user in Firebase
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 FirebaseUser firebaseUser = auth.getCurrentUser();
                 if (firebaseUser != null) {
-                    //Create new user
                     User newUser = new User(firebaseUser.getUid(), name, email);
                     //Save user in Firestore
                     db.collection(COLLECTION_PATH).document(firebaseUser.getUid()).set(newUser).addOnSuccessListener(Void -> {
@@ -70,7 +66,6 @@ public class AuthRepository {
                         String errorMessage = e.getMessage() != null
                                 ? e.getMessage()
                                 : "Error desconocido";
-
                         errorMessageLiveData.postValue("Error de registro: " + errorMessage);
                         registrationSuccessLiveData.postValue(false);
                     });
@@ -79,7 +74,7 @@ public class AuthRepository {
                 if (task.getException() != null) {
                     errorMessageLiveData.postValue(task.getException().getMessage());
                 } else {
-                    errorMessageLiveData.postValue("Se ha producido un error desconocido");
+                    errorMessageLiveData.postValue("Error desconocido");
                 }
                 registrationSuccessLiveData.postValue(false);
             }

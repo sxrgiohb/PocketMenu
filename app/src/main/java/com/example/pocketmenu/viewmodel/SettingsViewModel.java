@@ -19,22 +19,22 @@ public class SettingsViewModel extends ViewModel {
         this.errorMessageLiveData = repository.getErrorMessageLiveData();
     }
 
+    // Log out method
     public void logOutSession() {
         repository.logOutSession();
     }
-
+    // Delete account method
     public void deleteAccount() {
         repository.deleteAccount();
     }
 
+    // Getters
     public LiveData<Boolean> getLoggedOutLiveData() {
         return loggedOutLiveData;
     }
-
     public LiveData<Boolean> getAccountDeletedLiveData() {
         return accountDeletedLiveData;
     }
-
     public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }
