@@ -36,16 +36,18 @@ public class SettingsFragment extends BottomSheetDialogFragment {
         return view;
     }
 
+    // Links objects to the layout
     private void initializeViews(View view) {
         logoutButton = view.findViewById(R.id.button_logout);
         deleteAccountButton = view.findViewById(R.id.button_delete_account);
         progressBar = view.findViewById(R.id.progressBar);
     }
-
+    // Links the view model to the fragment
     private void setupViewModel() {
         settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
     }
 
+    // Observes the changes in the view model
     private void setupObservers() {
         settingsViewModel.getLoggedOutLiveData().observe(getViewLifecycleOwner(), loggedOut -> {
             if (loggedOut != null && loggedOut) {
@@ -69,11 +71,13 @@ public class SettingsFragment extends BottomSheetDialogFragment {
         });
     }
 
+    // Inputs listeners
     private void setupListeners() {
         logoutButton.setOnClickListener(v -> settingsViewModel.logOutSession());
         deleteAccountButton.setOnClickListener(v -> showDeleteAccountDialog());
     }
 
+    // Delete account dialog
     private void showDeleteAccountDialog() {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Eliminar cuenta")
@@ -86,6 +90,7 @@ public class SettingsFragment extends BottomSheetDialogFragment {
                 .show();
     }
 
+    // Method to navigate to the main activity
     private void navigateToLogin() {
         Intent intent = new Intent(getActivity(), LogInActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

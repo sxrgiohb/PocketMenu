@@ -77,7 +77,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    // Listens to the buttons and text fields
+    // Inputs listeners
     private void setupListeners() {
         passwordEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -111,10 +111,12 @@ public class SignUpActivity extends AppCompatActivity {
             Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
+        // Checks if passwords match
         if (!password.equals(confirmPassword)) {
             Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
             return;
         }
+        // Checks if password is valid
         if (!validatePassword(password)) {
             Toast.makeText(this, "La contraseña no cumple los requisitos", Toast.LENGTH_SHORT).show();
             return;
@@ -123,6 +125,7 @@ public class SignUpActivity extends AppCompatActivity {
         viewModel.registerNewUser(email, password, name);
     }
 
+    // Validates password and changes the color of the text
     private boolean validatePassword(String password) {
         int notValidColor = ContextCompat.getColor(this, android.R.color.darker_gray);
         int isValidColor = ContextCompat.getColor(this, R.color.green);

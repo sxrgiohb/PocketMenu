@@ -77,10 +77,12 @@ public class LogInActivity extends AppCompatActivity {
         });
     }
 
+    // Inputs listeners
     private void setupListeners() {
         logInButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
             String password = passwordEditText.getText().toString().trim();
+
             if (TextUtils.isEmpty(email)) {
                 Toast.makeText(LogInActivity.this, "Introduce el correo", Toast.LENGTH_SHORT).show();
                 return;
