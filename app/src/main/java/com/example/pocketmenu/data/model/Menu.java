@@ -5,6 +5,7 @@ import com.google.firebase.firestore.PropertyName;
 
 import java.util.Date;
 
+// Represents one meal assigned to a concrete day
 public class Menu {
     @DocumentId
     private String id;
@@ -14,18 +15,18 @@ public class Menu {
     private int usedPortions;
     private String name;
     private boolean isFavorite;
-
+    // Forces the field to be named "isFromLeftover" in Firestore (it would be "fromLeftover" otherwise)
     @PropertyName("isFromLeftover")
     private boolean isFromLeftover;
-
     private String sourceRecipeId;
     private String sourceMenuId;
     private boolean leftoverPerishable;
     private int leftoverValidDays;
 
+    // Empty constructor
     public Menu() {}
 
-    // Constructor para receta principal
+    // Main recipe constructor
     public Menu(String userId, String recipeId, Date date, int usedPortions,
                 String name, boolean isFavorite) {
         this.userId = userId;
@@ -41,7 +42,7 @@ public class Menu {
         this.leftoverValidDays = 0;
     }
 
-    // Constructor para sobra consumida
+    // Leftover constructor
     public Menu(String userId, String recipeId, Date date, int usedPortions,
                 String name, boolean isFavorite,
                 boolean isFromLeftover, String sourceRecipeId, String sourceMenuId,
@@ -59,6 +60,7 @@ public class Menu {
         this.leftoverValidDays = leftoverValidDays;
     }
 
+    // Getters
     public String getId() { return id; }
     public String getUserId() { return userId; }
     public String getRecipeId() { return recipeId; }
@@ -70,10 +72,10 @@ public class Menu {
     public String getSourceMenuId() { return sourceMenuId; }
     public boolean isLeftoverPerishable() { return leftoverPerishable; }
     public int getLeftoverValidDays() { return leftoverValidDays; }
-
     @PropertyName("isFromLeftover")
     public boolean isFromLeftover() { return isFromLeftover; }
 
+    // Setters
     public void setId(String id) { this.id = id; }
     public void setUserId(String userId) { this.userId = userId; }
     public void setRecipeId(String recipeId) { this.recipeId = recipeId; }
@@ -85,7 +87,6 @@ public class Menu {
     public void setSourceMenuId(String sourceMenuId) { this.sourceMenuId = sourceMenuId; }
     public void setLeftoverPerishable(boolean leftoverPerishable) { this.leftoverPerishable = leftoverPerishable; }
     public void setLeftoverValidDays(int leftoverValidDays) { this.leftoverValidDays = leftoverValidDays; }
-
     @PropertyName("isFromLeftover")
     public void setFromLeftover(boolean fromLeftover) { isFromLeftover = fromLeftover; }
 }

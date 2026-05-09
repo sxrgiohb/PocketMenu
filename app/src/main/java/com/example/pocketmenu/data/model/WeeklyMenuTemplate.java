@@ -4,6 +4,7 @@ import com.google.firebase.firestore.DocumentId;
 
 import java.util.List;
 
+// Represents a whole week's menu
 public class WeeklyMenuTemplate {
     @DocumentId
     private String id;
@@ -13,8 +14,10 @@ public class WeeklyMenuTemplate {
     private List<WeeklyMenuItem> items;
     private List<UnassignedLeftover> unassignedLeftovers;
 
+    // Empty constructor
     public WeeklyMenuTemplate() {}
 
+    // Constructor
     public WeeklyMenuTemplate(String id, String userId, String name, boolean isFavorite,
                               List<WeeklyMenuItem> items,
                               List<UnassignedLeftover> unassignedLeftovers) {
@@ -26,6 +29,7 @@ public class WeeklyMenuTemplate {
         this.unassignedLeftovers = unassignedLeftovers;
     }
 
+    // Getters
     public String getId() { return id; }
     public String getUserId() { return userId; }
     public String getName() { return name; }
@@ -33,6 +37,7 @@ public class WeeklyMenuTemplate {
     public List<WeeklyMenuItem> getItems() { return items; }
     public List<UnassignedLeftover> getUnassignedLeftovers() { return unassignedLeftovers; }
 
+    // Setters
     public void setId(String id) { this.id = id; }
     public void setUserId(String userId) { this.userId = userId; }
     public void setName(String name) { this.name = name; }

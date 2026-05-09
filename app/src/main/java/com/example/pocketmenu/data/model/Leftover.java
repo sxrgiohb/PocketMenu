@@ -3,6 +3,7 @@ package com.example.pocketmenu.data.model;
 import com.google.firebase.firestore.DocumentId;
 import java.util.Date;
 
+// Represents an unconsumed meal
 public class Leftover {
     @DocumentId
     private String id;
@@ -14,8 +15,10 @@ public class Leftover {
     private Date firstAssignedDate;
     private int validDays;
 
+    // Empty constructor
     public Leftover() {}
 
+    // Constructor
     public Leftover(String userId, String recipeId, String sourceMenuId,int remainingPortions, boolean perishable, Date firstAssignedDate, int validDays) {
         this.userId = userId;
         this.recipeId = recipeId;
