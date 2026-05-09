@@ -10,12 +10,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+// Shopping list line items per week and helpers to read rows when generating lists
 public class ShoppingListRepository {
 
     public static final String COLLECTION_PATH = "SHOPPING_LIST_ITEMS";
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
+    // Constructor
     public ShoppingListRepository() {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -25,10 +27,6 @@ public class ShoppingListRepository {
         if (auth.getCurrentUser() != null) return auth.getCurrentUser().getUid();
         return null;
     }
-
-    // ===========================
-    // WEEK ID UTILS
-    // ===========================
 
     public static String getWeekId(Date date) {
         Calendar cal = Calendar.getInstance(Locale.forLanguageTag("es-ES"));
@@ -58,10 +56,7 @@ public class ShoppingListRepository {
         return cal.getTime();
     }
 
-    // ===========================
-    // CALLBACKS
-    // ===========================
-
+    // Callbacks
     public interface ShoppingListCallback {
         void onSuccess();
         void onFailure(Exception e);
@@ -82,10 +77,7 @@ public class ShoppingListRepository {
         void onFailure(Exception e);
     }
 
-    // ===========================
-    // SHOPPING LIST ITEMS
-    // ===========================
-
+    // Shopping list CRUD
     public void addItem(ShoppingListItem item, OnItemAdded callback) {
         String uid = getUserId();
         if (uid == null) return;
@@ -116,22 +108,6 @@ public class ShoppingListRepository {
         batch.commit()
                 .addOnSuccessListener(a -> {
                     if (callback != null) callback.onSuccess();
-                })
-                .addOnFailureListener(e -> {
-                    if (callback != null) callback.onFailure(e);
-                });
-    }
-
-    public void getItemsByWeekId(String weekId, OnItemsLoaded callback) {
-        String uid = getUserId();
-        if (uid == null) return;
-        db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("weekId", weekId)
-                .get()
-                .addOnSuccessListener(snap -> {
-                    if (callback != null)
-                        callback.onLoaded(snap.toObjects(ShoppingListItem.class));
                 })
                 .addOnFailureListener(e -> {
                     if (callback != null) callback.onFailure(e);
@@ -173,33 +149,6 @@ public class ShoppingListRepository {
                 .delete()
                 .addOnSuccessListener(a -> {
                     if (callback != null) callback.onSuccess();
-                })
-                .addOnFailureListener(e -> {
-                    if (callback != null) callback.onFailure(e);
-                });
-    }
-
-    public void deleteItemsByWeekId(String weekId, ShoppingListCallback callback) {
-        String uid = getUserId();
-        if (uid == null) return;
-        db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("weekId", weekId)
-                .get()
-                .addOnSuccessListener(snap -> {
-                    if (snap.isEmpty()) {
-                        if (callback != null) callback.onSuccess();
-                        return;
-                    }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
-                    snap.getDocuments().forEach(doc -> batch.delete(doc.getReference()));
-                    batch.commit()
-                            .addOnSuccessListener(a -> {
-                                if (callback != null) callback.onSuccess();
-                            })
-                            .addOnFailureListener(e -> {
-                                if (callback != null) callback.onFailure(e);
-                            });
                 })
                 .addOnFailureListener(e -> {
                     if (callback != null) callback.onFailure(e);
@@ -275,10 +224,7 @@ public class ShoppingListRepository {
                 });
     }
 
-    // ===========================
-    // MENUS (lectura para generación de lista)
-    // ===========================
-
+    // Non-leftover meals in a date range
     public void getMainMenusByDateRange(Date from, Date to, OnMenusLoaded callback) {
         String uid = getUserId();
         if (uid == null) return;

@@ -7,6 +7,7 @@ import com.google.firebase.firestore.Query;
 
 import java.util.List;
 
+// Saved weekly blueprints for favorites
 public class WeeklyMenuTemplateRepository {
 
     public static final String COLLECTION_PATH = "WEEKLY_MENU_TEMPLATES";
@@ -14,6 +15,7 @@ public class WeeklyMenuTemplateRepository {
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
+    // Constructor
     public WeeklyMenuTemplateRepository() {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -39,24 +41,6 @@ public class WeeklyMenuTemplateRepository {
     public interface OnTemplatesLoaded {
         void onLoaded(List<WeeklyMenuTemplate> templates);
         void onFailure(Exception e);
-    }
-    public Query getTemplatesQuery() {
-        String uid = getUserId();
-        if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
-        return db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .orderBy("name");
-    }
-
-    public void getTemplateById(String templateId, OnWeeklyMenuFound callback) {
-        db.collection(COLLECTION_PATH)
-                .document(templateId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) callback.onFound(doc.toObject(WeeklyMenuTemplate.class));
-                    else callback.onNotFound();
-                })
-                .addOnFailureListener(callback::onFailure);
     }
 
     public void getAllTemplates(OnTemplatesLoaded callback) {
@@ -85,19 +69,6 @@ public class WeeklyMenuTemplateRepository {
                 .add(template)
                 .addOnSuccessListener(ref -> {
                     template.setId(ref.getId());
-                    if (callback != null) callback.onSuccess();
-                })
-                .addOnFailureListener(e -> {
-                    if (callback != null) callback.onFailure(e);
-                });
-    }
-
-    public void updateTemplate(String templateId, WeeklyMenuTemplate template,
-                               WeeklyMenuCallback callback) {
-        db.collection(COLLECTION_PATH)
-                .document(templateId)
-                .set(template)
-                .addOnSuccessListener(aVoid -> {
                     if (callback != null) callback.onSuccess();
                 })
                 .addOnFailureListener(e -> {

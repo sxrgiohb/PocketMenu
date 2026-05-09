@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+// Firestore access for meal assignments: one document per planned meal.
 public class MenuRepository {
 
     public static final String COLLECTION_PATH = "MENUS";
@@ -35,7 +36,7 @@ public class MenuRepository {
         void onFailure(Exception e);
     }
 
-    // Interface that returns the menuId after adding
+    // Returns the new document id
     public interface OnMenuAdded {
         void onSuccess(String menuId);
         void onFailure(Exception e);
@@ -48,21 +49,7 @@ public class MenuRepository {
         void onFailure(Exception e);
     }
 
-    public interface OnMenuLoaded{
-        void onLoaded(List<Menu> menus);
-        void onFailure(Exception e);
-    }
-
-    /*
-    public Query getMenusQuery() {
-        String uid = getUserId();
-        if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
-        return db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .orderBy("date");
-    }
-    */
-
+    // Query for a single calendar day (used by MenuViewModel when building the week).
     public Query getMenusByDateQuery(Date date) {
         String uid = getUserId();
         if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
@@ -111,23 +98,13 @@ public class MenuRepository {
                 });
     }
 
-    public void updateMenu(String menuId, Menu menu, MenuCallback callback) {
-        db.collection(COLLECTION_PATH).document(menuId).set(menu)
-                .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
-                .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
-    }
-
     public void deleteMenu(String menuId, MenuCallback callback) {
         db.collection(COLLECTION_PATH).document(menuId).delete()
                 .addOnSuccessListener(aVoid -> { if (callback != null) callback.onSuccess(); })
                 .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
 
-    /**
-     * Elimina todos los menus que consumieron sobras de un menu concreto.
-     * Usado al eliminar una receta principal para limpiar también
-     * las asignaciones de sus sobras.
-     */
+    // Deletes meals that were cooked from leftovers tied to a source menu
     public void deleteMenusBySourceMenuId(String sourceMenuId, MenuCallback callback) {
         String uid = getUserId();
         if (uid == null) return;
@@ -157,10 +134,8 @@ public class MenuRepository {
                 });
     }
 
-    /**
-     * Elimina todos los menus de una semana concreta.
-     * Usado al aplicar una plantilla favorita para reemplazar la semana.
-     */
+    // Wipes all menus whose date falls in the given range (inclusive)
+    // Used when applying a favorite template over the current week.
     public void deleteMenusByDateRange(Date from, Date to, MenuCallback callback) {
         String uid = getUserId();
         if (uid == null) return;
@@ -185,6 +160,7 @@ public class MenuRepository {
                 .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
 
+    // Removes menus older than x days from today
     public void deleteMenusOlderThan(int days, MenuCallback callback) {
         String uid = getUserId();
         if (uid == null) return;

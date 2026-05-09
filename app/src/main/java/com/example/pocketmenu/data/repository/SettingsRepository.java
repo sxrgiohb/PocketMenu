@@ -10,6 +10,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+// Settings actions: sign out and full account deletion (Firestore sweep + Auth user delete).
 public class SettingsRepository {
     // Firebase instances
     private final FirebaseAuth auth;
@@ -54,6 +55,7 @@ public class SettingsRepository {
         loggedOutLiveData.postValue(true);
     }
 
+    // Deletes every user-owned document in app collections, then the user doc and Auth user
     public void deleteAccount() {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {

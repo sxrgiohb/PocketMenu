@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+// Firestore access for user recipes and helper reads (by id, ingredient autocomplete).
 public class RecipeRepository {
 
     // Constants for Firestore collection
@@ -28,6 +29,7 @@ public class RecipeRepository {
     private final MutableLiveData<Boolean> operationSuccessLiveData;
     private final MutableLiveData<String> errorMessageLiveData;
 
+    // Constructor
     public RecipeRepository() {
         // Initialize instances
         db = FirebaseFirestore.getInstance();
@@ -42,7 +44,7 @@ public class RecipeRepository {
     public LiveData<Boolean> getOperationSuccessLiveData() { return operationSuccessLiveData; }
     public LiveData<String> getErrorMessageLiveData() { return errorMessageLiveData; }
 
-    // Method to get recipes from Firestore
+    // Loads all recipes for the user, optionally narrowed by name prefix
     public void getRecipes(String searchText) {
         String uid = getUserId();
         if (uid == null) {
@@ -118,6 +120,7 @@ public class RecipeRepository {
         void onFailure(Exception e);
     }
 
+    // Single recipe by document id
     public void getRecipeById(String recipeId, OnRecipeFound callback) {
         db.collection(COLLECTION_PATH)
                 .document(recipeId)
@@ -134,6 +137,7 @@ public class RecipeRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    // Scans every recipe’s ingredients and returns unique names starting with the given prefix
     public void getIngredientSuggestions(String prefix, OnIngredientsLoaded callback) {
         String uid = getUserId();
         if (uid == null) return;

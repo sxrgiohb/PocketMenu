@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+//Firestore access for Leftover documents (extra portions linked to a source menu).
 public class LeftoverRepository {
 
     public static final String COLLECTION_PATH = "LEFTOVERS";
@@ -16,6 +17,7 @@ public class LeftoverRepository {
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
+    // Constructor
     public LeftoverRepository() {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -43,35 +45,8 @@ public class LeftoverRepository {
         void onFailure(Exception e);
     }
 
-    public Query getLeftoversQuery() {
-        String uid = getUserId();
-        if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
-        return db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .orderBy("firstAssignedDate");
-    }
 
-    public Query getValidPerishableLeftoversQuery() {
-        String uid = getUserId();
-        if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
-        Date now = new Date();
-        return db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("perishable", true)
-                .whereGreaterThanOrEqualTo("expirationDate", now)
-                .orderBy("expirationDate");
-    }
-
-    public Query getNonPerishableLeftoversQuery() {
-        String uid = getUserId();
-        if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
-        return db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("perishable", false)
-                .orderBy("firstAssignedDate");
-    }
-
-
+    /** All leftover rows sharing a recipe id (MenuViewModel joins with menus). */
     public void getLeftoversByRecipe(String recipeId, OnLeftoversLoaded callback) {
         String uid = getUserId();
         if (uid == null) {
@@ -87,26 +62,7 @@ public class LeftoverRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    public void getActiveLeftoverByRecipe(String recipeId, OnLeftoverFound callback) {
-        String uid = getUserId();
-        if (uid == null) {
-            callback.onFailure(new Exception("Usuario no autenticado"));
-            return;
-        }
-        db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("recipeId", recipeId)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(snap -> {
-                    if (!snap.isEmpty())
-                        callback.onFound(snap.getDocuments().get(0).toObject(Leftover.class));
-                    else
-                        callback.onNotFound();
-                })
-                .addOnFailureListener(callback::onFailure);
-    }
-
+    // All leftovers for the user, filtered in memory to those still valid
     public void getValidLeftovers(OnLeftoversLoaded callback) {
         String uid = getUserId();
         if (uid == null) {
@@ -127,23 +83,7 @@ public class LeftoverRepository {
                 .addOnFailureListener(callback::onFailure);
     }
 
-
-    public void getLeftoversByDateRange(Date from, Date to, OnLeftoversLoaded callback) {
-        String uid = getUserId();
-        if (uid == null) {
-            callback.onFailure(new Exception("Usuario no autenticado"));
-            return;
-        }
-        db.collection(COLLECTION_PATH)
-                .whereEqualTo("userId", uid)
-                .whereGreaterThanOrEqualTo("firstAssignedDate", from)
-                .whereLessThanOrEqualTo("firstAssignedDate", to)
-                .get()
-                .addOnSuccessListener(snap ->
-                        callback.onLoaded(snap.toObjects(Leftover.class)))
-                .addOnFailureListener(callback::onFailure);
-    }
-
+    // Clears leftovers whose first assignment falls in the week being replaced.
     public void deleteLeftoversByDateRange(Date from, Date to, LeftoverCallback callback) {
         String uid = getUserId();
         if (uid == null) return;
@@ -202,12 +142,14 @@ public class LeftoverRepository {
                 + (long) leftover.getValidDays() * msPerDay;
     }
 
+    // Perishable safety check at a given instant (also used by cleanup jobs)
     public static boolean isStillValid(Leftover leftover, Date referenceTime) {
         if (!leftover.getPerishable()) return true;
         if (leftover.getFirstAssignedDate() == null) return true;
         return expirationEndMillis(leftover) >= referenceTime.getTime();
     }
 
+    // Controls that a leftover can be assigned to a given day
     public static boolean isAssignableOnDay(Leftover leftover, Date dayInstant) {
         if (!leftover.getPerishable()) return true;
         if (leftover.getFirstAssignedDate() == null) return true;
@@ -215,6 +157,7 @@ public class LeftoverRepository {
         return expirationEndMillis(leftover) >= dayInstant.getTime();
     }
 
+    // Deletes perishable rows that are no longer valid (expired)
     public void deleteExpiredPerishableLeftovers(LeftoverCallback callback) {
         String uid = getUserId();
         if (uid == null) return;
@@ -246,6 +189,7 @@ public class LeftoverRepository {
                 .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
 
+    // Removes leftovers created from a specific source menu id
     public void deleteLeftoversBySourceMenuId(String sourceMenuId, LeftoverCallback callback) {
         String uid = getUserId();
         if (uid == null) return;

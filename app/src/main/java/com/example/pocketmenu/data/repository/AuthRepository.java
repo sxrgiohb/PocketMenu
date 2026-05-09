@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.example.pocketmenu.data.model.User;
 
+// Email/password auth and creating the matching Firestore user profile row.
 public class AuthRepository {
 
     // Firebase instances
@@ -48,7 +49,7 @@ public class AuthRepository {
         return registrationSuccessLiveData;
     }
 
-    // New user Auth and Firestore
+    // Creates Firebase Auth user then writes the User to Firestore under the same UID.
     public void registerNewUser(String email, String password, String name) {
         // Resets any previous value
         registrationSuccessLiveData.postValue(null);
@@ -81,7 +82,7 @@ public class AuthRepository {
         });
     }
 
-    //Login method
+    //Signs in and posts the current Firebase user to LiveData on success.
     public void logInSession(String email, String password) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
