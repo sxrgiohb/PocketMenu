@@ -117,14 +117,6 @@ public class LeftoverRepository {
                 .whereEqualTo("userId", uid)
                 .get()
                 .addOnSuccessListener(snap -> {
-                    android.util.Log.d("LEFTOVERS_RAW", "Documentos en Firestore: " + snap.size());
-                    for (Leftover l : snap.toObjects(Leftover.class)) {
-                        android.util.Log.d("LEFTOVERS_RAW", "Raw: recipeId=" + l.getRecipeId()
-                                + " perishable=" + l.getPerishable()
-                                + " validDays=" + l.getValidDays()
-                                + " firstAssignedDate=" + l.getFirstAssignedDate()
-                                + " isStillValid=" + isStillValid(l, new Date()));
-                    }
                     List<Leftover> valid = new ArrayList<>();
                     Date now = new Date();
                     for (Leftover l : snap.toObjects(Leftover.class)) {

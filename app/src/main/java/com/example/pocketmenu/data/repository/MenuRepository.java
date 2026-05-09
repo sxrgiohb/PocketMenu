@@ -7,14 +7,17 @@ import com.google.firebase.firestore.Query;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class MenuRepository {
 
     public static final String COLLECTION_PATH = "MENUS";
 
+    // Firebase instances
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
+    // Constructor
     public MenuRepository() {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -26,22 +29,31 @@ public class MenuRepository {
                 : null;
     }
 
+    // Generic interface
     public interface MenuCallback {
         void onSuccess();
         void onFailure(Exception e);
     }
 
+    // Interface that returns the menuId after adding
     public interface OnMenuAdded {
         void onSuccess(String menuId);
         void onFailure(Exception e);
     }
 
+    // Search interface
     public interface OnMenuFound {
         void onFound(Menu menu);
         void onNotFound();
         void onFailure(Exception e);
     }
 
+    public interface OnMenuLoaded{
+        void onLoaded(List<Menu> menus);
+        void onFailure(Exception e);
+    }
+
+    /*
     public Query getMenusQuery() {
         String uid = getUserId();
         if (uid == null) return db.collection(COLLECTION_PATH).limit(0);
@@ -49,6 +61,7 @@ public class MenuRepository {
                 .whereEqualTo("userId", uid)
                 .orderBy("date");
     }
+    */
 
     public Query getMenusByDateQuery(Date date) {
         String uid = getUserId();

@@ -117,20 +117,6 @@ public class ShoppingListFragment extends Fragment {
         List<WeeklyShoppingList> weeks = viewModel.getUnfilteredLists();
         if (weeks == null || weeks.isEmpty()) return;
 
-        // LOG TEMPORAL
-        for (WeeklyShoppingList week : weeks) {
-            android.util.Log.d("SHOPPING_DEBUG", "Semana: " + week.getWeekId()
-                    + " items: " + week.getItems().size());
-            for (ShoppingListItem item : week.getItems()) {
-                android.util.Log.d("SHOPPING_DEBUG",
-                        "  item: " + item.getName()
-                                + " | isExtra: " + item.isExtra()
-                                + " | store: " + item.getStore()
-                                + " | category: " + item.getCategory());
-            }
-        }
-        // FIN LOG
-
         Set<String> stores = new LinkedHashSet<>();
         for (WeeklyShoppingList week : weeks) {
             for (ShoppingListItem item : week.getItems()) {

@@ -170,12 +170,6 @@ public class MenuFragment extends Fragment {
     private void showRecipeInfoDialog(MenuAssignment assignment) {
         Recipe recipe = assignment.getRecipe();
 
-        android.util.Log.d("RECIPE_INFO", "nombre=" + recipe.getName()
-                + " porciones=" + recipe.getPortion()
-                + " descripcion=" + recipe.getDescription()
-                + " ingredientes=" + (recipe.getIngredients() != null
-                ? recipe.getIngredients().size() : "null"));
-
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_recipe_info, null);
 
