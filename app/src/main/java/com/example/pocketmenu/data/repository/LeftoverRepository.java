@@ -196,13 +196,23 @@ public class LeftoverRepository {
                 .addOnFailureListener(e -> { if (callback != null) callback.onFailure(e); });
     }
 
-    public static boolean isStillValid(Leftover leftover, Date now) {
+    private static long expirationEndMillis(Leftover leftover) {
+        long msPerDay = 24L * 60 * 60 * 1000;
+        return leftover.getFirstAssignedDate().getTime()
+                + (long) leftover.getValidDays() * msPerDay;
+    }
+
+    public static boolean isStillValid(Leftover leftover, Date referenceTime) {
         if (!leftover.getPerishable()) return true;
         if (leftover.getFirstAssignedDate() == null) return true;
-        long msPerDay = 24L * 60 * 60 * 1000;
-        long expirationMs = leftover.getFirstAssignedDate().getTime()
-                + (long) leftover.getValidDays() * msPerDay;
-        return expirationMs >= now.getTime();
+        return expirationEndMillis(leftover) >= referenceTime.getTime();
+    }
+
+    public static boolean isAssignableOnDay(Leftover leftover, Date dayInstant) {
+        if (!leftover.getPerishable()) return true;
+        if (leftover.getFirstAssignedDate() == null) return true;
+        if (leftover.getValidDays() <= 0) return true;
+        return expirationEndMillis(leftover) >= dayInstant.getTime();
     }
 
     public void deleteExpiredPerishableLeftovers(LeftoverCallback callback) {

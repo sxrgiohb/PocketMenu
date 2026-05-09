@@ -334,11 +334,12 @@ public class MenuFragment extends Fragment {
                 .inflate(R.layout.dialog_perishable, null);
 
         SwitchMaterial switchPerishable = dialogView.findViewById(R.id.switch_perishable);
+        View layoutValidDays = dialogView.findViewById(R.id.layout_valid_days);
         EditText editValidDays = dialogView.findViewById(R.id.edit_valid_days);
 
-        editValidDays.setVisibility(View.GONE);
+        layoutValidDays.setVisibility(View.GONE);
         switchPerishable.setOnCheckedChangeListener((btn, isChecked) ->
-                editValidDays.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+                layoutValidDays.setVisibility(isChecked ? View.VISIBLE : View.GONE));
 
         new AlertDialog.Builder(requireContext())
                 .setTitle("Sobras de " + recipe.getName())

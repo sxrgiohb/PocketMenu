@@ -208,18 +208,10 @@ public class MenuViewModel extends ViewModel {
                         }
                     }
 
-                    if (leftover.getPerishable() && leftover.getValidDays() > 0) {
-                        Date assignedDate = leftover.getFirstAssignedDate();
-                        if (assignedDate != null) {
-                            long msPerDay = 24L * 60 * 60 * 1000;
-                            long expirationMs = assignedDate.getTime()
-                                    + (long) leftover.getValidDays() * msPerDay;
-                            if (beforeDate.getTime() > expirationMs) {
-                                if (pending.decrementAndGet() == 0)
-                                    validLeftovers.postValue(new ArrayList<>(result));
-                                continue;
-                            }
-                        }
+                    if (!LeftoverRepository.isAssignableOnDay(leftover, beforeDate)) {
+                        if (pending.decrementAndGet() == 0)
+                            validLeftovers.postValue(new ArrayList<>(result));
+                        continue;
                     }
 
                     recipeRepository.getRecipeById(leftover.getRecipeId(),
