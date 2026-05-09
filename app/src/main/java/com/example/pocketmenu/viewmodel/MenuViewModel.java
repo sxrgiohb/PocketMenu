@@ -50,8 +50,6 @@ public class MenuViewModel extends ViewModel {
         recipeRepository = new RecipeRepository();
         selectedWeekStart.setValue(DateUtils.getMonday(new Date()));
         loadWeek(DateUtils.getMonday(new Date()));
-        menuRepository.deleteMenusOlderThan(15, null);
-        leftoverRepository.deleteExpiredPerishableLeftovers(null);
     }
 
     public LiveData<List<DayMenuWrapper>> getWeekDays() { return weekDays; }

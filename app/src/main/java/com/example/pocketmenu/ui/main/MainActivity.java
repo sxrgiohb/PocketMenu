@@ -1,6 +1,10 @@
 package com.example.pocketmenu.ui.main;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.pocketmenu.data.repository.LeftoverRepository;
+import com.example.pocketmenu.data.repository.MenuRepository;
+import com.google.firebase.auth.FirebaseAuth;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -17,6 +21,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            new MenuRepository().deleteMenusOlderThan(15, null);
+            new LeftoverRepository().deleteExpiredPerishableLeftovers(null);
+        }
         setContentView(R.layout.activity_main);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.top_app_bar), (v, windowInsets) -> {
