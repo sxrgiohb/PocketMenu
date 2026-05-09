@@ -17,7 +17,10 @@ import java.util.Map;
 
 public class RecipeRepository {
 
+    // Constants for Firestore collection
     public static final String COLLECTION_PATH = "RECIPES";
+
+    // Firebase instances
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
 
@@ -26,6 +29,7 @@ public class RecipeRepository {
     private final MutableLiveData<String> errorMessageLiveData;
 
     public RecipeRepository() {
+        // Initialize instances
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         recipesLiveData = new MutableLiveData<>();
@@ -33,10 +37,12 @@ public class RecipeRepository {
         errorMessageLiveData = new MutableLiveData<>();
     }
 
+    // LiveData getters
     public LiveData<List<Recipe>> getRecipesLiveData() { return recipesLiveData; }
     public LiveData<Boolean> getOperationSuccessLiveData() { return operationSuccessLiveData; }
     public LiveData<String> getErrorMessageLiveData() { return errorMessageLiveData; }
 
+    // Method to get recipes from Firestore
     public void getRecipes(String searchText) {
         String uid = getUserId();
         if (uid == null) {
@@ -47,9 +53,8 @@ public class RecipeRepository {
         Query query = db.collection(COLLECTION_PATH).whereEqualTo("userId", uid);
 
         if (searchText != null && !searchText.isEmpty()) {
-            query = query.orderBy("name")
-                    .startAt(searchText)
-                    .endAt(searchText + '\uf8ff');
+            // Search by prefix
+            query = query.orderBy("name").startAt(searchText).endAt(searchText + '\uf8ff');
         } else {
             query = query.orderBy("name");
         }
@@ -66,6 +71,7 @@ public class RecipeRepository {
                 .addOnFailureListener(e -> errorMessageLiveData.postValue(e.getMessage()));
     }
 
+    // Method to add a new recipe
     public void addRecipe(Recipe recipe) {
         db.collection(COLLECTION_PATH)
                 .add(recipe)
@@ -73,6 +79,7 @@ public class RecipeRepository {
                 .addOnFailureListener(e -> errorMessageLiveData.postValue(e.getMessage()));
     }
 
+    // Method to change the favorite status of a recipe
     public void updateFavorite(String recipeId, boolean newValue) {
         db.collection(COLLECTION_PATH)
                 .document(recipeId)
@@ -81,6 +88,7 @@ public class RecipeRepository {
                 .addOnFailureListener(e -> errorMessageLiveData.postValue(e.getMessage()));
     }
 
+    // Method to change the data of a recipe
     public void updateRecipe(String recipeId, Recipe recipe) {
         db.collection(COLLECTION_PATH)
                 .document(recipeId)
@@ -89,6 +97,7 @@ public class RecipeRepository {
                 .addOnFailureListener(e -> errorMessageLiveData.postValue(e.getMessage()));
     }
 
+    // Method to delete a recipe
     public void deleteRecipe(String recipeId) {
         db.collection(COLLECTION_PATH)
                 .document(recipeId)
@@ -97,6 +106,7 @@ public class RecipeRepository {
                 .addOnFailureListener(e -> errorMessageLiveData.postValue(e.getMessage()));
     }
 
+    // Callback interfaces used between modules
     public interface OnRecipeFound {
         void onFound(Recipe recipe);
         void onNotFound();
@@ -108,7 +118,6 @@ public class RecipeRepository {
         void onFailure(Exception e);
     }
 
-    // Kept as callback because it's used internally between modules
     public void getRecipeById(String recipeId, OnRecipeFound callback) {
         db.collection(COLLECTION_PATH)
                 .document(recipeId)
@@ -133,13 +142,16 @@ public class RecipeRepository {
                 .get()
                 .addOnSuccessListener(snap -> {
                     Map<String, Ingredient> seen = new LinkedHashMap<>();
+                    // Obtains all recipes
                     for (QueryDocumentSnapshot doc : snap) {
                         Recipe recipe = doc.toObject(Recipe.class);
                         if (recipe.getIngredients() != null) {
+                            // Obtains all ingredients
                             for (Ingredient ing : recipe.getIngredients()) {
                                 if (ing.getName() != null && !ing.getName().isEmpty()
                                         && ing.getName().toLowerCase()
                                         .startsWith(prefix.toLowerCase())) {
+                                    // Adds to map if not already seen
                                     seen.putIfAbsent(ing.getName().toLowerCase(), ing);
                                 }
                             }
@@ -147,9 +159,10 @@ public class RecipeRepository {
                     }
                     callback.onLoaded(new ArrayList<>(seen.values()));
                 })
-                .addOnFailureListener(e -> callback.onFailure(e));
+                .addOnFailureListener(callback::onFailure);
     }
 
+    // Aux method
     private String getUserId() {
         if (auth.getCurrentUser() != null) return auth.getCurrentUser().getUid();
         return null;

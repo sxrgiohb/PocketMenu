@@ -1,8 +1,8 @@
 package com.example.pocketmenu.data.model;
 
 import com.google.firebase.firestore.DocumentId;
-
 import java.util.List;
+
 public class Recipe {
     @DocumentId
     private String id;
@@ -13,13 +13,12 @@ public class Recipe {
    private boolean isFavorite;
     private List<Ingredient> ingredients;
 
-    //Empty constructor
+    // Empty constructor
     public Recipe() {
 
     }
 
-    //Constructor
-
+    // Constructor
     public Recipe(String userId, String name, String description, int portion, List<Ingredient> ingredients) {
         this.userId = userId;
         this.name = name;
@@ -29,67 +28,49 @@ public class Recipe {
         this.isFavorite = false;
     }
 
-    //Getters
+    // Getters
 
     public String getId() {
         return id;
     }
-
     public String getUserId() {
         return userId;
     }
-
-
     public String getName() {
         return name;
     }
-
-
     public int getPortion() {
         return portion;
     }
-
     public String getDescription() {
         return description;
     }
-
     public boolean isFavorite() {
         return isFavorite;
     }
-
     public List<Ingredient> getIngredients() {
         return ingredients;
     }
 
-
     //Setters
-
-
     public void setId(String id) {
         this.id = id;
     }
-
     public void setUserId(String userId) {
         this.userId = userId;
     }
-
-
     public void setName(String name) {
         this.name = name;
     }
-
     public void setPortion(int portion) {
         this.portion = portion;
     }
-
     public void setDescription(String description) {
         this.description = description;
     }
-
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
     }
-
     public void setIngredients(List<Ingredient> ingredients) {
         this.ingredients = ingredients;
     }

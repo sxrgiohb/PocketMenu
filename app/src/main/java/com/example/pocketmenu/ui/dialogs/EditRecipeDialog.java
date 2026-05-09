@@ -23,6 +23,7 @@ public class EditRecipeDialog extends BaseRecipeDialog {
     private Recipe recipe;
     private String recipeId;
 
+    // Factory method to create the dialog and pass the recipe
     public static EditRecipeDialog newInstance(String recipeId, Recipe recipe) {
         EditRecipeDialog dialog = new EditRecipeDialog();
         dialog.recipeId = recipeId;
@@ -30,12 +31,14 @@ public class EditRecipeDialog extends BaseRecipeDialog {
         return dialog;
     }
 
+    // Inflates the layout
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dialog_add_recipe, container, false);
     }
 
+    // Obtains the dialog and sets the title
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -61,6 +64,7 @@ public class EditRecipeDialog extends BaseRecipeDialog {
         );
     }
 
+    // Fills the fields with the recipe data
     @Override
     protected void setupInitialData(EditText nameEt, EditText descEt,
                                     EditText portionsEt,
@@ -70,6 +74,7 @@ public class EditRecipeDialog extends BaseRecipeDialog {
             descEt.setText(recipe.getDescription());
             portionsEt.setText(String.valueOf(recipe.getPortion()));
 
+            // Removes all previous rows and adds the new ones
             ingredientsContainer.removeAllViews();
             if (recipe.getIngredients() != null) {
                 for (Ingredient ing : recipe.getIngredients()) {
@@ -79,6 +84,7 @@ public class EditRecipeDialog extends BaseRecipeDialog {
         }
     }
 
+    // Changes the recipe data
     @Override
     protected void onSave(String name, String description,
                           int portions, List<Ingredient> ingredients) {

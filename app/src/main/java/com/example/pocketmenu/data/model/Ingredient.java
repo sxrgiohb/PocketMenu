@@ -22,44 +22,36 @@ public class Ingredient {
 
     }
 
-    //Getters
+    // Getters
     public String getName() {
         return name;
     }
-
-    public double getQuantity() {
+   public double getQuantity() {
         return quantity;
     }
-
     public String getUnit() {
         return unit;
     }
-
     public String getCategory() {
         return category;
     }
-
     public String getStore() {
         return store;
     }
 
-    //Setters
+    // Setters
     public void setName(String name) {
         this.name = name;
     }
-
     public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
-
     public void setUnit(String unit) {
         this.unit = unit;
     }
-
     public void setCategory(String category) {
         this.category = category;
     }
-
     public void setStore(String store) {
         this.store = store;
     }

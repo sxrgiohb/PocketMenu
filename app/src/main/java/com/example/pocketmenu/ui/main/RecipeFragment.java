@@ -32,15 +32,20 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
     private FloatingActionButton fabAddRecipe;
     private SearchView searchView;
 
+    // Handler to avoid multiple queries when typing
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    // Searching task
     private Runnable searchRunnable;
+    // Searching delay
     private final long DEBOUNCE_DELAY = 300;
 
+    // Creates the fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_recipe, container, false);
     }
 
+    // Sets up the fragment
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -56,7 +61,6 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
         recyclerView.setAdapter(adapter);
 
         viewModel = new ViewModelProvider(this).get(RecipeViewModel.class);
-
         setupObservers();
         setupSearchView();
 
@@ -66,15 +70,17 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
     }
 
     private void setupObservers() {
+        // Updates the adapter when the list changes
         viewModel.getRecipes().observe(getViewLifecycleOwner(), recipes ->
                 adapter.setRecipes(recipes));
 
+        // Loads the recipes when the operation is successful
         viewModel.getOperationSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
                 viewModel.loadRecipes(null);
             }
         });
-
+        // Shows an error message
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
                 Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
@@ -82,7 +88,9 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
         });
     }
 
+    // Search method
     private void setupSearchView() {
+        // Detects the input
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -91,21 +99,24 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
             }
 
             @Override
-            // Avoids multiple queries when typing
+            // Avoids multiple queries while typing
             public boolean onQueryTextChange(String newText) {
+                // Cancels the previous search task
                 searchHandler.removeCallbacks(searchRunnable);
+                // Starts a new search task
                 searchRunnable = () -> viewModel.loadRecipes(newText);
+                // Schedules the search task to run after the delay
                 searchHandler.postDelayed(searchRunnable, DEBOUNCE_DELAY);
                 return true;
             }
         });
     }
 
+    // RecipeAdapter interfaces
     @Override
     public void onFavoriteClick(String recipeId, boolean isCurrentlyFavorite) {
         viewModel.toggleFavorite(recipeId, isCurrentlyFavorite);
     }
-
     @Override
     public void onEditClick(String recipeId, Recipe recipe) {
         EditRecipeDialog.newInstance(recipeId, recipe).show(getChildFragmentManager(), "EditRecipeDialog");

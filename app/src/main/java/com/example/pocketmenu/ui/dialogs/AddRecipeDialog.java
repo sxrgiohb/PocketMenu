@@ -21,16 +21,19 @@ import java.util.List;
 
 public class AddRecipeDialog extends BaseRecipeDialog {
 
+    // Factory method to create the dialog
     public static AddRecipeDialog newInstance() {
         return new AddRecipeDialog();
     }
 
+    // Inflates the layout
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dialog_add_recipe, container, false);
     }
 
+    // Obtains the dialog and sets the title
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -39,11 +42,13 @@ public class AddRecipeDialog extends BaseRecipeDialog {
         return dialog;
     }
 
+    // Hides the delete button
     @Override
     protected void setupDeleteButton(Button deleteBtn, View view) {
         deleteBtn.setVisibility(View.GONE);
     }
 
+    // Default initial data
     @Override
     protected void setupInitialData(EditText nameEt, EditText descEt,
                                     EditText portionsEt,
@@ -51,6 +56,7 @@ public class AddRecipeDialog extends BaseRecipeDialog {
         addIngredientRow(ingredientsContainer);
     }
 
+    // Saves the recipe
     @Override
     protected void onSave(String name, String description,
                           int portions, List<Ingredient> ingredients) {
