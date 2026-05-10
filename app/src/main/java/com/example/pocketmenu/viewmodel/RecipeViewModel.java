@@ -16,7 +16,7 @@ public class RecipeViewModel extends ViewModel {
     private final LiveData<Boolean> operationSuccess;
     private final LiveData<String> errorMessage;
 
-    // Constructor
+    // Constructor initializes streams and loads initial recipe set
     public RecipeViewModel() {
         repository = new RecipeRepository();
         recipes = repository.getRecipesLiveData();
@@ -30,31 +30,32 @@ public class RecipeViewModel extends ViewModel {
     public LiveData<Boolean> getOperationSuccess() { return operationSuccess; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
 
-    // Method to load recipes
+    // Reloads recipes, optionally filtered by a search string
     public void loadRecipes(String searchText) {
         repository.getRecipes(searchText);
     }
 
-    // Method to add a new recipe
+    // Creates a new recipe document
     public void addRecipe(Recipe recipe) {
         repository.addRecipe(recipe);
     }
 
-    // Method to change the favorite status of a recipe
+    // Flips favorite state from current value
     public void toggleFavorite(String recipeId, boolean isFavorite) {
         repository.updateFavorite(recipeId, !isFavorite);
     }
 
-    // Method to change the data of a recipe
+    // Updates recipe data while keeping the same id
     public void updateRecipe(String recipeId, Recipe recipe) {
         repository.updateRecipe(recipeId, recipe);
     }
-    // Method to delete a recipe
+
+    // Deletes a recipe by document id
     public void deleteRecipe(String recipeId) {
         repository.deleteRecipe(recipeId);
     }
 
-    // Method to search ingredient suggestions
+    // Provides autocomplete ingredient names for recipe editors
     public void searchIngredientSuggestions(String prefix, RecipeRepository.OnIngredientsLoaded callback) {
         if (prefix == null || prefix.trim().isEmpty()) {
             // Returns an empty list if the prefix is empty to avoid unnecessary queries

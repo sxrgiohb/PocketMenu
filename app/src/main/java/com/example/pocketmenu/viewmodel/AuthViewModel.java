@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData;
 import com.google.firebase.auth.FirebaseUser;
 import com.example.pocketmenu.data.repository.AuthRepository;
 
+// Exposes authentication state and events to the UI layer
 public class AuthViewModel extends ViewModel {
 
     private final AuthRepository repository;
