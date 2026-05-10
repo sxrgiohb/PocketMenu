@@ -3,7 +3,6 @@ package com.example.pocketmenu.data.repository;
 import com.example.pocketmenu.data.model.WeeklyMenuTemplate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.List;
 
@@ -29,12 +28,6 @@ public class WeeklyMenuTemplateRepository {
 
     public interface WeeklyMenuCallback {
         void onSuccess();
-        void onFailure(Exception e);
-    }
-
-    public interface OnWeeklyMenuFound {
-        void onFound(WeeklyMenuTemplate template);
-        void onNotFound();
         void onFailure(Exception e);
     }
 

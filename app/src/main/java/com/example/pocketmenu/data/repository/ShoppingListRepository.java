@@ -3,7 +3,9 @@ package com.example.pocketmenu.data.repository;
 import com.example.pocketmenu.data.model.Menu;
 import com.example.pocketmenu.data.model.ShoppingListItem;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -100,7 +102,7 @@ public class ShoppingListRepository {
         String uid = getUserId();
         if (uid == null) return;
 
-        com.google.firebase.firestore.WriteBatch batch = db.batch();
+        WriteBatch batch = db.batch();
         for (ShoppingListItem item : items) {
             item.setUserId(uid);
             batch.set(db.collection(COLLECTION_PATH).document(), item);
@@ -168,7 +170,7 @@ public class ShoppingListRepository {
                         if (callback != null) callback.onSuccess();
                         return;
                     }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    WriteBatch batch = db.batch();
                     snap.getDocuments().forEach(doc -> batch.delete(doc.getReference()));
                     batch.commit()
                             .addOnSuccessListener(a -> {
@@ -197,9 +199,9 @@ public class ShoppingListRepository {
                         if (callback != null) callback.onSuccess();
                         return;
                     }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    WriteBatch batch = db.batch();
                     boolean hasDeletions = false;
-                    for (com.google.firebase.firestore.DocumentSnapshot doc
+                    for (DocumentSnapshot doc
                             : snap.getDocuments()) {
                         String weekId = doc.getString("weekId");
                         if (weekId != null && weekId.compareTo(currentWeekId) < 0) {

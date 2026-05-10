@@ -2,12 +2,13 @@ package com.example.pocketmenu.data.repository;
 
 import com.example.pocketmenu.data.model.Menu;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 // Firestore access for meal assignments: one document per planned meal.
 public class MenuRepository {
@@ -117,8 +118,8 @@ public class MenuRepository {
                         if (callback != null) callback.onSuccess();
                         return;
                     }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
-                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
                         batch.delete(doc.getReference());
                     }
                     batch.commit()
@@ -149,8 +150,8 @@ public class MenuRepository {
                         if (callback != null) callback.onSuccess();
                         return;
                     }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
-                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
                         batch.delete(doc.getReference());
                     }
                     batch.commit()
@@ -182,8 +183,8 @@ public class MenuRepository {
                         if (callback != null) callback.onSuccess();
                         return;
                     }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
-                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
                         batch.delete(doc.getReference());
                     }
                     batch.commit()

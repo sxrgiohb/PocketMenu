@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
-// User product catalog for shopping-list autocomplete.
+// User product catalog for shopping-list autocomplete
 public class ProductRepository {
 
     public static final String COLLECTION_PATH = "PRODUCTS";
@@ -24,11 +24,6 @@ public class ProductRepository {
         return null;
     }
 
-    public interface ProductCallback {
-        void onSuccess();
-        void onFailure(Exception e);
-    }
-
     public interface OnProductAdded {
         void onSuccess(String productId);
         void onFailure(Exception e);
@@ -39,13 +34,7 @@ public class ProductRepository {
         void onFailure(Exception e);
     }
 
-    public interface OnProductFound {
-        void onFound(Product product);
-        void onNotFound();
-        void onFailure(Exception e);
-    }
-
-    /** Persist a new product when the user adds an ingredient not in the catalog. */
+    // Persist a new product
     public void addProduct(Product product, OnProductAdded callback) {
         String uid = getUserId();
         if (uid == null) return;

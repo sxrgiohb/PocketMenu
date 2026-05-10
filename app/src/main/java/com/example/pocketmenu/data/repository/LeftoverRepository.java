@@ -2,8 +2,9 @@ package com.example.pocketmenu.data.repository;
 
 import com.example.pocketmenu.data.model.Leftover;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,19 +35,12 @@ public class LeftoverRepository {
         void onFailure(Exception e);
     }
 
-    public interface OnLeftoverFound {
-        void onFound(Leftover leftover);
-        void onNotFound();
-        void onFailure(Exception e);
-    }
-
     public interface OnLeftoversLoaded {
         void onLoaded(List<Leftover> leftovers);
         void onFailure(Exception e);
     }
 
-
-    /** All leftover rows sharing a recipe id (MenuViewModel joins with menus). */
+    // All leftover rows sharing a recipe id (MenuViewModel joins with menus)
     public void getLeftoversByRecipe(String recipeId, OnLeftoversLoaded callback) {
         String uid = getUserId();
         if (uid == null) {
@@ -97,8 +91,8 @@ public class LeftoverRepository {
                         if (callback != null) callback.onSuccess();
                         return;
                     }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
-                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
                         batch.delete(doc.getReference());
                     }
                     batch.commit()
@@ -167,8 +161,8 @@ public class LeftoverRepository {
                 .whereEqualTo("perishable", true)
                 .get()
                 .addOnSuccessListener(snap -> {
-                    List<com.google.firebase.firestore.DocumentSnapshot> expired = new ArrayList<>();
-                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                    List<DocumentSnapshot> expired = new ArrayList<>();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
                         Leftover l = doc.toObject(Leftover.class);
                         if (l != null && !isStillValid(l, now)) {
                             expired.add(doc);
@@ -178,8 +172,8 @@ public class LeftoverRepository {
                         if (callback != null) callback.onSuccess();
                         return;
                     }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
-                    for (com.google.firebase.firestore.DocumentSnapshot doc : expired) {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : expired) {
                         batch.delete(doc.getReference());
                     }
                     batch.commit()
@@ -202,8 +196,8 @@ public class LeftoverRepository {
                         if (callback != null) callback.onSuccess();
                         return;
                     }
-                    com.google.firebase.firestore.WriteBatch batch = db.batch();
-                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
                         batch.delete(doc.getReference());
                     }
                     batch.commit()
