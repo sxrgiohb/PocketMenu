@@ -59,7 +59,6 @@ public class MenuViewModel extends ViewModel {
     public LiveData<List<DayMenuWrapper>> getWeekDays() { return weekDays; }
     public LiveData<Date> getSelectedWeekStart() { return selectedWeekStart; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
-    public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<List<Recipe>> getAllRecipes() { return recipeRepository.getRecipesLiveData(); }
     public LiveData<List<LeftoverWithRecipe>> getValidLeftovers() { return validLeftovers; }
 
@@ -498,7 +497,7 @@ public class MenuViewModel extends ViewModel {
                 });
     }
 
-    // Builds a reusable week template snapshot and the portions not placed on specific days
+    // Builds a reusable week template snapshot
     public void saveCurrentWeekAsFavorite(String name) {
         List<DayMenuWrapper> currentDays = weekDays.getValue();
         if (currentDays == null || currentDays.isEmpty()) {
@@ -609,12 +608,17 @@ public class MenuViewModel extends ViewModel {
                 }
                 @Override
                 public void onNotFound() {
-                    if (pending.decrementAndGet() == 0) saveTemplate(name, items, unassignedSync);
+                    if (pending.decrementAndGet() == 0) {
+                        saveTemplate(name, items, unassignedSync);
+                    }
                 }
+
                 @Override
                 public void onFailure(Exception e) {
                     errorMessage.postValue("Error leyendo receta: " + e.getMessage());
-                    if (pending.decrementAndGet() == 0) saveTemplate(name, items, unassignedSync);
+                    if (pending.decrementAndGet() == 0) {
+                        saveTemplate(name, items, unassignedSync);
+                    }
                 }
             });
         }
@@ -631,7 +635,7 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    // Wipes visible week storage, then replay template in three passes (mains → leftover slots → loose pool)
+    // Wipes visible week storage, then replay template
     public void applyTemplate(WeeklyMenuTemplate template, OnTemplateApplied callback) {
         Date monday = selectedWeekStart.getValue();
         if (monday == null || template.getItems() == null) return;
@@ -780,7 +784,7 @@ public class MenuViewModel extends ViewModel {
                                     WeeklyMenuTemplate template,
                                     OnTemplateApplied callback) {
         if (leftoverItems.isEmpty()) {
-            applyUnassignedLeftovers(template, weekDates, callback);
+            applyUnassignedLeftovers(template, callback);
             return;
         }
 
@@ -791,7 +795,7 @@ public class MenuViewModel extends ViewModel {
             int dayIndex = item.getDayOfWeek() - 1;
             if (dayIndex < 0 || dayIndex >= weekDates.size()) {
                 if (pending.decrementAndGet() == 0)
-                    applyUnassignedLeftovers(template, weekDates, callback);
+                    applyUnassignedLeftovers(template, callback);
                 continue;
             }
 
@@ -801,7 +805,7 @@ public class MenuViewModel extends ViewModel {
 
             if (leftover == null) {
                 if (pending.decrementAndGet() == 0)
-                    applyUnassignedLeftovers(template, weekDates, callback);
+                    applyUnassignedLeftovers(template, callback);
                 continue;
             }
             // Creates the menu for the leftover
@@ -821,11 +825,11 @@ public class MenuViewModel extends ViewModel {
                                 new LeftoverRepository.LeftoverCallback() {
                                     @Override public void onSuccess() {
                                         if (pending.decrementAndGet() == 0)
-                                            applyUnassignedLeftovers(template, weekDates, callback);
+                                            applyUnassignedLeftovers(template, callback);
                                     }
                                     @Override public void onFailure(Exception e) {
                                         if (pending.decrementAndGet() == 0)
-                                            applyUnassignedLeftovers(template, weekDates, callback);
+                                            applyUnassignedLeftovers(template, callback);
                                     }
                                 });
                     } else {
@@ -834,11 +838,11 @@ public class MenuViewModel extends ViewModel {
                                 new LeftoverRepository.LeftoverCallback() {
                                     @Override public void onSuccess() {
                                         if (pending.decrementAndGet() == 0)
-                                            applyUnassignedLeftovers(template, weekDates, callback);
+                                            applyUnassignedLeftovers(template, callback);
                                     }
                                     @Override public void onFailure(Exception e) {
                                         if (pending.decrementAndGet() == 0)
-                                            applyUnassignedLeftovers(template, weekDates, callback);
+                                            applyUnassignedLeftovers(template, callback);
                                     }
                                 });
                     }
@@ -847,60 +851,26 @@ public class MenuViewModel extends ViewModel {
                 public void onFailure(Exception e) {
                     errorMessage.postValue("Error creando menu de sobra: " + e.getMessage());
                     if (pending.decrementAndGet() == 0)
-                        applyUnassignedLeftovers(template, weekDates, callback);
+                        applyUnassignedLeftovers(template, callback);
                 }
             });
         }
     }
 
-    // Step three: leftover portions saved in template without a weekday get new Leftover docs
+    // Step three
     private void applyUnassignedLeftovers(WeeklyMenuTemplate template,
-                                          List<Date> weekDates,
                                           OnTemplateApplied callback) {
-
+        int totalListed = 0;
         List<UnassignedLeftover> unassigned = template.getUnassignedLeftovers();
-
-        if (unassigned == null || unassigned.isEmpty()) {
-            reloadCurrentWeek();
-            if (callback != null) callback.onComplete(0);
-            return;
+        if (unassigned != null) {
+            for (UnassignedLeftover u : unassigned) {
+                totalListed += u.getRemainingPortions();
+            }
         }
 
-        Date monday = weekDates.get(0);
-        int totalUnassignedPortions = 0;
-        for (UnassignedLeftover u : unassigned)
-            totalUnassignedPortions += u.getRemainingPortions();
-        // Used for anonymity in the callback
-        final int totalForCallback = totalUnassignedPortions;
-
-        AtomicInteger pending = new AtomicInteger(unassigned.size());
-
-        for (UnassignedLeftover u : unassigned) {
-            // Creates a leftover
-            Leftover leftover = new Leftover(
-                    null, u.getRecipeId(), null,
-                    u.getRemainingPortions(), u.isPerishable(),
-                    monday, u.isPerishable() ? u.getValidDays() : 0);
-            // Persists the leftover
-            leftoverRepository.addLeftover(leftover,
-                    new LeftoverRepository.LeftoverCallback() {
-                        @Override
-                        public void onSuccess() {
-                            if (pending.decrementAndGet() == 0) {
-                                reloadCurrentWeek();
-                                if (callback != null) callback.onComplete(totalForCallback);
-                            }
-                        }
-                        @Override
-                        public void onFailure(Exception e) {
-                            errorMessage.postValue("Error creando sobra sin asignar: "
-                                    + e.getMessage());
-                            if (pending.decrementAndGet() == 0) {
-                                reloadCurrentWeek();
-                                if (callback != null) callback.onComplete(totalForCallback);
-                            }
-                        }
-                    });
+        reloadCurrentWeek();
+        if (callback != null) {
+            callback.onComplete(totalListed);
         }
     }
 
