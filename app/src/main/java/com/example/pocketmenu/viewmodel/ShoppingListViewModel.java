@@ -29,52 +29,48 @@ public class ShoppingListViewModel extends ViewModel {
     private final ProductRepository productRepository;
     private final RecipeRepository recipeRepository;
 
-    private final MutableLiveData<List<WeeklyShoppingList>> monthlyShoppingLists
-            = new MutableLiveData<>();
-    private final MutableLiveData<List<Product>> productSuggestions
-            = new MutableLiveData<>();
+    private final MutableLiveData<List<WeeklyShoppingList>> monthlyShoppingLists = new MutableLiveData<>();
+    private final MutableLiveData<List<Product>> productSuggestions = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
     private String activeStoreFilter = null;
     private String activeCategoryFilter = null;
     private boolean weekViewMode = false;
+    // Canonical month payload before filters / single-week masking
     private List<WeeklyShoppingList> unfilteredLists = new ArrayList<>();
 
+    // Constructor
     public ShoppingListViewModel() {
         shoppingListRepository = new ShoppingListRepository();
         productRepository = new ProductRepository();
         recipeRepository = new RecipeRepository();
     }
 
-    public LiveData<List<WeeklyShoppingList>> getMonthlyShoppingLists() {
-        return monthlyShoppingLists;
-    }
+    // LiveData getters
+    public LiveData<List<WeeklyShoppingList>> getMonthlyShoppingLists() { return monthlyShoppingLists; }
     public LiveData<List<Product>> getProductSuggestions() { return productSuggestions; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
-    public LiveData<Boolean> getIsLoading() { return isLoading; }
+    // Raw grouping for dialogs that ignore active filters (e.g. pickers); see ShoppingListFragment
     public List<WeeklyShoppingList> getUnfilteredLists() { return unfilteredLists; }
 
+    // Drops stale ISO weeks locally, regenerates ingredient rollups per week id in-range
     public void loadCurrentMonth() {
-        isLoading.setValue(true);
         shoppingListRepository.deletePastWeeks(
                 new ShoppingListRepository.ShoppingListCallback() {
                     @Override
                     public void onSuccess() {
+                        // Format: YYYY-Wxx
                         List<String> weekIds = getWeekIdsForCurrentMonth();
                         if (weekIds.isEmpty()) {
                             unfilteredLists = new ArrayList<>();
                             monthlyShoppingLists.postValue(new ArrayList<>());
-                            isLoading.postValue(false);
                             return;
                         }
                         regenerateAllWeeks(weekIds);
                     }
                     @Override
                     public void onFailure(Exception e) {
-                        errorMessage.postValue("Error limpiando listas antiguas: "
-                                + e.getMessage());
-                        isLoading.postValue(false);
+                        errorMessage.postValue("Error limpiando listas antiguas: " + e.getMessage());
                     }
                 });
     }
@@ -83,13 +79,15 @@ public class ShoppingListViewModel extends ViewModel {
         AtomicInteger pending = new AtomicInteger(weekIds.size());
 
         for (String weekId : weekIds) {
+
             Date monday = ShoppingListRepository.getMondayFromWeekId(weekId);
             Date sunday = DateUtils.getSunday(monday);
-
+            // Delete all items
             shoppingListRepository.deleteRecipeItemsByWeekId(weekId,
                     new ShoppingListRepository.ShoppingListCallback() {
                         @Override
                         public void onSuccess() {
+                            // Retrieves all menus within the date range
                             shoppingListRepository.getMainMenusByDateRange(monday, sunday,
                                     new ShoppingListRepository.OnMenusLoaded() {
                                         @Override
@@ -97,28 +95,27 @@ public class ShoppingListViewModel extends ViewModel {
                                             if (menus.isEmpty()) {
                                                 checkAllWeeksDone(pending, weekIds);
                                             } else {
-                                                fetchAndSaveIngredients(menus, weekId,
-                                                        () -> checkAllWeeksDone(pending, weekIds));
+                                                // Ingredients extraction
+                                                fetchAndSaveIngredients(menus, weekId, () -> checkAllWeeksDone(pending, weekIds));
                                             }
                                         }
                                         @Override
                                         public void onFailure(Exception e) {
-                                            errorMessage.postValue("Error leyendo menús: "
-                                                    + e.getMessage());
+                                            errorMessage.postValue("Error leyendo menús: " + e.getMessage());
                                             checkAllWeeksDone(pending, weekIds);
                                         }
                                     });
                         }
                         @Override
                         public void onFailure(Exception e) {
-                            errorMessage.postValue("Error regenerando semana: "
-                                    + e.getMessage());
+                            errorMessage.postValue("Error regenerando semana: " + e.getMessage());
                             checkAllWeeksDone(pending, weekIds);
                         }
                     });
         }
     }
 
+    // Loads batched ShoppingList rows after every regeneration completes
     private void checkAllWeeksDone(AtomicInteger pending, List<String> weekIds) {
         if (pending.decrementAndGet() == 0) {
             shoppingListRepository.getItemsByWeekIds(weekIds,
@@ -127,21 +124,20 @@ public class ShoppingListViewModel extends ViewModel {
                         public void onLoaded(List<ShoppingListItem> items) {
                             unfilteredLists = groupItemsByWeek(items, weekIds);
                             applyCurrentView();
-                            isLoading.postValue(false);
                         }
                         @Override
                         public void onFailure(Exception e) {
                             errorMessage.postValue("Error cargando lista: " + e.getMessage());
-                            isLoading.postValue(false);
                         }
                     });
         }
     }
 
+    // Fetches each recipe asynchronously, merges duplicate ingredient keys and persists the data
     private void fetchAndSaveIngredients(List<Menu> menus, String weekId, Runnable onDone) {
         AtomicInteger pending = new AtomicInteger(menus.size());
-        Map<String, Double> quantityMap = new HashMap<>();
-        Map<String, ShoppingListItem> itemMap = new LinkedHashMap<>();
+        Map<String, Double> quantityMap = new HashMap<>(); // ingredient||unit -> quantity
+        Map<String, ShoppingListItem> itemMap = new LinkedHashMap<>(); // ingredient||unit -> ShoppingListItem
 
         for (Menu menu : menus) {
             recipeRepository.getRecipeById(menu.getRecipeId(),
@@ -158,7 +154,7 @@ public class ShoppingListViewModel extends ViewModel {
                                                 ? ingredient.getUnit().toLowerCase().trim()
                                                 : "");
                                         quantityMap.merge(key,
-                                                ingredient.getQuantity(), Double::sum);
+                                                ingredient.getQuantity(), Double::sum); // Add quantity for same key values
                                         if (!itemMap.containsKey(key)) {
                                             itemMap.put(key, new ShoppingListItem(
                                                     null, weekId,
@@ -187,6 +183,7 @@ public class ShoppingListViewModel extends ViewModel {
         }
     }
 
+    // Flattens aggregated map quantities into ShoppingListItem
     private void checkAndSave(AtomicInteger pending,
                               Map<String, Double> quantityMap,
                               Map<String, ShoppingListItem> itemMap,
@@ -194,6 +191,7 @@ public class ShoppingListViewModel extends ViewModel {
         if (pending.decrementAndGet() == 0) {
             List<ShoppingListItem> finalItems = new ArrayList<>();
             for (Map.Entry<String, ShoppingListItem> entry : itemMap.entrySet()) {
+                // Adds the total quantity for each ingredient
                 entry.getValue().setQuantity(quantityMap.get(entry.getKey()));
                 finalItems.add(entry.getValue());
             }
@@ -208,12 +206,15 @@ public class ShoppingListViewModel extends ViewModel {
         }
     }
 
+    // True = this week; false = entire month
     public void setWeekViewMode(boolean weekOnly) {
         this.weekViewMode = weekOnly;
         applyCurrentView();
     }
 
+    // Decides the type of list to display
     private void applyCurrentView() {
+        // List before filters
         List<WeeklyShoppingList> base;
 
         if (weekViewMode) {
@@ -228,20 +229,18 @@ public class ShoppingListViewModel extends ViewModel {
         } else {
             base = unfilteredLists;
         }
-
+        // Shortcut if no filters
         if (activeStoreFilter == null && activeCategoryFilter == null) {
             monthlyShoppingLists.setValue(new ArrayList<>(base));
             return;
         }
-
+        // If filters are active, apply them
         List<WeeklyShoppingList> filtered = new ArrayList<>();
         for (WeeklyShoppingList week : base) {
             List<ShoppingListItem> filteredItems = new ArrayList<>();
             for (ShoppingListItem item : week.getItems()) {
-                boolean matchesStore = activeStoreFilter == null
-                        || activeStoreFilter.equalsIgnoreCase(item.getStore());
-                boolean matchesCategory = activeCategoryFilter == null
-                        || activeCategoryFilter.equalsIgnoreCase(item.getCategory());
+                boolean matchesStore = activeStoreFilter == null || activeStoreFilter.equalsIgnoreCase(item.getStore());
+                boolean matchesCategory = activeCategoryFilter == null || activeCategoryFilter.equalsIgnoreCase(item.getCategory());
                 if (matchesStore && matchesCategory) filteredItems.add(item);
             }
             filtered.add(new WeeklyShoppingList(
@@ -251,6 +250,7 @@ public class ShoppingListViewModel extends ViewModel {
         monthlyShoppingLists.setValue(filtered);
     }
 
+    // Category/store chip filters mutate internal state then call applyCurrentView
     public void setStoreFilter(String store) {
         this.activeStoreFilter = store;
         applyCurrentView();
@@ -267,10 +267,9 @@ public class ShoppingListViewModel extends ViewModel {
         applyCurrentView();
     }
 
-    public String getActiveStoreFilter() { return activeStoreFilter; }
-    public String getActiveCategoryFilter() { return activeCategoryFilter; }
-
+    // Persists checked flag flip (local object already toggled beforehand)
     public void toggleItemChecked(ShoppingListItem item) {
+        // Inverts value
         item.setChecked(!item.isChecked());
         shoppingListRepository.updateItem(item,
                 new ShoppingListRepository.ShoppingListCallback() {
@@ -288,6 +287,7 @@ public class ShoppingListViewModel extends ViewModel {
                 });
     }
 
+    // Add extra product
     public void addExtraItem(ShoppingListItem item, boolean isNewProduct, Product product) {
         if (isNewProduct) {
             productRepository.addProduct(product,
@@ -296,8 +296,7 @@ public class ShoppingListViewModel extends ViewModel {
                         public void onSuccess(String productId) { saveExtraItem(item); }
                         @Override
                         public void onFailure(Exception e) {
-                            errorMessage.postValue("Error guardando producto: "
-                                    + e.getMessage());
+                            errorMessage.postValue("Error guardando producto: " + e.getMessage());
                         }
                     });
         } else {
@@ -305,6 +304,7 @@ public class ShoppingListViewModel extends ViewModel {
         }
     }
 
+    // Persist extra product
     private void saveExtraItem(ShoppingListItem item) {
         shoppingListRepository.addItem(item,
                 new ShoppingListRepository.OnItemAdded() {
@@ -326,6 +326,7 @@ public class ShoppingListViewModel extends ViewModel {
                 });
     }
 
+    // Removes extra product
     public void deleteExtraItem(String itemId) {
         shoppingListRepository.deleteItem(itemId,
                 new ShoppingListRepository.ShoppingListCallback() {
@@ -343,6 +344,7 @@ public class ShoppingListViewModel extends ViewModel {
                 });
     }
 
+    // Product autocomplete
     public void searchProductSuggestions(String prefix) {
         if (prefix == null || prefix.trim().isEmpty()) {
             productSuggestions.setValue(new ArrayList<>());
@@ -361,9 +363,11 @@ public class ShoppingListViewModel extends ViewModel {
                 });
     }
 
+    // Stable week ordering
     private List<WeeklyShoppingList> groupItemsByWeek(List<ShoppingListItem> items,
                                                       List<String> weekIds) {
-        Map<String, List<ShoppingListItem>> byWeek = new LinkedHashMap<>();
+        Map<String, List<ShoppingListItem>> byWeek = new LinkedHashMap<>(); // weekId -> items
+        // Preinitialize the map with ordered and empty lists
         for (String weekId : weekIds) byWeek.put(weekId, new ArrayList<>());
         for (ShoppingListItem item : items) {
             if (byWeek.containsKey(item.getWeekId()))
@@ -371,12 +375,14 @@ public class ShoppingListViewModel extends ViewModel {
         }
         List<WeeklyShoppingList> result = new ArrayList<>();
         for (Map.Entry<String, List<ShoppingListItem>> entry : byWeek.entrySet()) {
+            // Transforms weekId into a date
             Date monday = ShoppingListRepository.getMondayFromWeekId(entry.getKey());
+            // Creates the object and adds it to the result
             result.add(new WeeklyShoppingList(entry.getKey(), monday, entry.getValue()));
         }
         return result;
     }
-
+    // Returns a list of ISO weeks for the actual weeks and the three following
     private List<String> getWeekIdsForCurrentMonth() {
         return DateUtils.getCurrentAndNextWeekIds(4);
     }

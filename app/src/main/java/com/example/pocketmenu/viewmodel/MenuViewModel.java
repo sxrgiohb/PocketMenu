@@ -42,7 +42,6 @@ public class MenuViewModel extends ViewModel {
     private final MutableLiveData<List<DayMenuWrapper>> weekDays = new MutableLiveData<>();
     private final MutableLiveData<Date> selectedWeekStart = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<List<LeftoverWithRecipe>> validLeftovers = new MutableLiveData<>();
 
     // Constructor. The default week is current week (Monday)
@@ -71,7 +70,6 @@ public class MenuViewModel extends ViewModel {
 
     // One Firestore fetch per weekday; attaches recipe plus matching leftover when present
     public void loadWeek(Date monday) {
-        isLoading.setValue(true);
         List<Date> weekDates = DateUtils.getWeekDates(monday);
         int totalDays = weekDates.size();
         AtomicInteger completedDays = new AtomicInteger(0);
@@ -192,7 +190,6 @@ public class MenuViewModel extends ViewModel {
                         assignmentsByDay.getOrDefault(i, new ArrayList<>())));
             }
             weekDays.postValue(result);
-            isLoading.postValue(false);
         }
     }
 
@@ -642,7 +639,6 @@ public class MenuViewModel extends ViewModel {
 
         List<Date> weekDates = DateUtils.getWeekDates(monday);
         Date sunday = weekDates.get(6);
-        isLoading.setValue(true);
 
         // Delete all menus from the selected week
         menuRepository.deleteMenusByDateRange(monday, sunday,
@@ -666,14 +662,12 @@ public class MenuViewModel extends ViewModel {
                                     @Override
                                     public void onFailure(Exception e) {
                                         errorMessage.postValue("Error limpiando sobras: " + e.getMessage());
-                                        isLoading.postValue(false);
                                     }
                                 });
                     }
                     @Override
                     public void onFailure(Exception e) {
                         errorMessage.postValue("Error limpiando menus: " + e.getMessage());
-                        isLoading.postValue(false);
                     }
                 });
     }
