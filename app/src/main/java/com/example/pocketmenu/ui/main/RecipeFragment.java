@@ -23,13 +23,10 @@ import com.example.pocketmenu.ui.dialogs.EditRecipeDialog;
 import com.example.pocketmenu.viewmodel.RecipeViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeInteractionListener {
+public class RecipeFragment extends Fragment  {
 
     private RecipeViewModel viewModel;
     private RecipeAdapter adapter;
-
-    private RecyclerView recyclerView;
-    private FloatingActionButton fabAddRecipe;
     private SearchView searchView;
 
     // Handler to avoid multiple queries when typing
@@ -50,16 +47,28 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerView = view.findViewById(R.id.recycler_view_recipes);
-        fabAddRecipe = view.findViewById(R.id.fab_add_recipe);
+        FloatingActionButton fabAddRecipe = view.findViewById(R.id.fab_add_recipe);
         searchView = view.findViewById(R.id.search_view_recipes);
 
         // RecyclerView setup
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view_recipes);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new RecipeAdapter();
-        adapter.setOnRecipeInteractionListener(this);
+        // Pass the listener to the adapter
+        adapter.setOnRecipeInteractionListener(new RecipeAdapter.OnRecipeInteractionListener() {
+            @Override
+            public void onFavoriteClick(String recipeId, boolean isCurrentlyFavorite) {
+                viewModel.toggleFavorite(recipeId, isCurrentlyFavorite);
+            }
+            @Override
+            public void onEditClick(String recipeId, Recipe recipe) {
+                EditRecipeDialog.newInstance(recipeId, recipe)
+                        .show(getChildFragmentManager(), "EditRecipeDialog");
+            }
+        });
         recyclerView.setAdapter(adapter);
 
+        // ViewModel owns query state and CRUD operation results.
         viewModel = new ViewModelProvider(this).get(RecipeViewModel.class);
         setupObservers();
         setupSearchView();
@@ -74,13 +83,13 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
         viewModel.getRecipes().observe(getViewLifecycleOwner(), recipes ->
                 adapter.setRecipes(recipes));
 
-        // Loads the recipes when the operation is successful
+        // Refreshes list after create/update/delete operations.
         viewModel.getOperationSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
                 viewModel.loadRecipes(null);
             }
         });
-        // Shows an error message
+        // Generic write/read failures coming from repository.
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
                 Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
@@ -90,7 +99,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
 
     // Search method
     private void setupSearchView() {
-        // Detects the input
+        // Debounced search keeps Firestore queries under control while typing
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -110,15 +119,5 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.OnRecipeIn
                 return true;
             }
         });
-    }
-
-    // RecipeAdapter interfaces
-    @Override
-    public void onFavoriteClick(String recipeId, boolean isCurrentlyFavorite) {
-        viewModel.toggleFavorite(recipeId, isCurrentlyFavorite);
-    }
-    @Override
-    public void onEditClick(String recipeId, Recipe recipe) {
-        EditRecipeDialog.newInstance(recipeId, recipe).show(getChildFragmentManager(), "EditRecipeDialog");
     }
 }

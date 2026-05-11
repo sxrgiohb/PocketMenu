@@ -16,18 +16,23 @@ import com.example.pocketmenu.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+// Hosts bottom navigation: menu, shopping list, recipes
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Data cleanup when a user session exists
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             new MenuRepository().deleteMenusOlderThan(15, null);
             new LeftoverRepository().deleteExpiredPerishableLeftovers(null);
         }
+
         setContentView(R.layout.activity_main);
 
+        // Adapt content
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.top_app_bar), (v, windowInsets) -> {
+            // System status bar (clock, battery...)
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
             return windowInsets;
@@ -40,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
             loadFragment(new MenuFragment());
         }
 
+        // Bottom nevigation
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
+        // Top navigation
         topAppBar.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == R.id.navigation_settings) {
                 SettingsFragment settingsFragment = new SettingsFragment();

@@ -9,12 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -54,19 +52,19 @@ public class MenuFragment extends Fragment {
     private android.widget.Button buttonExitEdit;
     private android.widget.Button buttonUseFavorite;
 
+    // Dialog shown when picking a recipe to assign to a day
     private AlertDialog recipeSelectDialog;
+    // Dialog shown when picking a leftover to assign to a day
     private AlertDialog leftoverSelectDialog;
 
-    @Nullable
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_menu, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MenuViewModel.class);
         initViews(view);
@@ -85,6 +83,7 @@ public class MenuFragment extends Fragment {
         buttonUseFavorite = view.findViewById(R.id.button_use_favorite);
     }
 
+    // Interactions with day rows
     private void setupRecyclerView() {
         menuAdapter = new MenuAdapter(new MenuAdapter.OnDayActionListener() {
             @Override
@@ -104,10 +103,12 @@ public class MenuFragment extends Fragment {
                 showRecipeInfoDialog(assignment);
             }
         });
+        // Sets how to display the rows in the recycler view
         recyclerWeek.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerWeek.setAdapter(menuAdapter);
     }
 
+    // LiveData from MenuViewModel → adapter + date label + error toasts
     private void setupObservers() {
         viewModel.getWeekDays().observe(getViewLifecycleOwner(), days ->
                 menuAdapter.setDays(days));
@@ -125,9 +126,10 @@ public class MenuFragment extends Fragment {
         });
     }
 
+    // Week picker, edit mode FAB, save/use favorite week
     private void setupListeners() {
         buttonDateSelector.setOnClickListener(v -> {
-            if (menuAdapter.isEditMode()) return;
+            //if (menuAdapter.isEditMode()) return;
             Calendar cal = Calendar.getInstance();
             Date current = viewModel.getSelectedWeekStart().getValue();
             if (current != null) cal.setTime(current);
@@ -151,27 +153,31 @@ public class MenuFragment extends Fragment {
         buttonUseFavorite.setOnClickListener(v -> showFavoriteTemplatesDialog());
     }
 
+    // Show add-recipe / add-leftover actions and hide week navigation
     private void enterEditMode() {
         menuAdapter.setEditMode(true);
         fabEdit.setVisibility(View.GONE);
         layoutEditActions.setVisibility(View.VISIBLE);
         buttonDateSelector.setEnabled(false);
         buttonFavoriteWeek.setEnabled(false);
+        buttonExitEdit.setVisibility(View.GONE);
     }
 
+    // Restore normal navigation and hide edit-mode bar
     private void exitEditMode() {
         menuAdapter.setEditMode(false);
         fabEdit.setVisibility(View.VISIBLE);
         layoutEditActions.setVisibility(View.GONE);
         buttonDateSelector.setEnabled(true);
         buttonFavoriteWeek.setEnabled(true);
+        buttonExitEdit.setVisibility(View.VISIBLE);
     }
 
+    // Read-only recipe detail (portions, description, ingredient rows) for info button
     private void showRecipeInfoDialog(MenuAssignment assignment) {
         Recipe recipe = assignment.getRecipe();
 
-        View dialogView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.dialog_recipe_info, null);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_recipe_info, null);
 
         TextView textPortions = dialogView.findViewById(R.id.text_portions);
         TextView labelDescription = dialogView.findViewById(R.id.label_description);
@@ -189,7 +195,7 @@ public class MenuFragment extends Fragment {
             separatorDescription.setVisibility(View.VISIBLE);
             textDescription.setText(recipe.getDescription());
         }
-
+        // Build block and add rows
         if (recipe.getIngredients() != null && !recipe.getIngredients().isEmpty()) {
             labelIngredients.setVisibility(View.VISIBLE);
             headerIngredients.setVisibility(View.VISIBLE);
@@ -200,27 +206,25 @@ public class MenuFragment extends Fragment {
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setPadding(0, 6, 0, 6);
 
+                // Name
                 TextView tvName = new TextView(requireContext());
-                tvName.setLayoutParams(new LinearLayout.LayoutParams(
-                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f));
+                tvName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f));
                 tvName.setText(ingredient.getName());
                 tvName.setTextSize(14f);
 
+                // Quantity
                 TextView tvQuantity = new TextView(requireContext());
-                tvQuantity.setLayoutParams(new LinearLayout.LayoutParams(
-                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                tvQuantity.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
                 tvQuantity.setGravity(android.view.Gravity.END);
                 tvQuantity.setTextSize(14f);
-                tvQuantity.setText(ingredient.getQuantity() > 0
-                        ? String.valueOf(ingredient.getQuantity()) : "—");
+                tvQuantity.setText(ingredient.getQuantity() > 0 ? String.valueOf(ingredient.getQuantity()) : "—");
 
+                // Units
                 TextView tvUnit = new TextView(requireContext());
-                tvUnit.setLayoutParams(new LinearLayout.LayoutParams(
-                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                tvUnit.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
                 tvUnit.setGravity(android.view.Gravity.END);
                 tvUnit.setTextSize(14f);
-                tvUnit.setText(ingredient.getUnit() != null && !ingredient.getUnit().isEmpty()
-                        ? ingredient.getUnit() : "—");
+                tvUnit.setText(ingredient.getUnit() != null && !ingredient.getUnit().isEmpty() ? ingredient.getUnit() : "—");
 
                 row.addView(tvName);
                 row.addView(tvQuantity);
@@ -236,8 +240,10 @@ public class MenuFragment extends Fragment {
                 .show();
     }
 
+    // Lists saved weekly templates
     private void showFavoriteTemplatesDialog() {
         FavoriteTemplatesDialog dialog = FavoriteTemplatesDialog.newInstance();
+        // Registers listener
         dialog.setOnTemplateAppliedListener(unassignedPortions -> {
             String msg = "Plantilla aplicada";
             if (unassignedPortions > 0) {
@@ -248,14 +254,15 @@ public class MenuFragment extends Fragment {
         dialog.show(getChildFragmentManager(), "FavoriteTemplatesFragment");
     }
 
+    // Search/filter recipes; single-portion meals skip perishable dialog
     private void showRecipeSearchDialog(DayMenuWrapper day) {
-        View dialogView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.dialog_select_recipe, null);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_select_recipe, null);
 
         EditText editSearch = dialogView.findViewById(R.id.edit_search_recipe);
         MaterialButton buttonFilterFavorite = dialogView.findViewById(R.id.button_filter_favorite);
         RecyclerView recyclerRecipes = dialogView.findViewById(R.id.recycler_select_recipe);
 
+        // Adapter callbacks propagate row actions to the ViewModel
         RecipeSelectAdapter adapter = new RecipeSelectAdapter(recipe -> {
             if (recipeSelectDialog != null) recipeSelectDialog.dismiss();
             if (recipe.getPortion() <= 1) {
@@ -264,12 +271,13 @@ public class MenuFragment extends Fragment {
                 showPerishableDialog(recipe, day.getDate());
             }
         });
-
+        // Initial state of the filter button
         buttonFilterFavorite.setIconResource(R.drawable.ic_favorite_false);
 
         recyclerRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerRecipes.setAdapter(adapter);
 
+        // Load and observe recipes from viewmodel
         viewModel.getAllRecipes().observe(getViewLifecycleOwner(), adapter::setRecipes);
         viewModel.loadAllRecipes();
 
@@ -297,9 +305,9 @@ public class MenuFragment extends Fragment {
         recipeSelectDialog.show();
     }
 
+    // Loads leftovers valid for the chosen day, then assigns via ViewModel
     private void showLeftoverSelectionDialog(DayMenuWrapper day) {
-        View dialogView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.dialog_select_leftover, null);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_select_leftover, null);
 
         RecyclerView recyclerLeftovers = dialogView.findViewById(R.id.recycler_select_leftover);
         TextView textEmpty = dialogView.findViewById(R.id.text_no_leftovers);
@@ -329,15 +337,16 @@ public class MenuFragment extends Fragment {
         leftoverSelectDialog.show();
     }
 
+    // Optional perishability and valid-days for leftover created from extra portions
     private void showPerishableDialog(Recipe recipe, Date dayDate) {
-        View dialogView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.dialog_perishable, null);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_perishable, null);
 
         SwitchMaterial switchPerishable = dialogView.findViewById(R.id.switch_perishable);
         View layoutValidDays = dialogView.findViewById(R.id.layout_valid_days);
         EditText editValidDays = dialogView.findViewById(R.id.edit_valid_days);
 
         layoutValidDays.setVisibility(View.GONE);
+
         switchPerishable.setOnCheckedChangeListener((btn, isChecked) ->
                 layoutValidDays.setVisibility(isChecked ? View.VISIBLE : View.GONE));
 
@@ -362,13 +371,11 @@ public class MenuFragment extends Fragment {
         String message;
 
         if (assignment.getMenu().isFromLeftover()) {
-            message = "¿Eliminar esta asignación de \"" + recipeName
-                    + "\"? La ración volverá a estar disponible.";
+            message = "¿Eliminar esta asignación de \"" + recipeName + "\"? La ración volverá a estar disponible.";
         } else {
             Leftover leftover = assignment.getLeftover();
             if (leftover != null && leftover.getRemainingPortions() > 0) {
-                message = "¿Eliminar \"" + recipeName + "\"? También se eliminarán "
-                        + leftover.getRemainingPortions() + " ración(es) de sobras.";
+                message = "¿Eliminar \"" + recipeName + "\"? También se eliminarán " + leftover.getRemainingPortions() + " ración(es) de sobras.";
             } else {
                 message = "¿Eliminar \"" + recipeName + "\"? Esta acción no se puede deshacer.";
             }
@@ -383,6 +390,7 @@ public class MenuFragment extends Fragment {
                 .show();
     }
 
+    // Persists current week as WeeklyMenuTemplate (name from user input)
     private void showSaveAsFavoriteDialog() {
         EditText input = new EditText(requireContext());
         input.setHint("Nombre del menú favorito");
@@ -409,9 +417,5 @@ public class MenuFragment extends Fragment {
         });
 
         dialog.show();
-    }
-
-    public void onRecipeSelected(Recipe recipe, Date dayDate) {
-        showPerishableDialog(recipe, dayDate);
     }
 }

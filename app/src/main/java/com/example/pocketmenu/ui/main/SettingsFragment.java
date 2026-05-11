@@ -42,12 +42,13 @@ public class SettingsFragment extends BottomSheetDialogFragment {
         deleteAccountButton = view.findViewById(R.id.button_delete_account);
         progressBar = view.findViewById(R.id.progressBar);
     }
-    // Links the view model to the fragment
+
+    // Creates a fragment-scoped SettingsViewModel instance
     private void setupViewModel() {
         settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
     }
 
-    // Observes the changes in the view model
+    // Observes logout/delete/error events
     private void setupObservers() {
         settingsViewModel.getLoggedOutLiveData().observe(getViewLifecycleOwner(), loggedOut -> {
             if (loggedOut != null && loggedOut) {
@@ -71,7 +72,7 @@ public class SettingsFragment extends BottomSheetDialogFragment {
         });
     }
 
-    // Inputs listeners
+    // Hooks button taps to ViewModel actions
     private void setupListeners() {
         logoutButton.setOnClickListener(v -> settingsViewModel.logOutSession());
         deleteAccountButton.setOnClickListener(v -> showDeleteAccountDialog());
@@ -90,7 +91,7 @@ public class SettingsFragment extends BottomSheetDialogFragment {
                 .show();
     }
 
-    // Method to navigate to the main activity
+    // Clears task stack to prevent returning after logout/delete.
     private void navigateToLogin() {
         Intent intent = new Intent(getActivity(), LogInActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

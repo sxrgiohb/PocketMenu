@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -41,18 +40,16 @@ public class ShoppingListFragment extends Fragment {
     private Chip chipFilterCategory;
     private MaterialButtonToggleGroup toggleViewMode;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_shopping_list, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Fragment-scoped ViewModel keeps list state across configuration changes.
         viewModel = new ViewModelProvider(this).get(ShoppingListViewModel.class);
 
         recyclerShoppingList = view.findViewById(R.id.recycler_shopping_list);
@@ -72,6 +69,7 @@ public class ShoppingListFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
+        // Adapter callbacks propagate row actions to the ViewModel.
         adapter = new ShoppingListAdapter(new ShoppingListAdapter.OnShoppingListActionListener() {
             @Override
             public void onItemChecked(ShoppingListItem item) {
@@ -88,10 +86,12 @@ public class ShoppingListFragment extends Fragment {
     }
 
     private void setupObservers() {
+        // Main list stream used to refresh grouped week sections.
         viewModel.getMonthlyShoppingLists().observe(getViewLifecycleOwner(), weeks -> {
             adapter.setWeeks(weeks);
         });
 
+        // Centralized error channel from repository/viewmodel operations.
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null && !error.isEmpty())
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
@@ -99,6 +99,7 @@ public class ShoppingListFragment extends Fragment {
     }
 
     private void setupListeners() {
+        // UI controls mutate local view mode/filter state through ViewModel setters.
         fabAddExtraProduct.setOnClickListener(v -> showAddExtraProductDialog());
         chipFilterStore.setOnClickListener(v -> showStoreFilterDialog());
         chipFilterCategory.setOnClickListener(v -> showCategoryFilterDialog());
@@ -117,6 +118,7 @@ public class ShoppingListFragment extends Fragment {
         List<WeeklyShoppingList> weeks = viewModel.getUnfilteredLists();
         if (weeks == null || weeks.isEmpty()) return;
 
+        // Build distinct store options from the unfiltered source list.
         Set<String> stores = new LinkedHashSet<>();
         for (WeeklyShoppingList week : weeks) {
             for (ShoppingListItem item : week.getItems()) {
@@ -148,6 +150,7 @@ public class ShoppingListFragment extends Fragment {
         List<WeeklyShoppingList> weeks = viewModel.getUnfilteredLists();
         if (weeks == null || weeks.isEmpty()) return;
 
+        // Build distinct categories from currently loaded unfiltered rows.
         Set<String> categories = new LinkedHashSet<>();
         for (WeeklyShoppingList week : weeks) {
             for (ShoppingListItem item : week.getItems()) {
@@ -176,6 +179,7 @@ public class ShoppingListFragment extends Fragment {
     }
 
     private void clearFilters() {
+        // Reset chip labels/state and clear filter criteria in ViewModel.
         chipFilterStore.setText("Tienda");
         chipFilterStore.setChecked(false);
         chipFilterCategory.setText("Categoría");
@@ -196,6 +200,7 @@ public class ShoppingListFragment extends Fragment {
         }
 
         if (weeks.size() == 1) {
+            // Fast path: only one target week available.
             AddProductDialog.newInstance(weeks.get(0).getWeekId())
                     .show(getChildFragmentManager(), "AddProductDialog");
             return;
