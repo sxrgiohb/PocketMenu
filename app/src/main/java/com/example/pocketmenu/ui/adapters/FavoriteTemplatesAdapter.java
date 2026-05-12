@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FavoriteTemplatesAdapter extends
-        RecyclerView.Adapter<FavoriteTemplatesAdapter.TemplateViewHolder> {
+public class FavoriteTemplatesAdapter extends RecyclerView.Adapter<FavoriteTemplatesAdapter.TemplateViewHolder> {
 
+    // Possible actions on template row
     public interface OnTemplateActionListener {
         void onApplyClicked(WeeklyMenuTemplate template);
         void onDeleteClicked(WeeklyMenuTemplate template);
@@ -35,44 +35,44 @@ public class FavoriteTemplatesAdapter extends
     private String searchText = "";
     private final OnTemplateActionListener listener;
 
+    // Constructor
     public FavoriteTemplatesAdapter(OnTemplateActionListener listener) {
         this.listener = listener;
     }
 
-    public void setTemplates(List<WeeklyMenuTemplate> templates,
-                             Map<String, String> recipeNames) {
+    public void setTemplates(List<WeeklyMenuTemplate> templates, Map<String, String> recipeNames) {
         this.allTemplates = templates != null ? templates : new ArrayList<>();
         this.recipeNames = recipeNames != null ? recipeNames : new HashMap<>();
         applyFilter();
     }
 
+    // Search box in FavoriteTemplatesDialog
     public void setSearchText(String text) {
         this.searchText = text != null ? text.toLowerCase().trim() : "";
         applyFilter();
     }
 
+    // Filters by template name only
     private void applyFilter() {
         filteredTemplates = new ArrayList<>();
         for (WeeklyMenuTemplate t : allTemplates) {
-            if (searchText.isEmpty()
-                    || t.getName().toLowerCase().contains(searchText)) {
+            if (searchText.isEmpty() || t.getName().toLowerCase().contains(searchText)) {
                 filteredTemplates.add(t);
             }
         }
         notifyDataSetChanged();
     }
 
-    @NonNull
+    // Adapters methods
     @Override
-    public TemplateViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_favorite_template, parent, false);
+    public TemplateViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_favorite_template, parent, false);
         return new TemplateViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TemplateViewHolder holder, int position) {
-        holder.bind(filteredTemplates.get(position));
+    public void onBindViewHolder(TemplateViewHolder holder, int position) {
+        holder.bind(filteredTemplates.get(position), recipeNames, listener);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class FavoriteTemplatesAdapter extends
         return filteredTemplates.size();
     }
 
-    class TemplateViewHolder extends RecyclerView.ViewHolder {
+    public static class TemplateViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView textName;
         private final MaterialButton buttonExpand;
@@ -114,10 +114,14 @@ public class FavoriteTemplatesAdapter extends
             textUnassignedWarning = itemView.findViewById(R.id.text_unassigned_warning);
             buttonApply = itemView.findViewById(R.id.button_apply_template);
         }
-
-        void bind(WeeklyMenuTemplate template) {
+        // Header and rows
+        void bind(WeeklyMenuTemplate template,
+                  Map<String, String> recipeNames,
+                  OnTemplateActionListener listener) {
+            Map<String, String> names = recipeNames != null ? recipeNames : new HashMap<>();
             textName.setText(template.getName());
 
+            // Reset so new rows are not expanded
             isExpanded = false;
             layoutDetail.setVisibility(View.GONE);
             buttonExpand.setIconResource(R.drawable.ic_see_more);
@@ -125,8 +129,7 @@ public class FavoriteTemplatesAdapter extends
             View.OnClickListener toggleExpand = v -> {
                 isExpanded = !isExpanded;
                 layoutDetail.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-                buttonExpand.setIconResource(
-                        isExpanded ? R.drawable.ic_see_less : R.drawable.ic_see_more);
+                buttonExpand.setIconResource(isExpanded ? R.drawable.ic_see_less : R.drawable.ic_see_more);
             };
             buttonExpand.setOnClickListener(toggleExpand);
             textName.setOnClickListener(toggleExpand);
@@ -146,15 +149,18 @@ public class FavoriteTemplatesAdapter extends
                     boolean hasItems = false;
                     for (WeeklyMenuItem item : template.getItems()) {
                         if (item.getDayOfWeek() == day) {
+                            // Sin receta
                             if (hasItems) sb.append("\n").append("   ");
+                            // Sobra
                             if (item.isLeftover()) {
-                                String sourceName = recipeNames.containsKey(item.getSourceRecipeId())
-                                        ? recipeNames.get(item.getSourceRecipeId())
+                                String sourceName = names.containsKey(item.getSourceRecipeId())
+                                        ? names.get(item.getSourceRecipeId())
                                         : "Sobra";
                                 sb.append("Sobra de ").append(sourceName);
                             } else {
-                                String recipeName = recipeNames.containsKey(item.getRecipeId())
-                                        ? recipeNames.get(item.getRecipeId())
+                                // Receta principal
+                                String recipeName = names.containsKey(item.getRecipeId())
+                                        ? names.get(item.getRecipeId())
                                         : item.getRecipeId();
                                 sb.append(recipeName);
                             }

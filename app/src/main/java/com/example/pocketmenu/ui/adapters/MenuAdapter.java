@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,19 +32,21 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
     private final OnDayActionListener listener;
     private boolean isEditMode = false;
 
-    private final String[] dayNames = {"Lunes", "Martes", "Miércoles",
-            "Jueves", "Viernes", "Sábado", "Domingo"};
+    private final String[] dayNames = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM", Locale.getDefault());
 
+    // Constructor
     public MenuAdapter(OnDayActionListener listener) {
         this.listener = listener;
     }
 
+    // Replaces week data from ViewModel
     public void setDays(List<DayMenuWrapper> days) {
         this.days = days != null ? days : new ArrayList<>();
         notifyDataSetChanged();
     }
 
+    // Shows add/delete actions when user taps FAB edit flow
     public void setEditMode(boolean editMode) {
         this.isEditMode = editMode;
         notifyDataSetChanged();
@@ -55,17 +56,16 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
         return isEditMode;
     }
 
-    @NonNull
+
     @Override
-    public DayViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_day, parent, false);
-        return new DayViewHolder(view);
+    public DayViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_day, parent, false);
+        return new DayViewHolder(view, listener, dayNames, sdf);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull DayViewHolder holder, int position) {
-        holder.bind(days.get(position));
+    public void onBindViewHolder(DayViewHolder holder, int position) {
+        holder.bind(days.get(position), isEditMode);
     }
 
     @Override
@@ -73,16 +73,22 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
         return days.size();
     }
 
-    class DayViewHolder extends RecyclerView.ViewHolder {
+    public static class DayViewHolder extends RecyclerView.ViewHolder {
         private final TextView textDayName;
         private final TextView textEmptyDay;
         private final MaterialButton buttonAddRecipe;
         private final MaterialButton buttonAddLeftover;
         private final RecyclerView recyclerRecipes;
         private final MenuRecipeAdapter recipeAdapter;
+        private final OnDayActionListener listener;
+        private final String[] dayNames;
+        private final SimpleDateFormat sdf;
 
-        DayViewHolder(@NonNull View itemView) {
+        DayViewHolder(View itemView, OnDayActionListener listener, String[] dayNames, SimpleDateFormat sdf) {
             super(itemView);
+            this.listener = listener;
+            this.dayNames = dayNames;
+            this.sdf = sdf;
             textDayName = itemView.findViewById(R.id.text_day_name);
             textEmptyDay = itemView.findViewById(R.id.text_empty_day);
             buttonAddRecipe = itemView.findViewById(R.id.button_add_recipe);
@@ -90,6 +96,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
 
             recyclerRecipes = new RecyclerView(itemView.getContext());
             recyclerRecipes.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
+            // Nested list scrolls with parent RecyclerView, not independently
             recyclerRecipes.setNestedScrollingEnabled(false);
 
             LinearLayout container = itemView.findViewById(R.id.container_recipes);
@@ -97,11 +104,8 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
 
             recipeAdapter = new MenuRecipeAdapter(new MenuRecipeAdapter.OnRecipeActionListener() {
                 @Override
-                public void onDeleteClicked(MenuAssignment assignment) {
-                    int pos = getAdapterPosition();
-                    if (pos != RecyclerView.NO_ID) {
-                        listener.onDeleteRecipeClicked(days.get(pos), assignment);
-                    }
+                public void onDeleteClicked(DayMenuWrapper day, MenuAssignment assignment) {
+                    listener.onDeleteRecipeClicked(day, assignment);
                 }
 
                 @Override
@@ -112,7 +116,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
             recyclerRecipes.setAdapter(recipeAdapter);
         }
 
-        void bind(DayMenuWrapper day) {
+        void bind(DayMenuWrapper day, boolean isEditMode) {
             String dayLabel = dayNames[day.getDayOfWeek() - 1];
             String dateStr = day.getDate() != null ? " · " + sdf.format(day.getDate()) : "";
             textDayName.setText(dayLabel + dateStr);
@@ -127,6 +131,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.DayViewHolder>
             textEmptyDay.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
             recyclerRecipes.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
 
+            recipeAdapter.setDayContext(day);
             recipeAdapter.submitList(new ArrayList<>(day.getAssignments()));
 
             buttonAddRecipe.setOnClickListener(v -> listener.onAddRecipeClicked(day));

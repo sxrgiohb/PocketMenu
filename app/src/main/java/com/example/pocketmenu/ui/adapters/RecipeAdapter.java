@@ -16,9 +16,13 @@ import com.example.pocketmenu.data.model.Recipe;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Recipes list in the recipe screen.
+ * Exposes favorite/edit actions to the host fragment through callbacks.
+ */
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder> {
 
-    // Callbacks: notifies the actions to RecipeFragment
+    // Notifies row actions (favorite/edit) back to RecipeFragment.
     public interface OnRecipeInteractionListener {
         void onFavoriteClick(String recipeId, boolean isCurrentlyFavorite);
         void onEditClick(String recipeId, Recipe recipe);
@@ -27,46 +31,40 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
     private List<Recipe> recipes = new ArrayList<>();
     private OnRecipeInteractionListener listener;
 
-    // Setter that assign the object implemented by the interface
+    // Registers the fragment callback handler.
     public void setOnRecipeInteractionListener(OnRecipeInteractionListener l) {
         listener = l;
     }
 
     public void setRecipes(List<Recipe> recipes) {
         this.recipes = recipes != null ? recipes : new ArrayList<>();
-        // Notifies the RecyclerView that the data has changed
+        // Full refresh is enough for this small list.
         notifyDataSetChanged();
     }
 
-    // Overrides RecyclerView.Adapter. Counts the number of items.
     @Override
     public int getItemCount() {
         return recipes.size();
     }
 
-    // The RecylcerView calls this method to create a new ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Obtains the LayoutInflater from the parent context (the RecyclerView) and inflates the view.
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recipe, parent, false);
         return new ViewHolder(v);
     }
 
-    // The RecyclerView calls this method each time an item is displayed for the first time or when the ViewHolder is recycled.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // Gets the recipe at the given position
         Recipe recipe = recipes.get(position);
         holder.name.setText(recipe.getName());
-        //Changes the favorite icon: true -> favorite, false -> not favorite
+        // Mirrors favorite state in the icon.
         holder.favorite.setIconResource(
                 recipe.isFavorite()
                         ? R.drawable.ic_favorite_true
                         : R.drawable.ic_favorite_false
         );
 
-        // Listeners for the buttons
         holder.favorite.setOnClickListener(v -> {
             if (listener != null)
                 listener.onFavoriteClick(recipe.getId(), recipe.isFavorite());
@@ -78,11 +76,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
         });
     }
 
-    // Generic ViewHolder class
+    // Simple holder for the recipe row controls.
      public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name;
         MaterialButton favorite, edit;
-        // Constructor
         ViewHolder(View v) {
             super(v);
             name = v.findViewById(R.id.text_view_recipe_name);

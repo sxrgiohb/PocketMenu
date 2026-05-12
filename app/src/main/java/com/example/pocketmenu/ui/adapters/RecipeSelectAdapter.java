@@ -15,6 +15,9 @@ import com.google.android.material.button.MaterialButton;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Recipe picker inside add-meal dialog: search text + optional favorites-only filter.
+ */
 public class RecipeSelectAdapter extends RecyclerView.Adapter<RecipeSelectAdapter.ViewHolder> {
 
     public interface OnRecipeSelectedListener {
@@ -27,10 +30,12 @@ public class RecipeSelectAdapter extends RecyclerView.Adapter<RecipeSelectAdapte
     private String currentSearch = "";
     private final OnRecipeSelectedListener listener;
 
+    // Constructor
     public RecipeSelectAdapter(OnRecipeSelectedListener listener) {
         this.listener = listener;
     }
 
+    // Full list from ViewModel; filtering applied locally
     public void setRecipes(List<Recipe> recipes) {
         this.allRecipes = recipes != null ? recipes : new ArrayList<>();
         applyFilters();
@@ -50,6 +55,7 @@ public class RecipeSelectAdapter extends RecyclerView.Adapter<RecipeSelectAdapte
         return showOnlyFavorites;
     }
 
+    // Case-insensitive substring match + optional favorites-only
     private void applyFilters() {
         filteredRecipes = new ArrayList<>();
         for (Recipe r : allRecipes) {

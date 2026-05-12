@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pocketmenu.R;
@@ -20,9 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ShoppingListAdapter
-        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
+public class ShoppingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_WEEK_HEADER = 0;
     private static final int TYPE_ITEM = 1;
 
@@ -51,9 +48,9 @@ public class ShoppingListAdapter
 
     private List<Row> rows = new ArrayList<>();
     private final OnShoppingListActionListener listener;
-    private final SimpleDateFormat sdf =
-            new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
+    // Constructor
     public ShoppingListAdapter(OnShoppingListActionListener listener) {
         this.listener = listener;
     }
@@ -65,11 +62,12 @@ public class ShoppingListAdapter
             return;
         }
         for (WeeklyShoppingList week : weeks) {
+            // Show section headers only when multiple weeks are rendered together
             if (weeks.size() > 1) {
-                String dateStr = week.getMonday() != null
-                        ? sdf.format(week.getMonday()) : week.getWeekId();
+                String dateStr = week.getMonday() != null ? sdf.format(week.getMonday()) : week.getWeekId();
                 rows.add(new Row("Semana del " + dateStr));
             }
+            // Keep an empty placeholder row so the week still occupies visual space
             if (week.getItems().isEmpty()) {
                 rows.add(new Row((ShoppingListItem) null));
             } else {
@@ -91,9 +89,8 @@ public class ShoppingListAdapter
         return rows.size();
     }
 
-    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == TYPE_WEEK_HEADER) {
             View v = inflater.inflate(R.layout.item_shopping_week_header, parent, false);
@@ -105,8 +102,9 @@ public class ShoppingListAdapter
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Row row = rows.get(position);
+        // Check that the holder is of the correct type
         if (holder instanceof WeekHeaderViewHolder) {
             ((WeekHeaderViewHolder) holder).bind(row.weekHeader);
         } else if (holder instanceof ItemViewHolder) {
@@ -117,7 +115,7 @@ public class ShoppingListAdapter
     class WeekHeaderViewHolder extends RecyclerView.ViewHolder {
         private final TextView textWeekTitle;
 
-        WeekHeaderViewHolder(@NonNull View itemView) {
+        WeekHeaderViewHolder(View itemView) {
             super(itemView);
             textWeekTitle = itemView.findViewById(R.id.text_week_title);
         }
@@ -135,7 +133,7 @@ public class ShoppingListAdapter
         private final TextView textCategory;
         private final MaterialButton buttonDelete;
 
-        ItemViewHolder(@NonNull View itemView) {
+        ItemViewHolder(View itemView) {
             super(itemView);
             checkbox = itemView.findViewById(R.id.checkbox_item);
             textName = itemView.findViewById(R.id.text_item_name);
@@ -147,6 +145,7 @@ public class ShoppingListAdapter
 
         void bind(ShoppingListItem item) {
             if (item == null) {
+                // Placeholder row for weeks without items.
                 checkbox.setVisibility(View.GONE);
                 textName.setVisibility(View.GONE);
                 textStore.setVisibility(View.GONE);
@@ -160,15 +159,15 @@ public class ShoppingListAdapter
             checkbox.setVisibility(View.VISIBLE);
             textQuantity.setVisibility(View.VISIBLE);
 
-            // Nombre
+            // Item title follows checked style changes
             textName.setText(item.getName());
             applyCheckedStyle(textName, item.isChecked());
 
-            // Checkbox
+            // ViewModel persists the new checked state
             checkbox.setChecked(item.isChecked());
             checkbox.setOnClickListener(v -> listener.onItemChecked(item));
 
-            // Cantidad + unidad
+            // Build quantity label preserving integer formatting when possible
             StringBuilder qty = new StringBuilder();
             if (item.getQuantity() > 0) {
                 if (item.getQuantity() == Math.floor(item.getQuantity())) {
@@ -206,10 +205,12 @@ public class ShoppingListAdapter
 
         private void applyCheckedStyle(TextView textView, boolean checked) {
             if (checked) {
+                // Items checked are crossed out
                 textView.setPaintFlags(
                         textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 textView.setAlpha(0.4f);
             } else {
+                // Unchecked items are normal
                 textView.setPaintFlags(
                         textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
                 textView.setAlpha(1f);
