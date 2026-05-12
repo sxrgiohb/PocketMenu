@@ -12,7 +12,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -25,6 +24,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.List;
 
+// Dialog for adding extra shopping items to a week
 public class AddProductDialog extends DialogFragment {
 
     private ShoppingListViewModel viewModel;
@@ -34,7 +34,7 @@ public class AddProductDialog extends DialogFragment {
     private TextInputEditText editUnit;
     private TextInputEditText editCategory;
     private TextInputEditText editStore;
-    private Product matchedProduct = null;
+    private Product matchedProduct = null; // Null means the product is new
     private boolean isFillingFromSuggestion = false;
 
     public static AddProductDialog newInstance(String weekId) {
@@ -45,17 +45,13 @@ public class AddProductDialog extends DialogFragment {
         return dialog;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dialog_add_product, container, false);
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public Dialog onCreateDialog( Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.setTitle("Añadir producto");
         return dialog;
@@ -72,13 +68,12 @@ public class AddProductDialog extends DialogFragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        // Retrieves the week id from the arguments
         if (getArguments() != null) weekId = getArguments().getString("weekId");
 
-        viewModel = new ViewModelProvider(requireParentFragment())
-                .get(ShoppingListViewModel.class);
+        viewModel = new ViewModelProvider(requireParentFragment()).get(ShoppingListViewModel.class);
 
         autocompleteName = view.findViewById(R.id.autocomplete_product_name);
         autocompleteName.setDropDownAnchor(R.id.autocomplete_product_name);
@@ -91,12 +86,12 @@ public class AddProductDialog extends DialogFragment {
 
         setupAutocomplete();
 
+        // Updates the adapter with the suggestions
         viewModel.getProductSuggestions().observe(getViewLifecycleOwner(), products -> {
             if (products == null) return;
             List<String> names = new ArrayList<>();
             for (Product p : products) names.add(p.getName());
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                    android.R.layout.simple_dropdown_item_1line, names);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, names);
             autocompleteName.setAdapter(adapter);
         });
 
@@ -105,6 +100,7 @@ public class AddProductDialog extends DialogFragment {
     }
 
     private void setupAutocomplete() {
+        // Suggestions are shown with 1 character
         autocompleteName.setThreshold(1);
 
         autocompleteName.addTextChangedListener(new TextWatcher() {
@@ -113,13 +109,14 @@ public class AddProductDialog extends DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Stops if the text is coming from a suggestion
                 if (isFillingFromSuggestion) return;
                 matchedProduct = null;
                 clearFieldsExceptName();
                 String text = s.toString().trim();
                 if (!text.isEmpty()) {
-                    String normalized = text.substring(0, 1).toUpperCase()
-                            + text.substring(1);
+                    // Capitalizes the first letter
+                    String normalized = text.substring(0, 1).toUpperCase() + text.substring(1);
                     viewModel.searchProductSuggestions(normalized);
                 } else {
                     viewModel.searchProductSuggestions("");
@@ -132,27 +129,31 @@ public class AddProductDialog extends DialogFragment {
                 autocompleteName.dismissDropDown();
                 return;
             }
+            // If the user has already selected a product from the dropdown, don't show suggestions.
             if (matchedProduct != null) return;
             List<String> names = new ArrayList<>();
             for (Product p : products) names.add(p.getName());
+            // Creates the adapter
             ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     requireContext(),
                     android.R.layout.simple_dropdown_item_1line,
                     names);
             autocompleteName.setAdapter(adapter);
             autocompleteName.post(() -> {
+                // Avoid showing the adapter if it is empty
                 if (autocompleteName.getText().length() > 0) {
                     autocompleteName.showDropDown();
                 }
             });
         });
-
+        // The user select an item from the dropdown
         autocompleteName.setOnItemClickListener((parent, v, position, id) -> {
             String selectedName = (String) parent.getItemAtPosition(position);
             List<Product> suggestions = viewModel.getProductSuggestions().getValue();
             if (suggestions != null) {
                 for (Product p : suggestions) {
                     if (p.getName().equalsIgnoreCase(selectedName)) {
+                        // Temporarily suppress text watcher
                         isFillingFromSuggestion = true;
                         matchedProduct = p;
                         fillFieldsFromProduct(p);
@@ -181,16 +182,15 @@ public class AddProductDialog extends DialogFragment {
     }
 
     private void saveProduct() {
-        String raw = autocompleteName.getText() != null
-                ? autocompleteName.getText().toString().trim() : "";
+        String raw = autocompleteName.getText() != null ? autocompleteName.getText().toString().trim() : "";
         if (raw.isEmpty()) {
             autocompleteName.setError("Nombre obligatorio");
             return;
         }
+        // Capitalizes the first letter
         String name = raw.substring(0, 1).toUpperCase() + raw.substring(1);
 
-        String qtyStr = editQuantity.getText() != null
-                ? editQuantity.getText().toString().trim() : "";
+        String qtyStr = editQuantity.getText() != null ? editQuantity.getText().toString().trim() : "";
         double quantity = 0;
         if (!qtyStr.isEmpty()) {
             try {
@@ -205,21 +205,16 @@ public class AddProductDialog extends DialogFragment {
             }
         }
 
-        String unit = editUnit.getText() != null
-                ? editUnit.getText().toString().trim() : "";
-        String category = editCategory.getText() != null
-                ? editCategory.getText().toString().trim() : "";
-        String store = editStore.getText() != null
-                ? editStore.getText().toString().trim() : "";
+        String unit = editUnit.getText() != null ? editUnit.getText().toString().trim() : "";
+        String category = editCategory.getText() != null ? editCategory.getText().toString().trim() : "";
+        String store = editStore.getText() != null ? editStore.getText().toString().trim() : "";
 
-        ShoppingListItem item = new ShoppingListItem(
-                null, weekId, name, quantity, unit, category, store, true);
+        ShoppingListItem item = new ShoppingListItem(null, weekId, name, quantity, unit, category, store, true);
 
+        // When the selected name does not match an existing product, also create a reusable product entry for future suggestions.
         boolean isNewProduct = matchedProduct == null;
-        Product product = isNewProduct
-                ? new Product(null, name, unit, category, store)
-                : null;
-
+        // Only creates the product if it is new
+        Product product = isNewProduct ? new Product(null, name, unit, category, store) : null;
         viewModel.addExtraItem(item, isNewProduct, product);
         dismiss();
     }

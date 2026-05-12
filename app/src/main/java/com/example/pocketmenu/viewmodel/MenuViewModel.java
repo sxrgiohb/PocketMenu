@@ -43,6 +43,9 @@ public class MenuViewModel extends ViewModel {
     private final MutableLiveData<Date> selectedWeekStart = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<List<LeftoverWithRecipe>> validLeftovers = new MutableLiveData<>();
+    private final MutableLiveData<List<WeeklyMenuTemplate>> favoriteTemplates = new MutableLiveData<>();
+    private final MutableLiveData<Map<String, String>> favoriteTemplateRecipeNames = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> favoriteTemplatesLoading = new MutableLiveData<>();
 
     // Constructor. The default week is current week (Monday)
     public MenuViewModel() {
@@ -60,6 +63,9 @@ public class MenuViewModel extends ViewModel {
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<List<Recipe>> getAllRecipes() { return recipeRepository.getRecipesLiveData(); }
     public LiveData<List<LeftoverWithRecipe>> getValidLeftovers() { return validLeftovers; }
+    public LiveData<List<WeeklyMenuTemplate>> getFavoriteTemplates() { return favoriteTemplates; }
+    public LiveData<Map<String, String>> getFavoriteTemplateRecipeNames() { return favoriteTemplateRecipeNames; }
+    public LiveData<Boolean> getFavoriteTemplatesLoading() { return favoriteTemplatesLoading; }
 
     // Any date in the week → Monday baseline, then reload
     public void selectWeek(Date anyDayInWeek) {
@@ -615,6 +621,104 @@ public class MenuViewModel extends ViewModel {
                     errorMessage.postValue("Error leyendo receta: " + e.getMessage());
                     if (pending.decrementAndGet() == 0) {
                         saveTemplate(name, items, unassignedSync);
+                    }
+                }
+            });
+        }
+    }
+
+    // Loads templates for FavoriteTemplatesDialog and resolves recipe names used in rows
+    public void loadFavoriteTemplatesForDialog() {
+        favoriteTemplatesLoading.setValue(true);
+        templateRepository.getAllTemplates(new WeeklyMenuTemplateRepository.OnTemplatesLoaded() {
+            @Override
+            public void onLoaded(List<WeeklyMenuTemplate> templates) {
+                favoriteTemplates.postValue(templates);
+                resolveFavoriteTemplateRecipeNames(templates);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                favoriteTemplatesLoading.postValue(false);
+                favoriteTemplates.postValue(new ArrayList<>());
+                favoriteTemplateRecipeNames.postValue(new HashMap<>());
+                errorMessage.postValue("Error cargando plantillas: " + e.getMessage());
+            }
+        });
+    }
+
+    // Deletes one favorite template and reloads list for the dialog.
+    public void deleteFavoriteTemplate(String templateId) {
+        templateRepository.deleteTemplate(templateId, new WeeklyMenuTemplateRepository.WeeklyMenuCallback() {
+            @Override
+            public void onSuccess() {
+                loadFavoriteTemplatesForDialog();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                errorMessage.postValue("Error eliminando plantilla: " + e.getMessage());
+            }
+        });
+    }
+
+    private void resolveFavoriteTemplateRecipeNames(List<WeeklyMenuTemplate> templates) {
+        Map<String, String> emptyMap = new HashMap<>();
+        if (templates == null || templates.isEmpty()) {
+            favoriteTemplateRecipeNames.postValue(emptyMap);
+            favoriteTemplatesLoading.postValue(false);
+            return;
+        }
+        // Adds all recipe ids to a list
+        List<String> recipeIds = new ArrayList<>();
+        for (WeeklyMenuTemplate template : templates) {
+            if (template.getItems() == null) continue;
+            for (WeeklyMenuItem item : template.getItems()) {
+                if (item.getRecipeId() != null && !recipeIds.contains(item.getRecipeId())) {
+                    recipeIds.add(item.getRecipeId());
+                }
+                if (item.isLeftover()
+                        && item.getSourceRecipeId() != null
+                        && !recipeIds.contains(item.getSourceRecipeId())) {
+                    recipeIds.add(item.getSourceRecipeId());
+                }
+            }
+        }
+
+        if (recipeIds.isEmpty()) {
+            favoriteTemplateRecipeNames.postValue(emptyMap);
+            favoriteTemplatesLoading.postValue(false);
+            return;
+        }
+
+        // Adds all recipe names to a map
+        Map<String, String> names = new HashMap<>();
+        AtomicInteger pending = new AtomicInteger(recipeIds.size());
+
+        for (String recipeId : recipeIds) {
+            recipeRepository.getRecipeById(recipeId, new RecipeRepository.OnRecipeFound() {
+                @Override
+                public void onFound(Recipe recipe) {
+                    synchronized (names) {
+                        names.put(recipeId, recipe.getName());
+                    }
+                    finishIfDone();
+                }
+
+                @Override
+                public void onNotFound() {
+                    finishIfDone();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    finishIfDone();
+                }
+
+                private void finishIfDone() {
+                    if (pending.decrementAndGet() == 0) {
+                        favoriteTemplateRecipeNames.postValue(names);
+                        favoriteTemplatesLoading.postValue(false);
                     }
                 }
             });

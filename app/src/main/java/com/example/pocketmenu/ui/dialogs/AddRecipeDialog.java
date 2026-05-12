@@ -9,9 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.example.pocketmenu.R;
 import com.example.pocketmenu.data.model.Ingredient;
 import com.example.pocketmenu.data.model.Recipe;
@@ -34,9 +31,8 @@ public class AddRecipeDialog extends BaseRecipeDialog {
     }
 
     // Obtains the dialog and sets the title
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.setTitle("Añadir receta");
         return dialog;

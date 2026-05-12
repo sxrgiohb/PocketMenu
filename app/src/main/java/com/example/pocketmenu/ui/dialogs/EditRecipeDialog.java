@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.example.pocketmenu.R;
@@ -39,7 +38,6 @@ public class EditRecipeDialog extends BaseRecipeDialog {
     }
 
     // Obtains the dialog and sets the title
-    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
@@ -53,8 +51,7 @@ public class EditRecipeDialog extends BaseRecipeDialog {
         deleteBtn.setOnClickListener(v ->
                 new AlertDialog.Builder(requireContext())
                         .setTitle("Eliminar receta")
-                        .setMessage("¿Eliminar \"" + recipe.getName()
-                                + "\"? Esta acción no se puede deshacer.")
+                        .setMessage("¿Eliminar \"" + recipe.getName() + "\"? Esta acción no se puede deshacer.")
                         .setPositiveButton("Eliminar", (d, i) -> {
                             viewModel.deleteRecipe(recipeId);
                             dismiss();
