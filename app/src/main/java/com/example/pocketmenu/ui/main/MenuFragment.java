@@ -160,7 +160,8 @@ public class MenuFragment extends Fragment {
         layoutEditActions.setVisibility(View.VISIBLE);
         buttonDateSelector.setEnabled(false);
         buttonFavoriteWeek.setEnabled(false);
-        buttonExitEdit.setVisibility(View.GONE);
+        // Bar shows "use favorite" + "leave"; user must see exit to leave edit mode.
+        buttonExitEdit.setVisibility(View.VISIBLE);
     }
 
     // Restore normal navigation and hide edit-mode bar
