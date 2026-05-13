@@ -23,18 +23,21 @@ public class SettingsViewModel extends ViewModel {
     public void logOutSession() {
         repository.logOutSession();
     }
+
     // Delete account method
-    public void deleteAccount() {
-        repository.deleteAccount();
+    public void deleteAccount(String password) {
+        repository.deleteAccount(password);
     }
 
     // Getters
     public LiveData<Boolean> getLoggedOutLiveData() {
         return loggedOutLiveData;
     }
+
     public LiveData<Boolean> getAccountDeletedLiveData() {
         return accountDeletedLiveData;
     }
+
     public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }

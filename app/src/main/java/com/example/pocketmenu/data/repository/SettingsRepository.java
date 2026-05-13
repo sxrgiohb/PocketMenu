@@ -3,6 +3,8 @@ package com.example.pocketmenu.data.repository;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -16,7 +18,7 @@ public class SettingsRepository {
     private final FirebaseAuth auth;
     private final FirebaseFirestore db;
 
-    //LiveData instances
+    // LiveData instances
     private final MutableLiveData<Boolean> loggedOutLiveData;
     private final MutableLiveData<Boolean> accountDeletedLiveData;
     private final MutableLiveData<String> errorMessageLiveData;
@@ -43,9 +45,11 @@ public class SettingsRepository {
     public LiveData<Boolean> getLoggedOutLiveData() {
         return loggedOutLiveData;
     }
+
     public LiveData<Boolean> getAccountDeletedLiveData() {
         return accountDeletedLiveData;
     }
+
     public LiveData<String> getErrorMessageLiveData() {
         return errorMessageLiveData;
     }
@@ -55,15 +59,30 @@ public class SettingsRepository {
         loggedOutLiveData.postValue(true);
     }
 
-    // Deletes every user-owned document in app collections, then the user doc and Auth user
-    public void deleteAccount() {
+    // Delete account with re-authentication
+    public void deleteAccount(String password) {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
             errorMessageLiveData.postValue("No hay ningún usuario activo");
             return;
         }
+
+        String email = currentUser.getEmail();
+        if (email == null || password == null || password.trim().isEmpty()) {
+            errorMessageLiveData.postValue("Debes introducir tu contraseña para eliminar la cuenta");
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(email, password.trim());
+        currentUser.reauthenticate(credential)
+                .addOnSuccessListener(aVoid -> continueDeleteAccount(currentUser))
+                .addOnFailureListener(e ->
+                        errorMessageLiveData.postValue("Reautenticación fallida: " + e.getMessage()));
+    }
+
+    private void continueDeleteAccount(FirebaseUser currentUser) {
         String uid = currentUser.getUid();
-        // All collections except COLLECTION_USER
+
         String[] userCollections = {
                 COLLECTION_RECIPES,
                 COLLECTION_MENUS,
@@ -76,18 +95,15 @@ public class SettingsRepository {
         AtomicInteger pendingCollections = new AtomicInteger(userCollections.length);
         AtomicInteger failedCollections = new AtomicInteger(0);
 
-        // Deletes collections
         for (String collection : userCollections) {
             deleteUserDocumentsFromCollection(collection, uid, pendingCollections, failedCollections, currentUser);
         }
     }
 
-    // Aux methods
     private void deleteUserDocumentsFromCollection(String collection, String uid,
                                                    AtomicInteger pendingCollections,
                                                    AtomicInteger failedCollections,
                                                    FirebaseUser currentUser) {
-        // Checks all documents where userID equals to the current user
         db.collection(collection)
                 .whereEqualTo(FIELD_USER_ID, uid)
                 .get()
@@ -96,21 +112,29 @@ public class SettingsRepository {
                         checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
                         return;
                     }
-                    // Counts documents in the collection
+
                     AtomicInteger pendingDocs = new AtomicInteger(querySnapshot.size());
+                    AtomicInteger collectionFailed = new AtomicInteger(0);
 
                     for (QueryDocumentSnapshot document : querySnapshot) {
                         document.getReference().delete()
                                 .addOnSuccessListener(aVoid -> {
                                     if (pendingDocs.decrementAndGet() == 0) {
+                                        if (collectionFailed.get() > 0) {
+                                            failedCollections.incrementAndGet();
+                                        }
                                         checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
                                     }
                                 })
                                 .addOnFailureListener(e -> {
                                     errorMessageLiveData.postValue(
                                             "Error al eliminar datos de " + collection + ": " + e.getMessage());
-                                    failedCollections.incrementAndGet();
-                                    checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
+                                    collectionFailed.incrementAndGet();
+
+                                    if (pendingDocs.decrementAndGet() == 0) {
+                                        failedCollections.incrementAndGet();
+                                        checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
+                                    }
                                 });
                     }
                 })
@@ -121,7 +145,8 @@ public class SettingsRepository {
                     checkAllCollectionsDeleted(pendingCollections, failedCollections, currentUser);
                 });
     }
-    // Ensures all documents are deleted before deleting the account
+
+    // Ensures all collections are processed before deleting profile and auth user
     private void checkAllCollectionsDeleted(AtomicInteger pendingCollections,
                                             AtomicInteger failedCollections,
                                             FirebaseUser currentUser) {
@@ -131,15 +156,13 @@ public class SettingsRepository {
                         "No se pudo eliminar la cuenta por completo. Inténtalo de nuevo.");
                 return;
             }
-            // Deletes COLLECTION_USERS
+
             db.collection(COLLECTION_USERS)
                     .document(currentUser.getUid())
                     .delete()
                     .addOnSuccessListener(aVoid ->
-                            // Deletes user from Firebase
                             currentUser.delete()
-                                    .addOnSuccessListener(authVoid ->
-                                            accountDeletedLiveData.postValue(true))
+                                    .addOnSuccessListener(authVoid -> accountDeletedLiveData.postValue(true))
                                     .addOnFailureListener(e -> errorMessageLiveData.postValue(
                                             "Error al eliminar la cuenta: " + e.getMessage())))
                     .addOnFailureListener(e -> errorMessageLiveData.postValue(
@@ -147,3 +170,4 @@ public class SettingsRepository {
         }
     }
 }
+

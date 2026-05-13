@@ -2,10 +2,12 @@ package com.example.pocketmenu.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -78,17 +80,36 @@ public class SettingsFragment extends BottomSheetDialogFragment {
         deleteAccountButton.setOnClickListener(v -> showDeleteAccountDialog());
     }
 
-    // Delete account dialog
+    // Delete account dialog with password confirmation for re-authentication
     private void showDeleteAccountDialog() {
-        new AlertDialog.Builder(requireContext())
+        EditText passwordInput = new EditText(requireContext());
+        passwordInput.setHint("Introduce tu contraseña");
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Eliminar cuenta")
-                .setMessage("¿Estás seguro de que quieres eliminar tu cuenta? Esta acción eliminará todos tus datos y no se puede deshacer.")
-                .setPositiveButton("Eliminar", (dialog, which) -> {
-                    progressBar.setVisibility(View.VISIBLE);
-                    settingsViewModel.deleteAccount();
-                })
-                .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setMessage("Esta acción eliminará todos tus datos y no se puede deshacer.")
+                .setView(passwordInput)
+                .setPositiveButton("Eliminar", null)
+                .setNegativeButton("Cancelar", (d, which) -> d.dismiss())
+                .create();
+
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String password = passwordInput.getText() != null
+                    ? passwordInput.getText().toString().trim()
+                    : "";
+
+            if (password.isEmpty()) {
+                passwordInput.setError("Introduce tu contraseña");
+                return;
+            }
+
+            progressBar.setVisibility(View.VISIBLE);
+            settingsViewModel.deleteAccount(password);
+            dialog.dismiss();
+        }));
+
+        dialog.show();
     }
 
     // Clears task stack to prevent returning after logout/delete.
