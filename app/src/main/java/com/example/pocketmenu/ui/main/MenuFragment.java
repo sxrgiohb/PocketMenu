@@ -129,7 +129,7 @@ public class MenuFragment extends Fragment {
     // Week picker, edit mode FAB, save/use favorite week
     private void setupListeners() {
         buttonDateSelector.setOnClickListener(v -> {
-            //if (menuAdapter.isEditMode()) return;
+            if (menuAdapter.isEditMode()) return;
             Calendar cal = Calendar.getInstance();
             Date current = viewModel.getSelectedWeekStart().getValue();
             if (current != null) cal.setTime(current);
