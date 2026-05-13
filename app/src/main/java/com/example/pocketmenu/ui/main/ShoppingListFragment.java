@@ -110,10 +110,6 @@ public class ShoppingListFragment extends Fragment {
         });
     }
 
-    // ===========================
-    // FILTROS — usa unfilteredLists para ver todos los valores posibles
-    // ===========================
-
     private void showStoreFilterDialog() {
         List<WeeklyShoppingList> weeks = viewModel.getUnfilteredLists();
         if (weeks == null || weeks.isEmpty()) return;
@@ -187,9 +183,6 @@ public class ShoppingListFragment extends Fragment {
         viewModel.clearFilters();
     }
 
-    // ===========================
-    // DIÁLOGOS
-    // ===========================
 
     private void showAddExtraProductDialog() {
         List<WeeklyShoppingList> weeks = viewModel.getUnfilteredLists();
